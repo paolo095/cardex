@@ -44,6 +44,9 @@ const ICONS={
 
 let searchTimeout = null;
 let searchId = 0;
+let _allSearchResults = []; // Tutti i risultati della ricerca
+let _currentSearchPage = 0; // Pagina corrente (0-indexed)
+const SEARCH_PAGE_SIZE = 12; // Carte per pagina
 let isRegisterMode = false;
 let autocompleteIndex = -1;
 let lastDetailBp = null;
@@ -365,53 +368,65 @@ async function doSearch(query){
     if(results.length>=200) break;
   }
   if(searchId!==myId) return;
+  _allSearchResults = results;
+  _currentSearchPage = 0;
   if(results.length){
-    // Renderizza in batch per evitare layout shift durante caricamento immagini
-    renderResultsGridProgressive(results, myId);
+    renderSearchPage();
   }else{
     document.getElementById('results-grid').innerHTML=`<div class="empty-state"><span class="empty-icon">${ICONS.searchX()}</span>Nessuna carta trovata.</div>`;
   }
 }
 
-function renderResultsGridProgressive(allResults, searchIdSnapshot){
-  window._searchResults=allResults;
-  const grid=document.getElementById('results-grid');
-  const batchSize=20;
-  let rendered=0;
+function renderSearchPage(){
+  if(!_allSearchResults.length) return;
+  const grid = document.getElementById('results-grid');
+  const totalPages = Math.ceil(_allSearchResults.length / SEARCH_PAGE_SIZE);
+  const startIdx = _currentSearchPage * SEARCH_PAGE_SIZE;
+  const endIdx = startIdx + SEARCH_PAGE_SIZE;
+  const pageResults = _allSearchResults.slice(startIdx, endIdx);
 
-  const renderBatch=()=>{
-    if(searchId!==searchIdSnapshot) return;
-    const batch=allResults.slice(rendered,rendered+batchSize);
-    if(!batch.length) return;
-    const html=batch.map((bp,idx)=>{
-      const i=rendered+idx;
-      const cn=bp.fixed_properties?.collector_number||'';
-      const expCode=abbrevCode(bp.expansion?.code||bp.expansion?.name||'');
-      const img=bp.image_url
-        ?`<div style="aspect-ratio:2/3;background:var(--bg3);overflow:hidden;"><img src="${bp.image_url}" alt="${bp.name}" style="width:100%;height:100%;object-fit:cover;"></div>`
-        :`<div style="aspect-ratio:2/3;background:var(--bg3);display:flex;align-items:center;justify-content:center;">${currentGame==='pokemon'?ICONS.zap(32):ICONS.skull(32)}</div>`;
-      return `<div class="result-card" onclick="openDetailByIndex(${i})">
-        ${img}
-        <div class="result-card-body">
-          <div class="result-card-name">${bp.name}</div>
-          <div class="result-card-footer">
-            <span class="result-card-exp">${expCode}</span>
-            ${cn?`<span class="result-card-num">#${cn}</span>`:''}
-          </div>
+  window._searchResults = _allSearchResults; // Mantiene i riferimenti globali
+
+  // Renderizza le carte della pagina
+  const cardsHtml = pageResults.map((bp, idx) => {
+    const globalIdx = startIdx + idx;
+    const cn = bp.fixed_properties?.collector_number || '';
+    const expCode = abbrevCode(bp.expansion?.code || bp.expansion?.name || '');
+    const img = bp.image_url
+      ? `<div style="aspect-ratio:2/3;background:var(--bg3);overflow:hidden;"><img src="${bp.image_url}" alt="${bp.name}" style="width:100%;height:100%;object-fit:cover;"></div>`
+      : `<div style="aspect-ratio:2/3;background:var(--bg3);display:flex;align-items:center;justify-content:center;">${currentGame==='pokemon'?ICONS.zap(32):ICONS.skull(32)}</div>`;
+    return `<div class="result-card" onclick="openDetailByIndex(${globalIdx})">
+      ${img}
+      <div class="result-card-body">
+        <div class="result-card-name">${bp.name}</div>
+        <div class="result-card-footer">
+          <span class="result-card-exp">${expCode}</span>
+          ${cn?`<span class="result-card-num">#${cn}</span>`:''}
         </div>
-      </div>`;
-    }).join('');
-    if(rendered===0){
-      grid.innerHTML=html;
-    }else{
-      grid.innerHTML+=html;
-    }
-    rendered+=batchSize;
-    if(rendered<allResults.length){
-      setTimeout(renderBatch,50);
-    }
-  };
-  renderBatch();
+      </div>
+    </div>`;
+  }).join('');
+
+  // Pulsanti di paginazione
+  let pagination = '';
+  if(totalPages > 1) {
+    pagination = `<div style="display:flex;gap:8px;justify-content:center;align-items:center;margin-top:16px;margin-bottom:16px;">
+      <button class="btn-action" onclick="goToSearchPage(${_currentSearchPage-1})" ${_currentSearchPage===0?'disabled':''}>${_currentSearchPage===0?'':'← Indietro'}</button>
+      <span style="color:var(--muted);font-size:13px;font-weight:500;min-width:60px;text-align:center;">${_currentSearchPage+1} / ${totalPages}</span>
+      <button class="btn-action" onclick="goToSearchPage(${_currentSearchPage+1})" ${_currentSearchPage===totalPages-1?'disabled':''}>${_currentSearchPage===totalPages-1?'':'Avanti →'}</button>
+    </div>`;
+  }
+
+  grid.innerHTML = pagination + `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:12px;">${cardsHtml}</div>`;
+}
+
+function goToSearchPage(pageNum){
+  const totalPages = Math.ceil(_allSearchResults.length / SEARCH_PAGE_SIZE);
+  if(pageNum < 0 || pageNum >= totalPages) return;
+  _currentSearchPage = pageNum;
+  renderSearchPage();
+  // Scrolla all'inizio della griglia
+  document.getElementById('results-grid').scrollIntoView({behavior:'smooth',block:'start'});
 }
 
 function abbrevCode(code){
