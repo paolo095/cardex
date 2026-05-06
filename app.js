@@ -366,37 +366,58 @@ async function doSearch(query){
   }
   if(searchId!==myId) return;
   if(results.length){
-    renderResultsGrid(results);
+    // Renderizza in batch per evitare layout shift durante caricamento immagini
+    renderResultsGridProgressive(results, myId);
   }else{
     document.getElementById('results-grid').innerHTML=`<div class="empty-state"><span class="empty-icon">${ICONS.searchX()}</span>Nessuna carta trovata.</div>`;
   }
+}
+
+function renderResultsGridProgressive(allResults, searchIdSnapshot){
+  window._searchResults=allResults;
+  const grid=document.getElementById('results-grid');
+  const batchSize=20;
+  let rendered=0;
+
+  const renderBatch=()=>{
+    if(searchId!==searchIdSnapshot) return;
+    const batch=allResults.slice(rendered,rendered+batchSize);
+    if(!batch.length) return;
+    const html=batch.map((bp,idx)=>{
+      const i=rendered+idx;
+      const cn=bp.fixed_properties?.collector_number||'';
+      const expCode=abbrevCode(bp.expansion?.code||bp.expansion?.name||'');
+      const img=bp.image_url
+        ?`<img src="${bp.image_url}" alt="${bp.name}" loading="lazy" onerror="this.style.display='none'">`
+        :`<div style="aspect-ratio:2/3;background:var(--bg3);display:flex;align-items:center;justify-content:center;">${currentGame==='pokemon'?ICONS.zap(32):ICONS.skull(32)}</div>`;
+      return `<div class="result-card" onclick="openDetailByIndex(${i})">
+        ${img}
+        <div class="result-card-body">
+          <div class="result-card-name">${bp.name}</div>
+          <div class="result-card-footer">
+            <span class="result-card-exp">${expCode}</span>
+            ${cn?`<span class="result-card-num">#${cn}</span>`:''}
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+    if(rendered===0){
+      grid.innerHTML=html;
+    }else{
+      grid.innerHTML+=html;
+    }
+    rendered+=batchSize;
+    if(rendered<allResults.length){
+      setTimeout(renderBatch,50);
+    }
+  };
+  renderBatch();
 }
 
 function abbrevCode(code){
   if(!code) return '';
   if(code.length<=9) return code;
   return code.split(/\s+/).map(w=>w.length>5?w.slice(0,3)+'.':w).join(' ');
-}
-
-function renderResultsGrid(bps){
-  window._searchResults=bps;
-  document.getElementById('results-grid').innerHTML=bps.map((bp,i)=>{
-    const cn=bp.fixed_properties?.collector_number||'';
-    const expCode=abbrevCode(bp.expansion?.code||bp.expansion?.name||'');
-    const img=bp.image_url
-      ?`<img src="${bp.image_url}" alt="${bp.name}" loading="lazy" onerror="this.style.display='none'">`
-      :`<div style="aspect-ratio:2/3;background:var(--bg3);display:flex;align-items:center;justify-content:center;">${currentGame==='pokemon'?ICONS.zap(32):ICONS.skull(32)}</div>`;
-    return `<div class="result-card" onclick="openDetailByIndex(${i})">
-      ${img}
-      <div class="result-card-body">
-        <div class="result-card-name">${bp.name}</div>
-        <div class="result-card-footer">
-          <span class="result-card-exp">${expCode}</span>
-          ${cn?`<span class="result-card-num">#${cn}</span>`:''}
-        </div>
-      </div>
-    </div>`;
-  }).join('');
 }
 
 function openDetailByIndex(i){
