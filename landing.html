@@ -5,548 +5,465 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CARDEX — La tua collezione TCG, prezzi reali italiani</title>
 <meta name="description" content="Pokémon e One Piece. Tracking del valore in tempo reale da CardTrader. Prezzi reali da venditori italiani.">
-
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNyIgZmlsbD0iIzAzMDMwMyIvPjx0ZXh0IHg9IjIiIHk9IjI0IiBmb250LWZhbWlseT0iJ0hlbHZldGljYSBOZXVlJyxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iMjAwIiBmb250LXNpemU9IjIwIiBsZXR0ZXItc3BhY2luZz0iLTEiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4zOCkiPkM8L3RleHQ+PHRleHQgeD0iMTUiIHk9IjI0IiBmb250LWZhbWlseT0iJ0hlbHZldGljYSBOZXVlJyxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iOTAwIiBmb250LXNpemU9IjIwIiBsZXR0ZXItc3BhY2luZz0iLTEiIGZpbGw9IiNmZmZmZmYiPlg8L3RleHQ+PC9zdmc+">
-
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNyIgZmlsbD0iIzBFMEUxMCIvPjx0ZXh0IHg9IjIiIHk9IjI0IiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtd2VpZ2h0PSIzMDAiIGZvbnQtc2l6ZT0iMjAiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4zOCkiPkM8L3RleHQ+PHRleHQgeD0iMTUiIHk9IjI0IiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtd2VpZ2h0PSI5MDAiIGZvbnQtc2l6ZT0iMjAiIGZpbGw9IiNmZmZmZmYiPlg8L3RleHQ+PC9zdmc+">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
-/* ─────── THEME VARIABLES ─────── */
+/* ─── THEME VARIABLES ─── */
 :root {
-  /* Light mode (default) */
-  --bg:        #ffffff;
-  --bg-soft:   #fafafa;
-  --bg-card:   #ffffff;
-  --text:      #0a0a0a;
-  --text-soft: #4a4a4a;
-  --text-mute: #8a8a8a;
-  --border:    rgba(0,0,0,0.08);
-  --border-h:  rgba(0,0,0,0.18);
-  --accent:    #0a0a0a;
-  --accent-soft: rgba(0,0,0,0.04);
-  --shadow:    0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.04);
-  --shadow-h:  0 1px 3px rgba(0,0,0,0.06), 0 16px 40px rgba(0,0,0,0.08);
+  --bg:          #ffffff;
+  --bg-soft:     #f5f5f7;
+  --bg-card:     #ffffff;
+  --text:        #0a0a0a;
+  --text-soft:   #525252;
+  --text-mute:   #a3a3a3;
+  --border:      rgba(0,0,0,0.07);
+  --border-h:    rgba(0,0,0,0.16);
+  --accent-soft: rgba(0,0,0,0.03);
+  --shadow:      0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.05);
+  --shadow-h:    0 2px 4px rgba(0,0,0,0.06), 0 20px 48px rgba(0,0,0,0.10);
+  /* light mode blobs */
+  --blob1: rgba(99,102,241,0.07);
+  --blob2: rgba(236,72,153,0.05);
+  --blob3: rgba(245,158,11,0.04);
+  /* dot grid */
+  --dot:   rgba(0,0,0,0.10);
 }
 [data-theme="dark"] {
-  /* Dark mode (matches index.html style.css) */
-  --bg:        #0E0E10;
-  --bg-soft:   #141417;
-  --bg-card:   #16161A;
-  --text:      #FAFAF9;
-  --text-soft: #9A9AA3;
-  --text-mute: #7A7A82;
-  --border:    rgba(255,255,255,0.06);
-  --border-h:  rgba(255,255,255,0.18);
-  --accent:    #e8e8e8;
-  --accent-soft: rgba(255,255,255,0.05);
-  --shadow:    0 1px 3px rgba(0,0,0,0.5), 0 16px 40px rgba(0,0,0,0.4);
-  --shadow-h:  0 1px 3px rgba(0,0,0,0.6), 0 24px 64px rgba(0,0,0,0.55);
+  --bg:          #0E0E10;
+  --bg-soft:     #141417;
+  --bg-card:     #16161A;
+  --text:        #FAFAF9;
+  --text-soft:   #9A9AA3;
+  --text-mute:   #5A5A62;
+  --border:      rgba(255,255,255,0.06);
+  --border-h:    rgba(255,255,255,0.16);
+  --accent-soft: rgba(255,255,255,0.04);
+  --shadow:      0 1px 3px rgba(0,0,0,0.5), 0 8px 32px rgba(0,0,0,0.4);
+  --shadow-h:    0 2px 4px rgba(0,0,0,0.6), 0 20px 64px rgba(0,0,0,0.55);
+  --blob1: rgba(124,58,237,0.14);
+  --blob2: rgba(59,130,246,0.10);
+  --blob3: rgba(232,197,71,0.05);
+  --dot:   rgba(255,255,255,0.06);
 }
 
-/* ─────── RESET & BASE ─────── */
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+/* ─── RESET ─── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 html { scroll-behavior: smooth; }
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   background: var(--bg);
   color: var(--text);
-  font-size: 16px;
-  line-height: 1.55;
+  font-size: 16px; line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   letter-spacing: -0.01em;
-  transition: background-color .35s ease, color .35s ease;
   overflow-x: hidden;
+  transition: background .35s, color .35s;
 }
 a { color: inherit; text-decoration: none; }
-button { font-family: inherit; cursor: pointer; }
-img, svg { display: block; max-width: 100%; }
+button { font-family: inherit; cursor: pointer; border: none; }
 
-/* ─────── LAYOUT ─────── */
-.container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
-.section { padding: 96px 0; }
+/* ─── BACKGROUND SYSTEM ─── */
+/* Dot grid */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: -2;
+  background-image: radial-gradient(circle, var(--dot) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none;
+}
+/* Gradient blobs */
+.bg-blobs {
+  position: fixed; inset: 0; z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+}
+.bg-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.9;
+  animation: blobDrift 24s ease-in-out infinite alternate;
+}
+.bg-blob:nth-child(1) {
+  width: 700px; height: 700px;
+  top: -200px; right: -150px;
+  background: radial-gradient(circle, var(--blob1), transparent 65%);
+  animation-duration: 28s;
+}
+.bg-blob:nth-child(2) {
+  width: 500px; height: 500px;
+  bottom: 5%; left: -100px;
+  background: radial-gradient(circle, var(--blob2), transparent 65%);
+  animation-duration: 22s; animation-delay: -8s;
+}
+.bg-blob:nth-child(3) {
+  width: 400px; height: 400px;
+  top: 45%; right: 15%;
+  background: radial-gradient(circle, var(--blob3), transparent 65%);
+  animation-duration: 34s; animation-delay: -14s;
+}
+@keyframes blobDrift {
+  0%   { transform: translate(0, 0) scale(1); }
+  33%  { transform: translate(-3%, 4%) scale(1.04); }
+  66%  { transform: translate(2%, -3%) scale(0.97); }
+  100% { transform: translate(-2%, 2%) scale(1.02); }
+}
+
+/* ─── LAYOUT ─── */
+.container { max-width: 1160px; margin: 0 auto; padding: 0 24px; }
+.section { padding: 100px 0; }
 @media (min-width: 768px) { .section { padding: 140px 0; } }
 
-/* ─────── NAVBAR ─────── */
-nav.topbar {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  z-index: 100;
-  background: color-mix(in srgb, var(--bg) 75%, transparent);
-  backdrop-filter: blur(18px) saturate(140%);
-  -webkit-backdrop-filter: blur(18px) saturate(140%);
+/* ─── NAVBAR ─── */
+.topbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: color-mix(in srgb, var(--bg) 80%, transparent);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
   border-bottom: 1px solid var(--border);
-  transition: background-color .35s ease, border-color .35s ease;
+  transition: background .35s, border-color .35s;
 }
 .topbar-inner {
-  max-width: 1200px;
-  margin: 0 auto;
+  max-width: 1160px; margin: 0 auto;
   padding: 14px 24px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
+  display: flex; align-items: center; justify-content: space-between; gap: 24px;
 }
 .brand-logo {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 0;
-  font-weight: 700;
-  font-size: 19px;
-  letter-spacing: -0.04em;
-  color: var(--text);
+  font-size: 19px; font-weight: 700; letter-spacing: -0.05em;
+  display: inline-flex; align-items: baseline;
 }
-.brand-logo .lite { font-weight: 300; opacity: 0.5; }
-
+.brand-logo .lite { font-weight: 300; opacity: 0.45; }
 .nav-links {
-  display: none;
-  gap: 28px;
-  font-size: 14px;
-  color: var(--text-soft);
+  display: none; gap: 28px; font-size: 14px; color: var(--text-soft);
 }
 @media (min-width: 768px) { .nav-links { display: flex; } }
 .nav-links a { transition: color .2s; }
 .nav-links a:hover { color: var(--text); }
-
 .nav-actions { display: flex; align-items: center; gap: 8px; }
-.theme-toggle {
-  width: 36px; height: 36px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  background: transparent;
-  color: var(--text-soft);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+
+.icon-btn {
+  width: 36px; height: 36px; border-radius: 9px;
+  border: 1px solid var(--border); background: transparent; color: var(--text-soft);
+  display: inline-flex; align-items: center; justify-content: center;
   transition: all .2s;
 }
-.theme-toggle:hover { border-color: var(--border-h); color: var(--text); }
-.theme-toggle .icon-sun { display: block; }
-.theme-toggle .icon-moon { display: none; }
-[data-theme="dark"] .theme-toggle .icon-sun { display: none; }
-[data-theme="dark"] .theme-toggle .icon-moon { display: block; }
+.icon-btn:hover { border-color: var(--border-h); color: var(--text); }
+.icon-sun { display: block; } .icon-moon { display: none; }
+[data-theme="dark"] .icon-sun { display: none; }
+[data-theme="dark"] .icon-moon { display: block; }
 
 .btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 10px 18px;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 500;
-  border: 1px solid transparent;
-  transition: all .2s;
-  white-space: nowrap;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 10px 18px; border-radius: 9px;
+  font-size: 14px; font-weight: 500; font-family: inherit;
+  border: 1px solid transparent; transition: all .2s; white-space: nowrap; cursor: pointer;
 }
-.btn-primary {
-  background: var(--text);
-  color: var(--bg);
-}
+.btn-primary { background: var(--text); color: var(--bg); }
 .btn-primary:hover { transform: translateY(-1px); box-shadow: var(--shadow-h); }
-.btn-ghost {
-  background: transparent;
-  color: var(--text);
-  border-color: var(--border);
-}
-.btn-ghost:hover { border-color: var(--border-h); background: var(--accent-soft); }
-.btn-lg { padding: 14px 24px; font-size: 15px; }
+.btn-ghost { background: transparent; color: var(--text); border-color: var(--border); }
+.btn-ghost:hover { border-color: var(--border-h); }
+.btn-lg { padding: 13px 24px; font-size: 15px; border-radius: 11px; }
 
 .hamburger {
-  display: inline-flex;
-  width: 36px; height: 36px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  background: transparent;
-  color: var(--text);
-  align-items: center;
-  justify-content: center;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 36px; height: 36px; border-radius: 9px;
+  border: 1px solid var(--border); background: transparent; color: var(--text);
 }
 @media (min-width: 768px) { .hamburger { display: none; } }
-
 .mobile-menu {
-  display: none;
-  flex-direction: column;
-  gap: 6px;
-  padding: 0 24px 16px;
-  border-top: 1px solid var(--border);
+  display: none; flex-direction: column; gap: 4px;
+  padding: 0 24px 16px; border-top: 1px solid var(--border);
 }
 .mobile-menu.open { display: flex; }
 .mobile-menu a { padding: 10px 0; color: var(--text-soft); font-size: 15px; }
 
-/* ─────── HERO ─────── */
+/* ─── HERO ─── */
 .hero {
-  padding: 140px 0 80px;
+  padding: 148px 0 80px;
   text-align: center;
   position: relative;
 }
 .hero-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 14px;
-  border-radius: 100px;
-  background: var(--accent-soft);
-  border: 1px solid var(--border);
-  font-size: 12px;
-  color: var(--text-soft);
-  margin-bottom: 28px;
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 5px 14px; border-radius: 100px;
+  background: var(--accent-soft); border: 1px solid var(--border);
+  font-size: 12px; color: var(--text-soft); margin-bottom: 26px;
+  letter-spacing: 0.01em;
 }
-.hero-badge .dot {
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: #FF6B00;
-  box-shadow: 0 0 8px rgba(255,107,0,0.6);
+.dot-live {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #16a34a; box-shadow: 0 0 8px rgba(22,163,74,0.6);
   animation: dotPulse 2s ease-in-out infinite;
 }
-@keyframes dotPulse { 0%,100% { opacity:1 } 50% { opacity:0.5 } }
+[data-theme="dark"] .dot-live { background: #5BC97D; box-shadow: 0 0 8px rgba(91,201,125,0.6); }
+@keyframes dotPulse { 0%,100%{opacity:1} 50%{opacity:0.45} }
+
 .hero h1 {
-  font-size: clamp(38px, 7vw, 76px);
-  font-weight: 700;
-  letter-spacing: -0.04em;
-  line-height: 1.05;
+  font-size: clamp(36px, 6.5vw, 72px);
+  font-weight: 700; letter-spacing: -0.04em; line-height: 1.06;
   margin-bottom: 22px;
-  max-width: 14ch;
-  margin-left: auto;
-  margin-right: auto;
+  max-width: 13ch; margin-left: auto; margin-right: auto;
 }
-.hero h1 em {
-  font-style: normal;
-  color: var(--text-mute);
-  font-weight: 400;
-}
+.hero h1 em { font-style: normal; color: var(--text-mute); font-weight: 400; }
 .hero p.lead {
-  font-size: clamp(16px, 2vw, 19px);
-  color: var(--text-soft);
-  max-width: 560px;
-  margin: 0 auto 36px;
-  line-height: 1.55;
+  font-size: clamp(16px, 2vw, 18px); color: var(--text-soft);
+  max-width: 520px; margin: 0 auto 34px; line-height: 1.6;
 }
 .hero-ctas {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  justify-content: center;
-  margin-bottom: 64px;
+  display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 72px;
 }
 
-/* ─────── DRAGON STAGE ─────── */
-.dragon-stage {
+/* ─── 3D HERO MOCKUP ─── */
+.mockup-scene {
+  perspective: 1800px;
+  perspective-origin: 50% 20%;
+  max-width: 860px; margin: 0 auto;
   position: relative;
-  width: 100%;
-  max-width: 920px;
-  aspect-ratio: 16 / 10;
-  margin: 0 auto;
-  border-radius: 24px;
-  background: radial-gradient(ellipse at 50% 50%, #1a1a1f 0%, #08080a 65%, #050505 100%);
-  border: 1px solid rgba(255,107,0,0.08);
-  overflow: hidden;
-  box-shadow:
-    0 32px 80px rgba(0,0,0,0.25),
-    0 0 0 1px rgba(255,255,255,0.02),
-    inset 0 0 120px rgba(255,107,0,0.06);
-  cursor: crosshair;
 }
-[data-theme="dark"] .dragon-stage {
-  border-color: rgba(255,107,0,0.16);
-  box-shadow:
-    0 32px 80px rgba(0,0,0,0.6),
-    0 0 0 1px rgba(255,107,0,0.06),
-    inset 0 0 140px rgba(255,107,0,0.08);
+.mockup-stage {
+  transform: rotateX(14deg);
+  transform-style: preserve-3d;
+  display: flex; align-items: flex-start; justify-content: center;
+  gap: 16px; padding: 0 12px;
+  transition: transform .6s cubic-bezier(0.22,.61,.36,1);
 }
-.dragon-stage::before {
-  /* faint ember texture */
-  content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(circle at 30% 70%, rgba(255,107,0,0.10) 0%, transparent 40%),
-    radial-gradient(circle at 70% 30%, rgba(255,200,0,0.08) 0%, transparent 35%),
-    radial-gradient(circle at 50% 100%, rgba(255,80,0,0.12) 0%, transparent 50%);
-  pointer-events: none;
-  opacity: 0.8;
-}
-#dragon-svg {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-}
-.dragon-hint {
-  position: absolute;
-  bottom: 18px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 11px;
-  color: rgba(255,200,150,0.5);
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  pointer-events: none;
-  font-weight: 500;
-}
-
-/* ─────── SECTION HEADERS ─────── */
-.section-head { text-align: center; margin-bottom: 64px; }
-.section-tag {
-  display: inline-block;
-  font-size: 11px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--text-mute);
-  padding: 5px 12px;
-  border: 1px solid var(--border);
-  border-radius: 100px;
-  margin-bottom: 18px;
-}
-.section-head h2 {
-  font-size: clamp(28px, 5vw, 52px);
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  line-height: 1.1;
-  margin-bottom: 16px;
-}
-.section-head p {
-  color: var(--text-soft);
-  font-size: 16px;
-  max-width: 520px;
-  margin: 0 auto;
-}
-
-/* ─────── BENTO GRID ─────── */
-.bento {
-  display: grid;
-  grid-template-columns: repeat(1, 1fr);
-  gap: 16px;
-  grid-auto-rows: min-content;
-}
-@media (min-width: 768px) {
-  .bento {
-    grid-template-columns: repeat(4, 1fr);
-    grid-auto-rows: 200px;
-  }
-}
-.bento-card {
+.mock-panel {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: 16px;
-  padding: 24px;
-  position: relative;
   overflow: hidden;
-  transition: all .35s cubic-bezier(0.22, 0.61, 0.36, 1);
-  display: flex;
-  flex-direction: column;
-}
-.bento-card:hover {
-  border-color: var(--border-h);
-  transform: translateY(-2px);
   box-shadow: var(--shadow-h);
+  flex-shrink: 0;
+  transition: transform .6s cubic-bezier(0.22,.61,.36,1);
 }
+.mock-panel.main {
+  width: 300px;
+  transform: translateZ(40px);
+}
+.mock-panel.side {
+  width: 220px;
+  opacity: 0.80;
+  transform: translateZ(0px) translateY(24px);
+}
+.mock-panel.far {
+  width: 160px;
+  opacity: 0.55;
+  transform: translateZ(-30px) translateY(48px);
+  display: none;
+}
+@media (min-width: 640px) { .mock-panel.far { display: block; } }
+@media (min-width: 768px) { .mock-panel.side { width: 240px; } .mock-panel.main { width: 320px; } }
+
+/* Mock panel chrome bar */
+.mock-bar {
+  height: 36px;
+  background: var(--bg-soft);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; padding: 0 12px; gap: 6px;
+}
+.mock-dot { width: 8px; height: 8px; border-radius: 50%; }
+.mock-body { padding: 14px; }
+
+/* Mock search result card (inside panel) */
+.mock-card-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 10px;
+  border-radius: 10px; border: 1px solid var(--border);
+  margin-bottom: 8px;
+  font-size: 11px;
+}
+.mock-card-img {
+  width: 28px; height: 38px; border-radius: 4px; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--bg-soft) 0%, var(--border-h) 100%);
+}
+.mock-card-info { flex: 1; min-width: 0; }
+.mock-card-name { font-size: 11px; font-weight: 600; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mock-card-sub { font-size: 10px; color: var(--text-mute); }
+.mock-card-price { font-size: 12px; font-weight: 600; color: var(--text); white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+/* Delta badge */
+.mock-delta-pos { color: #16a34a; font-size: 10px; font-weight: 600; }
+.mock-delta-neg { color: #dc2626; font-size: 10px; font-weight: 600; }
+[data-theme="dark"] .mock-delta-pos { color: #5BC97D; }
+[data-theme="dark"] .mock-delta-neg { color: #E88891; }
+
+/* Flag badge */
+.mock-flag { font-size: 12px; }
+
+/* Mini stat row inside panel */
+.mock-stat-row {
+  display: flex; gap: 8px; margin-bottom: 8px;
+}
+.mock-stat {
+  flex: 1; padding: 8px 10px; border-radius: 8px;
+  background: var(--bg-soft); border: 1px solid var(--border); font-size: 10px;
+}
+.mock-stat-val { font-size: 15px; font-weight: 700; letter-spacing: -0.03em; margin-top: 2px; }
+.mock-stat-lbl { color: var(--text-mute); font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; }
+
+/* Mini sparkline */
+.mock-sparkline { margin-top: 8px; }
+.mock-sparkline svg { width: 100%; }
+
+/* Gradient reflection below mockup */
+.mockup-reflection {
+  height: 80px;
+  background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 0%, transparent), var(--bg) 100%);
+  position: absolute; bottom: -1px; left: 0; right: 0; pointer-events: none;
+}
+
+/* ─── SECTION HEADERS ─── */
+.section-head { text-align: center; margin-bottom: 64px; }
+.section-tag {
+  display: inline-block; font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--text-mute); padding: 4px 12px; border: 1px solid var(--border);
+  border-radius: 100px; margin-bottom: 16px;
+}
+.section-head h2 {
+  font-size: clamp(26px, 4.5vw, 50px); font-weight: 700;
+  letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 14px;
+}
+.section-head p { color: var(--text-soft); font-size: 16px; max-width: 500px; margin: 0 auto; }
+
+/* ─── BENTO GRID ─── */
+.bento { display: grid; grid-template-columns: 1fr; gap: 14px; }
+@media (min-width: 768px) { .bento { grid-template-columns: repeat(4,1fr); grid-auto-rows: 196px; } }
+
+.bento-card {
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px;
+  padding: 24px; position: relative; overflow: hidden;
+  display: flex; flex-direction: column;
+  transition: border-color .3s, box-shadow .3s, transform .4s cubic-bezier(0.22,.61,.36,1);
+  transform-style: preserve-3d;
+}
+.bento-card:hover { border-color: var(--border-h); box-shadow: var(--shadow-h); }
 @media (min-width: 768px) {
   .b-2x2 { grid-column: span 2; grid-row: span 2; }
   .b-2x1 { grid-column: span 2; }
   .b-1x2 { grid-row: span 2; }
 }
 .icon-box {
-  width: 38px; height: 38px;
-  border-radius: 10px;
-  background: var(--accent-soft);
-  border: 1px solid var(--border);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text);
-  margin-bottom: 16px;
+  width: 36px; height: 36px; border-radius: 9px;
+  background: var(--accent-soft); border: 1px solid var(--border);
+  display: inline-flex; align-items: center; justify-content: center;
+  color: var(--text); margin-bottom: 14px; flex-shrink: 0;
 }
-.bento-card h3 {
-  font-size: 19px;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  line-height: 1.25;
-  margin-bottom: 8px;
-}
-.bento-card.b-2x2 h3 { font-size: 26px; }
-.bento-card p {
-  color: var(--text-soft);
-  font-size: 14px;
-  line-height: 1.55;
-}
+.bento-card h3 { font-size: 18px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.25; margin-bottom: 8px; }
+.bento-card.b-2x2 h3 { font-size: 24px; }
+.bento-card p { color: var(--text-soft); font-size: 14px; line-height: 1.55; }
 
-/* Mock chart inside bento */
-.mini-chart {
-  margin-top: auto;
-  padding-top: 20px;
-}
-.mini-chart svg { width: 100%; height: 70px; }
-.chart-meta {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 10px;
-  font-size: 12px;
-  font-family: 'Inter', monospace;
-}
-.chart-meta .delta { color: #16A34A; font-weight: 600; }
-[data-theme="dark"] .chart-meta .delta { color: #5BC97D; }
+.mini-chart { margin-top: auto; padding-top: 18px; }
+.chart-meta { display: flex; justify-content: space-between; margin-top: 8px; font-size: 11px; }
+.chart-meta .pos { color: #16a34a; font-weight: 600; }
+[data-theme="dark"] .chart-meta .pos { color: #5BC97D; }
 
-/* Game pills */
-.pills { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
-.pill {
-  font-size: 11px;
-  padding: 4px 10px;
-  border-radius: 100px;
-  border: 1px solid var(--border);
-  font-weight: 500;
-  color: var(--text-soft);
-}
-.pill-pokemon { color: #B8860B; border-color: rgba(232,197,71,0.3); background: rgba(232,197,71,0.06); }
-.pill-onepiece { color: #C94A3A; border-color: rgba(201,74,58,0.3); background: rgba(201,74,58,0.06); }
-[data-theme="dark"] .pill-pokemon { color: #E8C547; }
+.pills { display: flex; gap: 6px; margin-top: 12px; flex-wrap: wrap; }
+.pill { font-size: 11px; padding: 4px 10px; border-radius: 100px; border: 1px solid var(--border); font-weight: 500; color: var(--text-soft); }
+.pill-pok { color: #92761A; border-color: rgba(232,197,71,.3); background: rgba(232,197,71,.06); }
+.pill-op  { color: #C94A3A; border-color: rgba(201,74,58,.3);  background: rgba(201,74,58,.06); }
+[data-theme="dark"] .pill-pok { color: #E8C547; }
+[data-theme="dark"] .pill-op  { color: #E88080; }
 
-/* ─────── HOW IT WORKS ─────── */
-.steps {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
-}
-@media (min-width: 768px) { .steps { grid-template-columns: repeat(3, 1fr); } }
+/* ─── STEPS ─── */
+.steps { display: grid; grid-template-columns: 1fr; gap: 14px; }
+@media (min-width: 768px) { .steps { grid-template-columns: repeat(3,1fr); } }
 .step-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 28px;
-  transition: all .3s;
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px;
+  padding: 28px; transition: all .3s;
 }
 .step-card:hover { border-color: var(--border-h); }
-.step-num {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-mute);
-  font-family: 'Inter', monospace;
-  margin-bottom: 18px;
-  letter-spacing: 0.08em;
-}
-.step-card h3 {
-  font-size: 20px;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  margin-bottom: 8px;
-}
+.step-num { font-size: 12px; font-weight: 600; color: var(--text-mute); margin-bottom: 16px; letter-spacing: 0.08em; }
+.step-card h3 { font-size: 19px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 8px; }
 .step-card p { color: var(--text-soft); font-size: 14px; line-height: 1.6; }
 
-/* ─────── FAQ ─────── */
-.faq-list { display: flex; flex-direction: column; gap: 8px; max-width: 720px; margin: 0 auto; }
-.faq-item {
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  background: var(--bg-card);
-  transition: border-color .2s;
-}
+/* ─── FAQ ─── */
+.faq-list { display: flex; flex-direction: column; gap: 8px; max-width: 700px; margin: 0 auto; }
+.faq-item { border: 1px solid var(--border); border-radius: 12px; background: var(--bg-card); transition: border-color .2s; }
 .faq-item:hover { border-color: var(--border-h); }
-.faq-item summary {
-  list-style: none;
-  padding: 18px 22px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-weight: 500;
-  font-size: 15px;
-}
+.faq-item summary { list-style: none; padding: 18px 22px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; font-weight: 500; font-size: 15px; }
 .faq-item summary::-webkit-details-marker { display: none; }
-.faq-item summary::after {
-  content: '+';
-  font-size: 22px;
-  font-weight: 300;
-  color: var(--text-mute);
-  transition: transform .25s;
-}
+.faq-item summary::after { content: '+'; font-size: 22px; font-weight: 300; color: var(--text-mute); transition: transform .25s; flex-shrink: 0; }
 .faq-item[open] summary::after { transform: rotate(45deg); }
-.faq-item div.answer {
-  padding: 0 22px 20px;
-  color: var(--text-soft);
-  font-size: 14px;
-  line-height: 1.65;
-}
+.faq-answer { padding: 0 22px 20px; color: var(--text-soft); font-size: 14px; line-height: 1.65; }
 
-/* ─────── FINAL CTA ─────── */
+/* ─── FINAL CTA ─── */
 .final-cta {
-  text-align: center;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 24px;
-  padding: 64px 32px;
-  max-width: 800px;
-  margin: 0 auto;
-  position: relative;
-  overflow: hidden;
+  text-align: center; background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 24px; padding: 64px 32px; max-width: 780px; margin: 0 auto;
+  position: relative; overflow: hidden;
 }
-.final-cta h2 {
-  font-size: clamp(28px, 5vw, 48px);
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  line-height: 1.15;
-  margin-bottom: 14px;
-}
-.final-cta p { color: var(--text-soft); margin-bottom: 28px; }
 .final-cta::before {
-  content: '';
-  position: absolute;
-  top: -100px; right: -100px;
-  width: 280px; height: 280px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(255,107,0,0.08) 0%, transparent 65%);
-  pointer-events: none;
+  content: ''; position: absolute; top: -80px; right: -80px;
+  width: 300px; height: 300px; border-radius: 50%;
+  background: radial-gradient(circle, var(--blob1), transparent 65%);
+  pointer-events: none; filter: blur(40px);
 }
+.final-cta::after {
+  content: ''; position: absolute; bottom: -80px; left: -80px;
+  width: 260px; height: 260px; border-radius: 50%;
+  background: radial-gradient(circle, var(--blob2), transparent 65%);
+  pointer-events: none; filter: blur(40px);
+}
+.final-cta h2 { font-size: clamp(26px, 4.5vw, 46px); font-weight: 700; letter-spacing: -0.03em; line-height: 1.15; margin-bottom: 12px; position: relative; }
+.final-cta p { color: var(--text-soft); margin-bottom: 26px; position: relative; }
+.final-cta a { position: relative; }
 
-/* ─────── FOOTER ─────── */
-footer {
-  border-top: 1px solid var(--border);
-  padding: 40px 24px;
-  margin-top: 40px;
-}
-.foot-inner {
-  max-width: 1200px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  align-items: center;
-}
+/* ─── FOOTER ─── */
+footer { border-top: 1px solid var(--border); padding: 40px 24px; margin-top: 40px; }
+.foot-inner { max-width: 1160px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; align-items: center; }
 @media (min-width: 768px) { .foot-inner { flex-direction: row; justify-content: space-between; } }
 .foot-links { display: flex; gap: 22px; font-size: 13px; color: var(--text-mute); }
 .foot-links a:hover { color: var(--text-soft); }
-.foot-copy { font-size: 12px; color: var(--text-mute); font-family: 'Inter', monospace; }
+.foot-copy { font-size: 12px; color: var(--text-mute); }
 
-/* ─────── FADE UP ANIMATION ─────── */
-.fade-up {
+/* ─── 3D SCROLL REVEAL ─── */
+.reveal {
   opacity: 0;
-  transform: translateY(20px);
-  transition: opacity .8s cubic-bezier(0.22, 0.61, 0.36, 1), transform .8s cubic-bezier(0.22, 0.61, 0.36, 1);
+  transform: perspective(900px) rotateX(8deg) translateY(28px);
+  transition: opacity .8s cubic-bezier(0.22,.61,.36,1),
+              transform .8s cubic-bezier(0.22,.61,.36,1);
 }
-.fade-up.visible { opacity: 1; transform: translateY(0); }
+.reveal.in { opacity: 1; transform: perspective(900px) rotateX(0deg) translateY(0); }
+.reveal-delay-1 { transition-delay: .08s; }
+.reveal-delay-2 { transition-delay: .16s; }
+.reveal-delay-3 { transition-delay: .24s; }
+.reveal-delay-4 { transition-delay: .32s; }
+.reveal-delay-5 { transition-delay: .40s; }
+.reveal-delay-6 { transition-delay: .48s; }
+
+/* section bg-soft */
+.bg-soft-section { background: var(--bg-soft); }
 </style>
 </head>
 <body>
 
-<!-- ──────── NAVBAR ──────── -->
+<!-- Background blobs -->
+<div class="bg-blobs">
+  <div class="bg-blob"></div>
+  <div class="bg-blob"></div>
+  <div class="bg-blob"></div>
+</div>
+
+<!-- ─── NAVBAR ─── -->
 <nav class="topbar">
   <div class="topbar-inner">
-    <a href="#top" class="brand-logo">
-      <span class="lite">CARD</span><span>EX</span>
-    </a>
+    <a href="#top" class="brand-logo"><span class="lite">CARD</span><span>EX</span></a>
     <div class="nav-links">
       <a href="#funzionalita">Funzionalità</a>
       <a href="#come-funziona">Come funziona</a>
       <a href="#faq">FAQ</a>
     </div>
     <div class="nav-actions">
-      <button class="theme-toggle" id="theme-toggle" aria-label="Cambia tema">
-        <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
-        <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      <button class="icon-btn" id="theme-toggle" aria-label="Cambia tema">
+        <svg class="icon-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+        <svg class="icon-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
       </button>
-      <a href="index.html" class="btn btn-primary" style="display:none" id="cta-desktop">Inizia gratis</a>
-      <button class="hamburger" id="menu-btn" aria-label="Menu">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      <a href="index.html" class="btn btn-primary" id="cta-desk" style="display:none">Inizia gratis</a>
+      <button class="hamburger" id="menu-btn">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
       </button>
     </div>
   </div>
@@ -554,140 +471,205 @@ footer {
     <a href="#funzionalita">Funzionalità</a>
     <a href="#come-funziona">Come funziona</a>
     <a href="#faq">FAQ</a>
-    <a href="index.html" class="btn btn-primary" style="margin-top:8px;">Inizia gratis →</a>
+    <a href="index.html" class="btn btn-primary" style="margin-top:8px;justify-content:center;">Inizia gratis →</a>
   </div>
 </nav>
 
-<!-- ──────── HERO ──────── -->
+<!-- ─── HERO ─── -->
 <section id="top" class="hero">
   <div class="container">
-    <div class="hero-badge fade-up">
-      <span class="dot"></span>
-      <span>Beta privata · Early Access</span>
+    <div class="hero-badge reveal">
+      <span class="dot-live"></span>
+      Beta · Early Access aperto
     </div>
-    <h1 class="fade-up">
+    <h1 class="reveal reveal-delay-1">
       La tua collezione TCG,<br>
-      <em>con prezzi reali italiani.</em>
+      <em>prezzi reali italiani.</em>
     </h1>
-    <p class="lead fade-up">
+    <p class="lead reveal reveal-delay-2">
       Pokémon e One Piece. Tracking del valore in tempo reale da CardTrader.
-      Sapere quanto vale davvero la tua collezione, oggi.
+      Sapere quanto vale davvero la tua collezione.
     </p>
-    <div class="hero-ctas fade-up">
+    <div class="hero-ctas reveal reveal-delay-3">
       <a href="index.html" class="btn btn-primary btn-lg">Inizia gratis →</a>
       <a href="#funzionalita" class="btn btn-ghost btn-lg">Scopri di più</a>
     </div>
 
-    <!-- ──────── DRAGON STAGE ──────── -->
-    <div class="dragon-stage fade-up" id="dragon-stage">
-      <svg id="dragon-svg" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid meet">
-        <defs>
-          <linearGradient id="emberGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#FFD700"/>
-            <stop offset="50%" stop-color="#FF8C00"/>
-            <stop offset="100%" stop-color="#FF4500"/>
-          </linearGradient>
-          <filter id="emberGlow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="2" result="blur"/>
-            <feMerge>
-              <feMergeNode in="blur"/>
-              <feMergeNode in="SourceGraphic"/>
-            </feMerge>
-          </filter>
-        </defs>
-        <!-- Lines drawn by JS -->
-        <g id="dragon-lines" filter="url(#emberGlow)"></g>
-      </svg>
-      <div class="dragon-hint" id="dragon-hint">Muovi il mouse</div>
+    <!-- 3D APP MOCKUP -->
+    <div class="mockup-scene reveal reveal-delay-4" id="mockup-scene">
+      <div class="mockup-stage" id="mockup-stage">
+
+        <!-- Panel sinistra (lontano) -->
+        <div class="mock-panel far">
+          <div class="mock-bar">
+            <div class="mock-dot" style="background:#FF5F57"></div>
+            <div class="mock-dot" style="background:#FFBD2E"></div>
+            <div class="mock-dot" style="background:#27C93F"></div>
+          </div>
+          <div class="mock-body">
+            <div style="font-size:10px;font-weight:600;color:var(--text-mute);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;">⚡ Pokémon</div>
+            <div class="mock-stat-row">
+              <div class="mock-stat"><div class="mock-stat-lbl">Carte</div><div class="mock-stat-val">48</div></div>
+              <div class="mock-stat"><div class="mock-stat-lbl">Valore</div><div class="mock-stat-val" style="font-size:11px;">€ 892</div></div>
+            </div>
+            <div class="mock-card-row">
+              <div class="mock-card-img" style="background:linear-gradient(135deg,#E8C54744,#E8C54722)"></div>
+              <div class="mock-card-info"><div class="mock-card-name">Charizard ex</div><div class="mock-card-sub">🇮🇹 Near Mint</div></div>
+              <div>
+                <div class="mock-card-price">€ 142</div>
+                <div class="mock-delta-pos">+18% ▲</div>
+              </div>
+            </div>
+            <div class="mock-card-row">
+              <div class="mock-card-img" style="background:linear-gradient(135deg,#7C3AED44,#7C3AED22)"></div>
+              <div class="mock-card-info"><div class="mock-card-name">Mewtwo VSTAR</div><div class="mock-card-sub">🇬🇧 Near Mint</div></div>
+              <div>
+                <div class="mock-card-price">€ 38</div>
+                <div class="mock-delta-neg">-4% ▼</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel centrale (principale) -->
+        <div class="mock-panel main">
+          <div class="mock-bar">
+            <div class="mock-dot" style="background:#FF5F57"></div>
+            <div class="mock-dot" style="background:#FFBD2E"></div>
+            <div class="mock-dot" style="background:#27C93F"></div>
+          </div>
+          <div class="mock-body">
+            <div style="font-size:10px;font-weight:600;color:var(--text-mute);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px;">Valore Collezione</div>
+            <div style="font-size:32px;font-weight:700;letter-spacing:-0.04em;margin-bottom:4px;">€ 1.847</div>
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:14px;">
+              <span class="mock-delta-pos" style="font-size:12px;">▲ +12.4% questo mese</span>
+            </div>
+            <div class="mock-stat-row">
+              <div class="mock-stat"><div class="mock-stat-lbl">Pokémon</div><div class="mock-stat-val">€ 1.2k</div></div>
+              <div class="mock-stat"><div class="mock-stat-lbl">One Piece</div><div class="mock-stat-val">€ 645</div></div>
+            </div>
+            <div class="mini-chart">
+              <svg viewBox="0 0 280 60" xmlns="http://www.w3.org/2000/svg" height="60">
+                <defs>
+                  <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#16a34a" stop-opacity=".28"/>
+                    <stop offset="100%" stop-color="#16a34a" stop-opacity="0"/>
+                  </linearGradient>
+                </defs>
+                <path d="M0 48 L28 44 L56 46 L84 34 L112 36 L140 24 L168 28 L196 18 L224 22 L252 12 L280 6 L280 60 L0 60Z" fill="url(#g1)"/>
+                <path d="M0 48 L28 44 L56 46 L84 34 L112 36 L140 24 L168 28 L196 18 L224 22 L252 12 L280 6" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round"/>
+                <circle cx="280" cy="6" r="3" fill="#16a34a" stroke="var(--bg-card)" stroke-width="2"/>
+              </svg>
+              <div class="chart-meta" style="font-size:10px;">
+                <span style="color:var(--text-mute)">30 giorni</span>
+                <span class="pos">+ € 205,40</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel destra -->
+        <div class="mock-panel side">
+          <div class="mock-bar">
+            <div class="mock-dot" style="background:#FF5F57"></div>
+            <div class="mock-dot" style="background:#FFBD2E"></div>
+            <div class="mock-dot" style="background:#27C93F"></div>
+          </div>
+          <div class="mock-body">
+            <div style="font-size:10px;font-weight:600;color:var(--text-mute);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;">☠️ One Piece</div>
+            <div class="mock-card-row">
+              <div class="mock-card-img" style="background:linear-gradient(135deg,#C94A3A44,#C94A3A22)"></div>
+              <div class="mock-card-info"><div class="mock-card-name">Luffy Secret</div><div class="mock-card-sub">🇯🇵 NM</div></div>
+              <div>
+                <div class="mock-card-price">€ 320</div>
+                <div class="mock-delta-pos">+31% ▲</div>
+              </div>
+            </div>
+            <div class="mock-card-row">
+              <div class="mock-card-img" style="background:linear-gradient(135deg,#3B82F644,#3B82F622)"></div>
+              <div class="mock-card-info"><div class="mock-card-name">Zoro Alt Art</div><div class="mock-card-sub">🇬🇧 NM</div></div>
+              <div>
+                <div class="mock-card-price">€ 89</div>
+                <div class="mock-delta-pos">+7% ▲</div>
+              </div>
+            </div>
+            <div class="mock-card-row">
+              <div class="mock-card-img" style="background:linear-gradient(135deg,#F59E0B44,#F59E0B22)"></div>
+              <div class="mock-card-info"><div class="mock-card-name">Shanks SP</div><div class="mock-card-sub">🇮🇹 NM</div></div>
+              <div>
+                <div class="mock-card-price">€ 145</div>
+                <div class="mock-delta-neg">-2% ▼</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="mockup-reflection"></div>
     </div>
   </div>
 </section>
 
-<!-- ──────── BENTO ──────── -->
+<!-- ─── BENTO ─── -->
 <section id="funzionalita" class="section">
   <div class="container">
-    <div class="section-head fade-up">
+    <div class="section-head reveal">
       <span class="section-tag">Funzionalità</span>
-      <h2>Tutto ciò che serve.<br>Niente di superfluo.</h2>
+      <h2>Tutto ciò che serve.</h2>
       <p>Dalla ricerca al tracking ROI, ogni strumento per gestire la tua collezione come un professionista.</p>
     </div>
-
     <div class="bento">
-      <!-- 1. Big card: Prezzi italiani -->
-      <div class="bento-card b-2x2 fade-up">
+      <div class="bento-card b-2x2 reveal">
         <div class="icon-box">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="6" x2="12" y2="18"/><path d="M16 9.5C16 8 14 7 12 7s-4 1-4 2.5 2 2.5 4 2.5 4 1 4 2.5S14 17 12 17s-4-1-4-2.5"/></svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="6" x2="12" y2="18"/><path d="M16 9.5C16 8 14 7 12 7s-4 1-4 2.5 2 2.5 4 2.5 4 1 4 2.5S14 17 12 17s-4-1-4-2.5"/></svg>
         </div>
         <h3>Prezzi reali italiani.<br>Direttamente da CardTrader.</h3>
-        <p style="margin-top:10px;">Nessun'altra app mostra i prezzi reali dei venditori italiani. CARDEX li recupera in tempo reale dall'API CardTrader, filtrando per lingua e condizione.</p>
-        <div class="pills" style="margin-top:auto; padding-top:24px;">
-          <span class="pill">🇮🇹 Venditori IT</span>
-          <span class="pill">📦 200+ store verificati</span>
+        <p style="margin-top:10px;">Nessun'altra app mostra i prezzi reali dei venditori italiani. CARDEX li recupera in tempo reale, filtrando per lingua e condizione.</p>
+        <div class="pills" style="margin-top:auto;padding-top:20px;">
+          <span class="pill">🇮🇹 Priorità venditori IT</span>
+          <span class="pill">200+ store verificati</span>
         </div>
       </div>
 
-      <!-- 2. Tracking ROI -->
-      <div class="bento-card b-1x2 fade-up">
+      <div class="bento-card b-1x2 reveal reveal-delay-1">
         <div class="icon-box">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
         </div>
         <h3>Tracking ROI</h3>
         <p>Confronta quanto hai pagato vs il valore attuale. Grafico storico, delta percentuale.</p>
         <div class="mini-chart">
-          <svg viewBox="0 0 300 70" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <linearGradient id="cg" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#16A34A" stop-opacity="0.32"/>
-                <stop offset="100%" stop-color="#16A34A" stop-opacity="0"/>
-              </linearGradient>
-            </defs>
-            <path d="M 0 55 L 30 50 L 60 52 L 90 38 L 120 42 L 150 30 L 180 32 L 210 22 L 240 25 L 270 14 L 300 8 L 300 70 L 0 70 Z" fill="url(#cg)"/>
-            <path d="M 0 55 L 30 50 L 60 52 L 90 38 L 120 42 L 150 30 L 180 32 L 210 22 L 240 25 L 270 14 L 300 8" fill="none" stroke="#16A34A" stroke-width="2" stroke-linecap="round"/>
-            <circle cx="300" cy="8" r="3.5" fill="#16A34A" stroke="var(--bg-card)" stroke-width="2"/>
+          <svg viewBox="0 0 220 55" xmlns="http://www.w3.org/2000/svg" height="55">
+            <defs><linearGradient id="g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#16a34a" stop-opacity=".3"/><stop offset="100%" stop-color="#16a34a" stop-opacity="0"/></linearGradient></defs>
+            <path d="M0 44 L22 40 L44 42 L66 30 L88 32 L110 22 L132 26 L154 14 L176 18 L198 8 L220 4 L220 55 L0 55Z" fill="url(#g2)"/>
+            <path d="M0 44 L22 40 L44 42 L66 30 L88 32 L110 22 L132 26 L154 14 L176 18 L198 8 L220 4" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round"/>
           </svg>
-          <div class="chart-meta">
-            <span style="color:var(--text-mute)">Pagato € 89,50</span>
-            <span class="delta">+34.2% ▲</span>
-          </div>
+          <div class="chart-meta"><span style="color:var(--text-mute)">Pagato € 89,50</span><span class="pos">+34.2% ▲</span></div>
         </div>
       </div>
 
-      <!-- 3. Multi-TCG -->
-      <div class="bento-card b-2x1 fade-up">
+      <div class="bento-card b-2x1 reveal reveal-delay-2">
         <div class="icon-box">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
         </div>
         <h3>Multi-TCG nativo</h3>
-        <p>Pokémon e One Piece in un'unica app. Espansioni italiane, inglesi e giapponesi.</p>
-        <div class="pills">
-          <span class="pill pill-pokemon">⚡ Pokémon</span>
-          <span class="pill pill-onepiece">☠️ One Piece</span>
-        </div>
+        <p>Pokémon e One Piece in un'unica app. Espansioni italiane, inglesi, giapponesi.</p>
+        <div class="pills"><span class="pill pill-pok">⚡ Pokémon</span><span class="pill pill-op">☠️ One Piece</span></div>
       </div>
 
-      <!-- 4. Ricerca -->
-      <div class="bento-card fade-up">
-        <div class="icon-box">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        </div>
+      <div class="bento-card reveal reveal-delay-3">
+        <div class="icon-box"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
         <h3>Ricerca smart</h3>
-        <p>Per nome o codice — SV03-100, EB04-007.</p>
+        <p>Per nome o codice carta — SV03-100, EB04-007, 201/165.</p>
       </div>
 
-      <!-- 5. Condizioni -->
-      <div class="bento-card fade-up">
-        <div class="icon-box">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6v6H9z"/></svg>
-        </div>
+      <div class="bento-card reveal reveal-delay-4">
+        <div class="icon-box"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div>
         <h3>Condizioni & lingue</h3>
-        <p>NM, SP, MP. IT, EN, JP. Note e quantità per ogni copia.</p>
+        <p>NM, SP, MP, Played. IT, EN, JP. Note e quantità per ogni copia.</p>
       </div>
 
-      <!-- 6. Stats -->
-      <div class="bento-card b-2x1 fade-up">
-        <div class="icon-box">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-        </div>
+      <div class="bento-card b-2x1 reveal reveal-delay-5">
+        <div class="icon-box"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
         <h3>Statistiche & top carte</h3>
         <p>Top 5 più preziose, distribuzione per lingua, valore totale per gioco.</p>
       </div>
@@ -695,384 +677,167 @@ footer {
   </div>
 </section>
 
-<!-- ──────── COME FUNZIONA ──────── -->
-<section id="come-funziona" class="section" style="background:var(--bg-soft);">
+<!-- ─── COME FUNZIONA ─── -->
+<section id="come-funziona" class="section bg-soft-section">
   <div class="container">
-    <div class="section-head fade-up">
+    <div class="section-head reveal">
       <span class="section-tag">Come funziona</span>
       <h2>Tre step. Niente più.</h2>
       <p>Dall'app al portfolio tracciato in meno di 60 secondi.</p>
     </div>
     <div class="steps">
-      <div class="step-card fade-up">
+      <div class="step-card reveal reveal-delay-1">
         <div class="step-num">01 — CERCA</div>
         <h3>Trova la tua carta</h3>
-        <p>Digita il nome o il codice. Ti mostriamo tutte le versioni — promo, alternate, reprint — con immagine e prezzo italiano.</p>
+        <p>Digita nome o codice. Vedi tutte le versioni — promo, alternate, reprint — con immagine e prezzo italiano.</p>
       </div>
-      <div class="step-card fade-up">
+      <div class="step-card reveal reveal-delay-2">
         <div class="step-num">02 — AGGIUNGI</div>
         <h3>Salva i dettagli</h3>
         <p>Condizione, lingua, prezzo che hai pagato, data di acquisto, note. Personalizzabile copia per copia.</p>
       </div>
-      <div class="step-card fade-up">
+      <div class="step-card reveal reveal-delay-3">
         <div class="step-num">03 — MONITORA</div>
         <h3>Vedi guadagno o perdita</h3>
-        <p>Grafico storico, delta percentuale, top carte. Aggiorni i prezzi quando vuoi, lo storico cresce ad ogni refresh.</p>
+        <p>Grafico storico, delta percentuale, top carte. Lo storico cresce ad ogni refresh prezzi.</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ──────── FAQ ──────── -->
+<!-- ─── FAQ ─── -->
 <section id="faq" class="section">
   <div class="container">
-    <div class="section-head fade-up">
+    <div class="section-head reveal">
       <span class="section-tag">FAQ</span>
       <h2>Domande frequenti.</h2>
     </div>
     <div class="faq-list">
-      <details class="faq-item fade-up">
+      <details class="faq-item reveal">
         <summary>È davvero gratis?</summary>
-        <div class="answer">Sì. Beta privata aperta a chiunque si iscriva. Nessuna carta di credito richiesta. Pianifichiamo un piano premium opzionale in futuro per funzionalità avanzate (alert prezzo, export, share).</div>
+        <div class="faq-answer">Sì. Beta privata aperta a chiunque si iscriva. Nessuna carta di credito richiesta. Pianifichiamo un piano premium opzionale in futuro per funzionalità avanzate.</div>
       </details>
-      <details class="faq-item fade-up">
+      <details class="faq-item reveal reveal-delay-1">
         <summary>I prezzi sono affidabili?</summary>
-        <div class="answer">I prezzi vengono direttamente da CardTrader, la più grande piattaforma marketplace TCG europea. Filtriamo automaticamente per priorità venditori italiani, lingua della carta e condizione.</div>
+        <div class="faq-answer">I prezzi vengono direttamente da CardTrader, la più grande piattaforma marketplace TCG europea. Filtriamo per priorità venditori italiani, lingua e condizione della carta.</div>
       </details>
-      <details class="faq-item fade-up">
+      <details class="faq-item reveal reveal-delay-2">
         <summary>Quali TCG sono supportati?</summary>
-        <div class="answer">Pokémon e One Piece. Stiamo valutando Dragon Ball Super, Lorcana e Digimon per le prossime release.</div>
+        <div class="faq-answer">Pokémon e One Piece. Stiamo valutando Dragon Ball Super, Lorcana e Digimon per le prossime release.</div>
       </details>
-      <details class="faq-item fade-up">
-        <summary>Posso aggiungere carte non presenti su CardTrader?</summary>
-        <div class="answer">Al momento la collezione è alimentata dal database CardTrader (oltre 250.000 carte). L'aggiunta manuale è in roadmap.</div>
+      <details class="faq-item reveal reveal-delay-3">
+        <summary>Posso aggiungere carte non su CardTrader?</summary>
+        <div class="faq-answer">Al momento la collezione è alimentata dal database CardTrader (oltre 250.000 carte). L'aggiunta manuale è in roadmap.</div>
       </details>
     </div>
   </div>
 </section>
 
-<!-- ──────── FINAL CTA ──────── -->
+<!-- ─── FINAL CTA ─── -->
 <section class="section">
   <div class="container">
-    <div class="final-cta fade-up">
+    <div class="final-cta reveal">
       <h2>Pronto a tracciare<br>la tua collezione?</h2>
-      <p>Gratis. Nessuna carta di credito.<br>Inizia in meno di 30 secondi.</p>
+      <p>Gratis. Nessuna carta di credito. Inizia in 30 secondi.</p>
       <a href="index.html" class="btn btn-primary btn-lg">Inizia gratis →</a>
     </div>
   </div>
 </section>
 
-<!-- ──────── FOOTER ──────── -->
+<!-- ─── FOOTER ─── -->
 <footer>
   <div class="foot-inner">
     <a href="#top" class="brand-logo"><span class="lite">CARD</span><span>EX</span></a>
     <div class="foot-links">
-      <a href="#">Privacy</a>
-      <a href="#">Termini</a>
-      <a href="mailto:hello@cardex.app">Contatti</a>
+      <a href="#">Privacy</a><a href="#">Termini</a><a href="mailto:hello@cardex.app">Contatti</a>
     </div>
     <div class="foot-copy">© 2026 CARDEX</div>
   </div>
 </footer>
 
-<!-- ──────── SCRIPTS ──────── -->
 <script>
-/* ===== Theme toggle ===== */
+/* ── Theme ── */
 const root = document.documentElement;
-const stored = localStorage.getItem('cardex-theme');
-if (stored === 'dark' || stored === 'light') root.setAttribute('data-theme', stored);
-else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) root.setAttribute('data-theme', 'dark');
+const saved = localStorage.getItem('cx-theme');
+if (saved) root.setAttribute('data-theme', saved);
+else if (matchMedia('(prefers-color-scheme: dark)').matches) root.setAttribute('data-theme', 'dark');
 document.getElementById('theme-toggle').addEventListener('click', () => {
-  const cur = root.getAttribute('data-theme');
-  const next = cur === 'dark' ? 'light' : 'dark';
-  root.setAttribute('data-theme', next);
-  localStorage.setItem('cardex-theme', next);
+  const n = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  root.setAttribute('data-theme', n);
+  localStorage.setItem('cx-theme', n);
 });
 
-/* ===== Mobile menu ===== */
-const menuBtn = document.getElementById('menu-btn');
+/* ── Mobile menu ── */
 const mm = document.getElementById('mobile-menu');
-menuBtn.addEventListener('click', () => mm.classList.toggle('open'));
+document.getElementById('menu-btn').addEventListener('click', () => mm.classList.toggle('open'));
 mm.querySelectorAll('a').forEach(a => a.addEventListener('click', () => mm.classList.remove('open')));
 
-/* ===== Show desktop CTA after JS load ===== */
-const ctaDesk = document.getElementById('cta-desktop');
-if (window.innerWidth >= 768) ctaDesk.style.display = 'inline-flex';
-window.addEventListener('resize', () => ctaDesk.style.display = (window.innerWidth >= 768) ? 'inline-flex' : 'none');
+/* ── Desktop CTA ── */
+const ctaD = document.getElementById('cta-desk');
+const showCta = () => ctaD.style.display = innerWidth >= 768 ? 'inline-flex' : 'none';
+showCta(); addEventListener('resize', showCta);
 
-/* ===== Fade-up on scroll ===== */
-const io = new IntersectionObserver((entries) => {
-  entries.forEach(e => {
-    if (e.isIntersecting) {
-      e.target.classList.add('visible');
-      io.unobserve(e.target);
-    }
+/* ── 3D Scroll Reveal ── */
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+}, { threshold: 0.10, rootMargin: '0px 0px -30px 0px' });
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+/* ── 3D Mockup — mouse parallax + scroll tilt ── */
+const scene = document.getElementById('mockup-scene');
+const stage = document.getElementById('mockup-stage');
+if (scene && stage) {
+  let targetRX = 14, targetRY = 0, curRX = 14, curRY = 0;
+  let raf;
+
+  scene.addEventListener('mousemove', e => {
+    const r = scene.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width - 0.5;   // -0.5 to 0.5
+    const y = (e.clientY - r.top) / r.height - 0.5;
+    targetRX = 14 + y * -10;   // tilt up/down
+    targetRY = x * 12;         // tilt left/right
   });
-}, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
-document.querySelectorAll('.fade-up').forEach(el => io.observe(el));
+  scene.addEventListener('mouseleave', () => { targetRX = 14; targetRY = 0; });
 
-/* ===========================================================
-   ===== DRAGON WIREFRAME — mouse-driven scatter/converge =====
-   =========================================================== */
+  // Scroll: reduces tilt as user scrolls down
+  addEventListener('scroll', () => {
+    const rect = scene.getBoundingClientRect();
+    const vy = rect.top / innerHeight;            // 1 = above fold, 0 = at top, negative = below
+    targetRX = Math.max(0, Math.min(18, 14 * vy));
+  }, { passive: true });
 
-/* ViewBox is 800 x 500.
-   Each line has a "home" position [x1,y1,x2,y2] forming a stylized
-   Charizard side profile (head left, mouth open, neck curving,
-   wing top-right, tail down-right). When mouse is near center
-   of stage, lines converge to home. When far/idle, they scatter. */
+  function tickMockup() {
+    curRX += (targetRX - curRX) * 0.07;
+    curRY += (targetRY - curRY) * 0.07;
+    stage.style.transform = `rotateX(${curRX.toFixed(2)}deg) rotateY(${curRY.toFixed(2)}deg)`;
+    raf = requestAnimationFrame(tickMockup);
+  }
+  tickMockup();
 
-const DRAGON = [
-  // Head outline - top
-  [110,180, 165,160],
-  [165,160, 220,150],
-  [220,150, 275,160],
-  [275,160, 320,180],
-  [320,180, 360,200],
-  [360,200, 380,225],
-
-  // Snout / nose bridge
-  [380,225, 360,250],
-  [360,250, 330,255],
-
-  // Upper jaw (mouth open)
-  [330,255, 295,265],
-  [295,265, 250,270],
-  [250,270, 210,275],
-  [210,275, 175,280],
-
-  // Teeth upper
-  [320,255, 322,270],
-  [290,260, 292,278],
-  [255,265, 257,285],
-  [220,270, 222,290],
-  [185,275, 187,295],
-
-  // Lower jaw
-  [175,280, 145,310],
-  [145,310, 120,335],
-  [120,335, 110,350],
-
-  // Teeth lower
-  [165,295, 168,308],
-  [195,300, 198,315],
-  [225,302, 228,318],
-  [255,300, 258,315],
-
-  // Inner mouth glow lines
-  [200,290, 280,290],
-  [220,300, 290,295],
-  [240,310, 300,305],
-
-  // Throat / chin
-  [110,350, 130,365],
-  [130,365, 160,370],
-  [160,370, 200,365],
-
-  // Back of jaw / cheek
-  [380,225, 400,250],
-  [400,250, 410,285],
-  [410,285, 405,320],
-
-  // HORNS (top of head, pointing back-up)
-  [220,150, 215,95],
-  [215,95, 235,140],
-  [255,150, 255,80],
-  [255,80, 280,135],
-  [285,155, 290,100],
-  [290,100, 310,150],
-
-  // Eye area (small angular)
-  [280,200, 305,205],
-  [305,205, 300,222],
-  [300,222, 280,218],
-  [280,218, 280,200],
-
-  // Brow above eye
-  [275,190, 310,185],
-
-  // Neck (curving down-right)
-  [405,320, 460,340],
-  [460,340, 510,355],
-  [510,355, 550,360],
-
-  // Belly / chest
-  [200,365, 260,380],
-  [260,380, 330,385],
-  [330,385, 400,380],
-  [400,380, 460,375],
-  [460,375, 510,365],
-
-  // Shoulder / wing root
-  [410,285, 480,260],
-  [480,260, 530,250],
-
-  // WING - main bones
-  [530,250, 600,180],
-  [600,180, 680,140],
-  [680,140, 750,160],
-
-  [530,250, 620,220],
-  [620,220, 700,200],
-  [700,200, 770,230],
-
-  [530,250, 615,260],
-  [615,260, 705,270],
-  [705,270, 770,290],
-
-  [530,250, 605,300],
-  [605,300, 680,320],
-
-  // Wing membrane (vertical struts)
-  [600,180, 620,220],
-  [680,140, 700,200],
-  [750,160, 770,230],
-  [620,220, 615,260],
-  [700,200, 705,270],
-  [770,230, 770,290],
-  [615,260, 605,300],
-  [705,270, 680,320],
-
-  // TAIL (lower right)
-  [510,365, 555,395],
-  [555,395, 600,420],
-  [600,420, 650,440],
-  [650,440, 685,460],
-  [550,360, 590,395],
-  [590,395, 630,425],
-  [630,425, 660,455],
-
-  // Flame at tail tip
-  [685,460, 720,440],
-  [720,440, 730,470],
-  [730,470, 700,475],
-  [700,475, 685,460],
-
-  // Body fractures (interior cracks for "shattered" look)
-  [240,250, 280,275],
-  [180,260, 220,290],
-  [320,210, 360,235],
-  [310,295, 360,320],
-  [380,300, 425,330],
-  [255,330, 310,360],
-  [335,340, 390,365],
-  [415,335, 470,355],
-  [490,295, 540,320],
-  [545,275, 580,305],
-
-  // Decorative ember sparks (short floating)
-  [60,140, 75,135],
-  [50,200, 65,205],
-  [45,290, 60,288],
-  [780,90, 795,95],
-  [770,400, 790,405],
-  [55,420, 70,418],
-];
-
-const W = 800, H = 500;
-
-/* Generate "scattered" random positions for each line */
-const LINES = DRAGON.map(home => {
-  // Random scattered endpoints
-  const r1x = Math.random() * W;
-  const r1y = Math.random() * H;
-  const r2x = r1x + (Math.random() - 0.5) * 120;
-  const r2y = r1y + (Math.random() - 0.5) * 120;
-  return {
-    home: { x1: home[0], y1: home[1], x2: home[2], y2: home[3] },
-    scatter: { x1: r1x, y1: r1y, x2: r2x, y2: r2y },
-    el: null,
-  };
-});
-
-const group = document.getElementById('dragon-lines');
-const stage = document.getElementById('dragon-stage');
-const hint = document.getElementById('dragon-hint');
-const svgNS = 'http://www.w3.org/2000/svg';
-
-/* Create line elements */
-LINES.forEach((L, i) => {
-  const line = document.createElementNS(svgNS, 'line');
-  line.setAttribute('x1', L.scatter.x1);
-  line.setAttribute('y1', L.scatter.y1);
-  line.setAttribute('x2', L.scatter.x2);
-  line.setAttribute('y2', L.scatter.y2);
-  line.setAttribute('stroke', 'url(#emberGrad)');
-  line.setAttribute('stroke-width', 1.2 + Math.random() * 0.8);
-  line.setAttribute('stroke-linecap', 'round');
-  line.setAttribute('opacity', 0.85);
-  group.appendChild(line);
-  L.el = line;
-});
-
-/* Mouse-driven convergence */
-let targetT = 0; // 0 = scattered, 1 = formed
-let currentT = 0;
-let mouseInside = false;
-let mouseX = 0.5, mouseY = 0.5; // normalized 0-1
-
-stage.addEventListener('mouseenter', () => { mouseInside = true; hint.style.opacity = '0'; });
-stage.addEventListener('mouseleave', () => { mouseInside = false; hint.style.opacity = '0.7'; });
-stage.addEventListener('mousemove', (e) => {
-  const r = stage.getBoundingClientRect();
-  mouseX = (e.clientX - r.left) / r.width;
-  mouseY = (e.clientY - r.top) / r.height;
-  // Distance from center -> 0 (center) to ~0.7 (edges)
-  const dx = mouseX - 0.5;
-  const dy = mouseY - 0.5;
-  const dist = Math.sqrt(dx*dx + dy*dy);
-  // Inverse: closer to center => higher t
-  targetT = Math.max(0, Math.min(1, 1 - dist * 1.6));
-});
-
-/* Touch support */
-stage.addEventListener('touchmove', (e) => {
-  if (!e.touches[0]) return;
-  const r = stage.getBoundingClientRect();
-  mouseX = (e.touches[0].clientX - r.left) / r.width;
-  mouseY = (e.touches[0].clientY - r.top) / r.height;
-  const dx = mouseX - 0.5, dy = mouseY - 0.5;
-  const dist = Math.sqrt(dx*dx + dy*dy);
-  targetT = Math.max(0, Math.min(1, 1 - dist * 1.6));
-}, { passive: true });
-
-/* Animation loop */
-function lerp(a, b, t) { return a + (b - a) * t; }
-function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
-
-function animate() {
-  // Smooth follow
-  currentT += (targetT - currentT) * 0.08;
-  const t = easeOut(currentT);
-
-  // Subtle ambient breathing when not converged
-  const time = performance.now() * 0.001;
-  const breathe = (1 - t) * 4 * Math.sin(time);
-
-  LINES.forEach((L, i) => {
-    const phase = i * 0.13;
-    const wob = (1 - t) * 6 * Math.sin(time * 1.2 + phase);
-    const wob2 = (1 - t) * 6 * Math.cos(time * 1.0 + phase);
-
-    const x1 = lerp(L.scatter.x1, L.home.x1, t) + wob;
-    const y1 = lerp(L.scatter.y1, L.home.y1, t) + wob2;
-    const x2 = lerp(L.scatter.x2, L.home.x2, t) - wob;
-    const y2 = lerp(L.scatter.y2, L.home.y2, t) - wob2;
-
-    L.el.setAttribute('x1', x1.toFixed(1));
-    L.el.setAttribute('y1', y1.toFixed(1));
-    L.el.setAttribute('x2', x2.toFixed(1));
-    L.el.setAttribute('y2', y2.toFixed(1));
-    // Brightness scales with t
-    L.el.setAttribute('opacity', (0.4 + t * 0.55).toFixed(2));
-  });
-
-  requestAnimationFrame(animate);
+  // Touch support
+  scene.addEventListener('touchmove', e => {
+    if (!e.touches[0]) return;
+    const r = scene.getBoundingClientRect();
+    const x = (e.touches[0].clientX - r.left) / r.width - 0.5;
+    const y = (e.touches[0].clientY - r.top) / r.height - 0.5;
+    targetRX = 14 + y * -8;
+    targetRY = x * 8;
+  }, { passive: true });
+  scene.addEventListener('touchend', () => { targetRX = 14; targetRY = 0; });
 }
 
-/* Initial gentle target so user sees the dragon faintly */
-setTimeout(() => { targetT = 0.4; }, 800);
-animate();
+/* ── Bento card 3D hover tilt ── */
+document.querySelectorAll('.bento-card').forEach(card => {
+  card.addEventListener('mousemove', e => {
+    const r = card.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width - 0.5;
+    const y = (e.clientY - r.top) / r.height - 0.5;
+    card.style.transform = `perspective(600px) rotateX(${(-y*6).toFixed(1)}deg) rotateY(${(x*6).toFixed(1)}deg) translateZ(4px)`;
+  });
+  card.addEventListener('mouseleave', () => {
+    card.style.transform = 'perspective(600px) rotateX(0) rotateY(0) translateZ(0)';
+  });
+});
 </script>
-
 </body>
 </html>
