@@ -218,44 +218,57 @@ body::before {
 
 /* ─── 3D HERO MOCKUP ─── */
 .mockup-scene {
-  perspective: 1800px;
+  perspective: 1200px;
   perspective-origin: 50% 20%;
-  max-width: 860px; margin: 0 auto;
+  max-width: 100%; margin: 0 auto;
   position: relative;
+  overflow: hidden;
 }
 .mockup-stage {
-  transform: rotateX(14deg);
+  transform: rotateX(8deg);
   transform-style: preserve-3d;
   display: flex; align-items: flex-start; justify-content: center;
-  gap: 16px; padding: 0 12px;
+  gap: 12px; padding: 0 8px;
   transition: transform .6s cubic-bezier(0.22,.61,.36,1);
 }
 .mock-panel {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: 12px;
   overflow: hidden;
   box-shadow: var(--shadow-h);
   flex-shrink: 0;
   transition: transform .6s cubic-bezier(0.22,.61,.36,1);
 }
 .mock-panel.main {
-  width: 300px;
-  transform: translateZ(40px);
+  width: 160px;
+  transform: translateZ(20px);
 }
 .mock-panel.side {
-  width: 220px;
-  opacity: 0.80;
-  transform: translateZ(0px) translateY(24px);
-}
-.mock-panel.far {
-  width: 160px;
-  opacity: 0.55;
-  transform: translateZ(-30px) translateY(48px);
+  width: 120px;
+  opacity: 0.70;
+  transform: translateZ(-10px) translateY(12px);
   display: none;
 }
-@media (min-width: 640px) { .mock-panel.far { display: block; } }
-@media (min-width: 768px) { .mock-panel.side { width: 240px; } .mock-panel.main { width: 320px; } }
+.mock-panel.far {
+  width: 90px;
+  opacity: 0.45;
+  transform: translateZ(-40px) translateY(24px);
+  display: none;
+}
+@media (min-width: 640px) {
+  .mockup-stage { gap: 14px; padding: 0 10px; }
+  .mock-panel.main { width: 240px; transform: translateZ(30px); }
+  .mock-panel.side { width: 170px; opacity: 0.75; transform: translateZ(-5px) translateY(18px); display: block; }
+  .mock-panel.far { display: none; }
+}
+@media (min-width: 768px) {
+  .mockup-scene { perspective: 1800px; }
+  .mockup-stage { gap: 16px; padding: 0 12px; transform: rotateX(14deg); }
+  .mock-panel.main { width: 320px; transform: translateZ(40px); }
+  .mock-panel.side { width: 240px; opacity: 0.80; transform: translateZ(0px) translateY(24px); }
+  .mock-panel.far { width: 160px; opacity: 0.55; transform: translateZ(-30px) translateY(48px); display: block; }
+}
 
 /* Mock panel chrome bar */
 .mock-bar {
@@ -422,17 +435,25 @@ footer { border-top: 1px solid var(--border); padding: 40px 24px; margin-top: 40
 /* ─── 3D SCROLL REVEAL ─── */
 .reveal {
   opacity: 0;
-  transform: perspective(900px) rotateX(8deg) translateY(28px);
+  transform: perspective(900px) rotateX(6deg) translateX(-40px);
   transition: opacity .8s cubic-bezier(0.22,.61,.36,1),
               transform .8s cubic-bezier(0.22,.61,.36,1);
 }
-.reveal.in { opacity: 1; transform: perspective(900px) rotateX(0deg) translateY(0); }
+.reveal.in { opacity: 1; transform: perspective(900px) rotateX(0deg) translateX(0); }
 .reveal-delay-1 { transition-delay: .08s; }
 .reveal-delay-2 { transition-delay: .16s; }
 .reveal-delay-3 { transition-delay: .24s; }
 .reveal-delay-4 { transition-delay: .32s; }
 .reveal-delay-5 { transition-delay: .40s; }
 .reveal-delay-6 { transition-delay: .48s; }
+@media (min-width: 768px) {
+  .reveal {
+    transform: perspective(900px) rotateX(8deg) translateY(28px);
+  }
+  .reveal.in {
+    transform: perspective(900px) rotateX(0deg) translateY(0);
+  }
+}
 
 /* section bg-soft */
 .bg-soft-section { background: var(--bg-soft); }
@@ -786,24 +807,34 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 /* ── 3D Mockup — mouse parallax + scroll tilt ── */
 const scene = document.getElementById('mockup-scene');
 const stage = document.getElementById('mockup-stage');
+const isMobile = innerWidth < 768;
 if (scene && stage) {
-  let targetRX = 14, targetRY = 0, curRX = 14, curRY = 0;
+  let targetRX = isMobile ? 8 : 14, targetRY = 0, curRX = isMobile ? 8 : 14, curRY = 0;
   let raf;
 
-  scene.addEventListener('mousemove', e => {
-    const r = scene.getBoundingClientRect();
-    const x = (e.clientX - r.left) / r.width - 0.5;   // -0.5 to 0.5
-    const y = (e.clientY - r.top) / r.height - 0.5;
-    targetRX = 14 + y * -10;   // tilt up/down
-    targetRY = x * 12;         // tilt left/right
-  });
-  scene.addEventListener('mouseleave', () => { targetRX = 14; targetRY = 0; });
+  // Desktop mouse parallax only
+  if (!isMobile) {
+    scene.addEventListener('mousemove', e => {
+      const r = scene.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width - 0.5;
+      const y = (e.clientY - r.top) / r.height - 0.5;
+      targetRX = 14 + y * -10;
+      targetRY = x * 12;
+    });
+    scene.addEventListener('mouseleave', () => { targetRX = 14; targetRY = 0; });
+  }
 
-  // Scroll: reduces tilt as user scrolls down
+  // Scroll: subtle effect on mobile, reduces tilt on desktop
   addEventListener('scroll', () => {
     const rect = scene.getBoundingClientRect();
-    const vy = rect.top / innerHeight;            // 1 = above fold, 0 = at top, negative = below
-    targetRX = Math.max(0, Math.min(18, 14 * vy));
+    const vy = rect.top / innerHeight;
+    if (isMobile) {
+      // Mobile: very subtle, stays close to 8deg
+      targetRX = Math.max(4, Math.min(8, 8 * vy));
+    } else {
+      // Desktop: original behavior
+      targetRX = Math.max(0, Math.min(18, 14 * vy));
+    }
   }, { passive: true });
 
   function tickMockup() {
@@ -814,16 +845,18 @@ if (scene && stage) {
   }
   tickMockup();
 
-  // Touch support
-  scene.addEventListener('touchmove', e => {
-    if (!e.touches[0]) return;
-    const r = scene.getBoundingClientRect();
-    const x = (e.touches[0].clientX - r.left) / r.width - 0.5;
-    const y = (e.touches[0].clientY - r.top) / r.height - 0.5;
-    targetRX = 14 + y * -8;
-    targetRY = x * 8;
-  }, { passive: true });
-  scene.addEventListener('touchend', () => { targetRX = 14; targetRY = 0; });
+  // Touch support (mobile only)
+  if (isMobile) {
+    scene.addEventListener('touchmove', e => {
+      if (!e.touches[0]) return;
+      const r = scene.getBoundingClientRect();
+      const x = (e.touches[0].clientX - r.left) / r.width - 0.5;
+      const y = (e.touches[0].clientY - r.top) / r.height - 0.5;
+      targetRX = 8 + y * -4;
+      targetRY = x * 4;
+    }, { passive: true });
+    scene.addEventListener('touchend', () => { targetRX = 8; targetRY = 0; });
+  }
 }
 
 /* ── Bento card 3D hover tilt ── */
