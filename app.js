@@ -44,9 +44,9 @@ const ICONS={
 
 let searchTimeout = null;
 let searchId = 0;
-let _allSearchResults = []; // Tutti i risultati della ricerca
-let _currentSearchPage = 0; // Pagina corrente (0-indexed)
-const SEARCH_PAGE_SIZE = 12; // Carte per pagina
+let _allSearchResults = [];
+let _currentSearchPage = 0;
+const SEARCH_PAGE_SIZE = 12;
 let isRegisterMode = false;
 let autocompleteIndex = -1;
 let lastDetailBp = null;
@@ -385,9 +385,8 @@ function renderSearchPage(){
   const endIdx = startIdx + SEARCH_PAGE_SIZE;
   const pageResults = _allSearchResults.slice(startIdx, endIdx);
 
-  window._searchResults = _allSearchResults; // Mantiene i riferimenti globali
+  window._searchResults = _allSearchResults;
 
-  // Renderizza le carte della pagina
   const cardsHtml = pageResults.map((bp, idx) => {
     const globalIdx = startIdx + idx;
     const cn = bp.fixed_properties?.collector_number || '';
@@ -407,7 +406,6 @@ function renderSearchPage(){
     </div>`;
   }).join('');
 
-  // Pulsanti di paginazione
   let pagination = '';
   if(totalPages > 1) {
     pagination = `<div style="display:flex;gap:8px;justify-content:center;align-items:center;margin-top:16px;margin-bottom:16px;">
@@ -425,7 +423,6 @@ function goToSearchPage(pageNum){
   if(pageNum < 0 || pageNum >= totalPages) return;
   _currentSearchPage = pageNum;
   renderSearchPage();
-  // Scrolla all'inizio della griglia
   document.getElementById('results-grid').scrollIntoView({behavior:'smooth',block:'start'});
 }
 
@@ -1410,4 +1407,3 @@ async function deleteAccount(){
     btn.textContent='Sì, elimina tutto per sempre';
   }
 }
-
