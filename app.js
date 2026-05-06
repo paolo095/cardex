@@ -48,6 +48,10 @@ let isRegisterMode = false;
 let autocompleteIndex = -1;
 let lastDetailBp = null;
 let previousScreen = 'screen-home';
+let _searchAllResults = [];
+let _searchPage = 0;
+let _searchFirstRender = false;
+const RESULTS_PER_PAGE = 12;
 
 // ── API ──
 async function apiCall(path){
@@ -155,7 +159,12 @@ function showScreen(id){
   ['nav-home','nav-collection-pokemon','nav-collection-onepiece','nav-stats'].forEach(n=>{
     const el=document.getElementById(n); if(el) el.classList.remove('active');
   });
-  if(id==='screen-home') document.getElementById('nav-home').classList.add('active');
+  if(id==='screen-home'){
+    document.getElementById('nav-home').classList.add('active');
+    // Resetta lo stato iniziale della ricerca con l'icona corretta
+    const rg=document.getElementById('results-grid');
+    if(rg&&!_searchAllResults.length) rg.innerHTML=`<div class="empty-state"><span class="empty-icon">${ICONS.layers()}</span>Inizia a scrivere per cercare.<br>Clicca su una carta per i dettagli.</div>`;
+  }
   else if(id==='screen-collection-pokemon'){
     document.getElementById('nav-collection-pokemon').classList.add('active');
     renderCollectionGrid('pokemon');
@@ -320,6 +329,7 @@ async function translateToEnglish(q){
 
 async function doSearch(query){
   const myId=++searchId;
+  _searchFirstRender=false;
   const q=query.toLowerCase();
   const exps=expansionsDB[currentGame];
   const isCN=isCollectorNumber(q);
@@ -362,12 +372,18 @@ async function doSearch(query){
       });
       results.push(...matched);
     }
-    if(searchId===myId&&results.length>0) renderResultsGrid(results);
+    // Render solo al primo batch con risultati (no flickering)
+    if(searchId===myId&&results.length>0&&!_searchFirstRender){
+      _searchFirstRender=true;
+      renderResultsGrid(results);
+    }
     if(results.length>=200) break;
   }
   if(searchId!==myId) return;
   if(!results.length){
     document.getElementById('results-grid').innerHTML=`<div class="empty-state"><span class="empty-icon">${ICONS.searchX()}</span>Nessuna carta trovata.</div>`;
+  } else {
+    renderResultsGrid(results); // render finale completo
   }
 }
 
@@ -378,11 +394,23 @@ function abbrevCode(code){
 }
 
 function renderResultsGrid(bps){
+  _searchAllResults=bps;
   window._searchResults=bps;
-  document.getElementById('results-grid').innerHTML=bps.map((bp,i)=>{
+  _searchPage=0;
+  renderSearchPage();
+}
+
+function renderSearchPage(){
+  const total=_searchAllResults.length;
+  const totalPages=Math.ceil(total/RESULTS_PER_PAGE);
+  const start=_searchPage*RESULTS_PER_PAGE;
+  const pageItems=_searchAllResults.slice(start,start+RESULTS_PER_PAGE);
+
+  const cardsHtml=pageItems.map((bp,i)=>{
+    const realIdx=start+i;
     const cn=bp.fixed_properties?.collector_number||'';
     const expCode=abbrevCode(bp.expansion?.code||bp.expansion?.name||'');
-    return `<div class="result-card" onclick="openDetailByIndex(${i})">
+    return `<div class="result-card" onclick="openDetailByIndex(${realIdx})">
       <img src="${bp.image_url||''}" alt="${bp.name}" loading="lazy" onerror="this.style.display='none'">
       <div class="result-card-body">
         <div class="result-card-name">${bp.name}</div>
@@ -393,10 +421,27 @@ function renderResultsGrid(bps){
       </div>
     </div>`;
   }).join('');
+
+  const pagHtml=totalPages>1?`
+    <div class="results-pagination">
+      <button class="pag-btn" onclick="goToSearchPage(${_searchPage-1})" ${_searchPage===0?'disabled':''}>←</button>
+      <span class="pag-info">${_searchPage+1} / ${totalPages}</span>
+      <button class="pag-btn" onclick="goToSearchPage(${_searchPage+1})" ${_searchPage>=totalPages-1?'disabled':''}>→</button>
+    </div>`:'';
+
+  document.getElementById('results-grid').innerHTML=cardsHtml+pagHtml;
+}
+
+function goToSearchPage(page){
+  const totalPages=Math.ceil(_searchAllResults.length/RESULTS_PER_PAGE);
+  if(page<0||page>=totalPages) return;
+  _searchPage=page;
+  renderSearchPage();
+  document.getElementById('results-grid').scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 
 function openDetailByIndex(i){
-  const bp=window._searchResults?.[i];
+  const bp=_searchAllResults[i];
   if(bp) openDetail(bp);
 }
 
