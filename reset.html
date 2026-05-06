@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNyIgZmlsbD0iIzBjMGMwYyIvPgogIDx0ZXh0IHg9IjIiIHk9IjI0IiBmb250LWZhbWlseT0iJ0hlbHZldGljYSBOZXVlJyxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iMjAwIiBmb250LXNpemU9IjIwIiBsZXR0ZXItc3BhY2luZz0iLTEiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4zOCkiPkM8L3RleHQ+CiAgPHRleHQgeD0iMTUiIHk9IjI0IiBmb250LWZhbWlseT0iJ0hlbHZldGljYSBOZXVlJyxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iOTAwIiBmb250LXNpemU9IjIwIiBsZXR0ZXItc3BhY2luZz0iLTEiIGZpbGw9IiNmZmZmZmYiPlg8L3RleHQ+Cjwvc3ZnPg==">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>CARDEX — Reset Password</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&family=Syne:wght@300;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  /* Stato iniziale: mostra solo lo spinner mentre gestiamo il token */
+  body { display:flex; align-items:center; justify-content:center; min-height:100vh; padding:20px; }
+  #state-loading { text-align:center; }
+  #state-form, #state-success, #state-error { display:none; }
+  .spinner-large {
+    width:40px; height:40px;
+    border:3px solid rgba(255,255,255,0.1);
+    border-top-color:var(--gold);
+    border-radius:50%;
+    animation:spin .8s linear infinite;
+    margin:0 auto 20px;
+  }
+  .reset-label { font-size:12px; color:var(--muted); margin-top:6px; display:block; }
+  .pw-wrap{position:relative;}
+  .pw-wrap .form-input{padding-right:46px;}
+  .pw-toggle{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);font-size:18px;line-height:1;padding:4px;transition:color .2s;display:flex;align-items:center;justify-content:center;}
+  .pw-toggle:hover{color:var(--gold);}
+</style>
+</head>
+<body>
+
+<!-- STATO: CARICAMENTO (default) -->
+<div id="state-loading">
+  <div class="spinner-large"></div>
+  <div class="brand-logo" style="font-size:32px;margin-bottom:8px;">
+    <span class="bl-card">CARD</span><span class="bl-ex">EX</span>
+  </div>
+  <p style="color:var(--muted);font-size:13px;">Verifica del link in corso...</p>
+</div>
+
+<!-- STATO: FORM RESET PASSWORD -->
+<div id="state-form">
+  <div class="login-box">
+    <span class="brand-logo" style="font-size:40px;">
+      <span class="bl-card">CARD</span><span class="bl-ex">EX</span>
+    </span>
+    <span class="brand-tag">Imposta nuova password</span>
+    <p class="login-sub" style="margin-top:20px;">
+      Scegli una nuova password sicura per il tuo account.
+    </p>
+    <div class="form-group" style="margin-top:8px;">
+      <label class="form-label">Nuova password</label>
+      <div class="pw-wrap">
+        <input class="form-input" id="new-pw" type="password" placeholder="Almeno 6 caratteri" oninput="clearErrors()"/>
+        <button type="button" class="pw-toggle" onclick="togglePw('new-pw',this)" tabindex="-1">👁</button>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Conferma password</label>
+      <div class="pw-wrap">
+        <input class="form-input" id="confirm-pw" type="password" placeholder="Ripeti la password" oninput="clearErrors()" onkeydown="if(event.key==='Enter') doReset()"/>
+        <button type="button" class="pw-toggle" onclick="togglePw('confirm-pw',this)" tabindex="-1">👁</button>
+      </div>
+    </div>
+    <div class="auth-error" id="reset-error"></div>
+    <button class="btn-primary" id="btn-reset" onclick="doReset()" style="margin-top:8px;">
+      Salva nuova password →
+    </button>
+    <div style="margin-top:16px;text-align:center;">
+      <a href="index.html" style="font-size:12px;color:var(--muted);cursor:pointer;text-decoration:none;"
+         onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--muted)'">
+        ← Torna al login
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- STATO: SUCCESSO -->
+<div id="state-success">
+  <div class="login-box" style="text-align:center;">
+    <div style="font-size:52px;margin-bottom:16px;">✅</div>
+    <span class="brand-logo" style="font-size:36px;">
+      <span class="bl-card">CARD</span><span class="bl-ex">EX</span>
+    </span>
+    <p style="color:var(--text);font-size:18px;font-weight:600;margin-top:20px;">Password aggiornata!</p>
+    <p style="color:var(--muted);font-size:13px;margin-top:8px;line-height:1.6;">
+      La tua password è stata cambiata con successo.<br>
+      Verrai reindirizzato all'app tra pochi secondi.
+    </p>
+    <div style="margin-top:24px;">
+      <div style="height:3px;background:var(--bg3);border-radius:3px;overflow:hidden;">
+        <div id="redirect-bar" style="height:100%;background:var(--green);width:0%;transition:width 2.5s linear;border-radius:3px;"></div>
+      </div>
+      <span class="reset-label">Reindirizzamento in corso...</span>
+    </div>
+    <a href="index.html" class="btn-primary" style="display:block;margin-top:20px;text-decoration:none;text-align:center;">
+      Vai all'app →
+    </a>
+  </div>
+</div>
+
+<!-- STATO: ERRORE (link scaduto o non valido) -->
+<div id="state-error">
+  <div class="login-box" style="text-align:center;">
+    <div style="font-size:52px;margin-bottom:16px;">⚠️</div>
+    <span class="brand-logo" style="font-size:36px;">
+      <span class="bl-card">CARD</span><span class="bl-ex">EX</span>
+    </span>
+    <p style="color:var(--text);font-size:18px;font-weight:600;margin-top:20px;">Link non valido</p>
+    <p id="error-detail" style="color:var(--muted);font-size:13px;margin-top:8px;line-height:1.6;">
+      Il link di reset è scaduto o non è più valido.<br>
+      Richiedine uno nuovo dall'app.
+    </p>
+    <a href="index.html" class="btn-primary" style="display:block;margin-top:24px;text-decoration:none;text-align:center;">
+      Torna al login →
+    </a>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://mdmabytgxvmjfiirqjpo.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_2zz5cPaJZ9JnDPsGUjQbXw_FOrAB-HL';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+function togglePw(inputId, btn){
+  const input=document.getElementById(inputId);
+  if(!input) return;
+  const isHidden=input.type==='password';
+  input.type=isHidden?'text':'password';
+  btn.textContent=isHidden?'🙈':'👁';
+}
+
+function show(stateId) {
+  ['state-loading','state-form','state-success','state-error'].forEach(id => {
+    document.getElementById(id).style.display = id === stateId ? 'block' : 'none';
+  });
+}
+
+function clearErrors() {
+  const el = document.getElementById('reset-error');
+  el.style.display = 'none';
+}
+
+function showError(msg) {
+  const el = document.getElementById('reset-error');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+async function doReset() {
+  const pw = document.getElementById('new-pw').value;
+  const confirm = document.getElementById('confirm-pw').value;
+  clearErrors();
+
+  if (!pw || pw.length < 6) {
+    showError('La password deve essere di almeno 6 caratteri.');
+    return;
+  }
+  if (pw !== confirm) {
+    showError('Le password non coincidono.');
+    return;
+  }
+
+  const btn = document.getElementById('btn-reset');
+  btn.disabled = true;
+  btn.textContent = 'Salvataggio...';
+
+  const { error } = await sb.auth.updateUser({ password: pw });
+
+  if (error) {
+    showError('Errore: ' + error.message);
+    btn.disabled = false;
+    btn.textContent = 'Salva nuova password →';
+  } else {
+    show('state-success');
+    // Anima la barra e poi reindirizza
+    setTimeout(() => {
+      document.getElementById('redirect-bar').style.width = '100%';
+    }, 100);
+    setTimeout(() => {
+      window.location.href = 'index.html';
+    }, 3000);
+  }
+}
+
+// ── GESTIONE TOKEN DA URL ──
+(async () => {
+  // Leggi i parametri dall'URL
+  const params = new URLSearchParams(window.location.search);
+  const tokenHash = params.get('token_hash');
+  const type = params.get('type');
+
+  // Pulisci l'URL subito per sicurezza
+  window.history.replaceState(null, '', window.location.pathname);
+
+  if (!tokenHash || type !== 'recovery') {
+    // Nessun token nell'URL: link non valido o già usato
+    show('state-error');
+    return;
+  }
+
+  // Scambia il token_hash con una sessione reale
+  const { data, error } = await sb.auth.verifyOtp({
+    token_hash: tokenHash,
+    type: 'recovery'
+  });
+
+  if (error || !data?.session) {
+    // Token scaduto o non valido
+    const detail = document.getElementById('error-detail');
+    if (detail) detail.textContent = error?.message === 'Token has expired or is invalid'
+      ? 'Il link è scaduto (validità 1 ora). Richiedine uno nuovo dall\'app.'
+      : (error?.message || 'Link non valido. Richiedine uno nuovo dall\'app.');
+    show('state-error');
+    return;
+  }
+
+  // Token valido: mostra il form
+  show('state-form');
+  document.getElementById('new-pw').focus();
+})();
+</script>
+</body>
+</html>
