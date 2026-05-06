@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CARDEX — La tua collezione TCG, con prezzi reali italiani</title>
+<meta name="description" content="Pokémon e One Piece. Tracking del valore in tempo reale da CardTrader. Sapere quanto vale davvero la tua collezione.">
+<meta property="og:title" content="CARDEX — TCG Collection Manager">
+<meta property="og:description" content="L'unica app per collezionisti italiani con prezzi reali da venditori IT.">
+<meta property="og:type" content="website">
+
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNyIgZmlsbD0iIzAzMDMwMyIvPjx0ZXh0IHg9IjIiIHk9IjI0IiBmb250LWZhbWlseT0iJ0hlbHZldGljYSBOZXVlJyxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iMjAwIiBmb250LXNpemU9IjIwIiBsZXR0ZXItc3BhY2luZz0iLTEiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4zOCkiPkM8L3RleHQ+PHRleHQgeD0iMTUiIHk9IjI0IiBmb250LWZhbWlseT0iJ0hlbHZldGljYSBOZXVlJyxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iOTAwIiBmb250LXNpemU9IjIwIiBsZXR0ZXItc3BhY2luZz0iLTEiIGZpbGw9IiNmZmZmZmYiPlg8L3RleHQ+PC9zdmc+">
+
+<!-- Tailwind CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Syne:wght@800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          deep: '#030303',
+          'accent-purple': '#7C3AED',
+          'accent-blue': '#3B82F6',
+          glow: '#A78BFA',
+        },
+        fontFamily: {
+          sans: ['Inter', 'system-ui', 'sans-serif'],
+          display: ['Syne', 'sans-serif'],
+          mono: ['JetBrains Mono', 'monospace'],
+        },
+        animation: {
+          'mesh-move': 'meshMove 40s ease-in-out infinite alternate',
+          'glow-pulse': 'glowPulse 2.4s ease-in-out infinite',
+          'float-slow': 'float 8s ease-in-out infinite',
+          'float-medium': 'float 6s ease-in-out infinite',
+          'shimmer': 'shimmer 4s linear infinite',
+          'fade-up': 'fadeUp 0.8s cubic-bezier(0.22, 0.61, 0.36, 1) forwards',
+          'rotate-slow': 'rotateSlow 30s linear infinite',
+          'spin-slow': 'spinSlow 20s linear infinite',
+        },
+        keyframes: {
+          meshMove: {
+            '0%':   { transform: 'translate(0, 0) scale(1)' },
+            '50%':  { transform: 'translate(-3%, 2%) scale(1.05)' },
+            '100%': { transform: 'translate(2%, -3%) scale(0.98)' },
+          },
+          glowPulse: {
+            '0%, 100%': { boxShadow: '0 0 24px rgba(167,139,250,0.35), 0 0 48px rgba(124,58,237,0.18)' },
+            '50%':      { boxShadow: '0 0 36px rgba(167,139,250,0.55), 0 0 72px rgba(124,58,237,0.28)' },
+          },
+          float: {
+            '0%, 100%': { transform: 'translateY(0)' },
+            '50%':      { transform: 'translateY(-18px)' },
+          },
+          shimmer: {
+            '0%':   { backgroundPosition: '-200% center' },
+            '100%': { backgroundPosition: '200% center' },
+          },
+          fadeUp: {
+            from: { opacity: '0', transform: 'translateY(24px)' },
+            to:   { opacity: '1', transform: 'translateY(0)' },
+          },
+          rotateSlow: {
+            from: { transform: 'rotate(0deg)' },
+            to:   { transform: 'rotate(360deg)' },
+          },
+          spinSlow: {
+            from: { transform: 'rotate(0deg)' },
+            to:   { transform: 'rotate(-360deg)' },
+          },
+        },
+        boxShadow: {
+          'neon': '0 0 24px rgba(167,139,250,0.35)',
+          'neon-strong': '0 0 36px rgba(167,139,250,0.6), 0 0 72px rgba(124,58,237,0.3)',
+          'card-glow': '0 8px 32px rgba(124,58,237,0.15)',
+        },
+      }
+    }
+  }
+</script>
+
+<style>
+  /* Reset & base */
+  * { -webkit-tap-highlight-color: transparent; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: #030303;
+    color: #FAFAF9;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Mesh gradient background */
+  .mesh-bg {
+    position: fixed;
+    inset: -10%;
+    z-index: -2;
+    background:
+      radial-gradient(circle at 20% 30%, rgba(124, 58, 237, 0.35) 0%, transparent 45%),
+      radial-gradient(circle at 75% 25%, rgba(59, 130, 246, 0.28) 0%, transparent 45%),
+      radial-gradient(circle at 50% 80%, rgba(167, 139, 250, 0.22) 0%, transparent 50%),
+      radial-gradient(circle at 90% 90%, rgba(99, 102, 241, 0.20) 0%, transparent 40%),
+      #030303;
+    filter: blur(40px);
+    opacity: 0.9;
+  }
+  .mesh-noise {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.4'/></svg>");
+    opacity: 0.04;
+    pointer-events: none;
+    mix-blend-mode: overlay;
+  }
+
+  /* Logo */
+  .brand-logo { display: inline-flex; align-items: baseline; gap: 0; line-height: 1; }
+  .bl-card { font-family: 'Syne', sans-serif; font-weight: 300; letter-spacing: -1px; color: rgba(255,255,255,0.42); }
+  .bl-ex   { font-family: 'Syne', sans-serif; font-weight: 800; letter-spacing: -1px; color: #ffffff; }
+
+  /* Glassmorphism */
+  .glass {
+    background: rgba(255, 255, 255, 0.025);
+    backdrop-filter: blur(24px) saturate(140%);
+    -webkit-backdrop-filter: blur(24px) saturate(140%);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+  .glass-strong {
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(32px) saturate(160%);
+    -webkit-backdrop-filter: blur(32px) saturate(160%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .gradient-border {
+    position: relative;
+    background: rgba(255,255,255,0.025);
+    border: 1px solid transparent;
+    background-clip: padding-box;
+  }
+  .gradient-border::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    padding: 1px;
+    border-radius: inherit;
+    background: linear-gradient(135deg, rgba(167,139,250,0.4), rgba(59,130,246,0.18), rgba(255,255,255,0.06));
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  /* Headline gradient text */
+  .gradient-text {
+    background: linear-gradient(135deg, #ffffff 0%, rgba(255,255,255,0.85) 50%, rgba(255,255,255,0.45) 100%);
+    -webkit-background-clip: text;
+            background-clip: text;
+    -webkit-text-fill-color: transparent;
+            color: transparent;
+  }
+  .shimmer-text {
+    background: linear-gradient(90deg, rgba(255,255,255,0.6) 0%, #ffffff 50%, rgba(255,255,255,0.6) 100%);
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+            background-clip: text;
+    -webkit-text-fill-color: transparent;
+            color: transparent;
+    animation: shimmer 4s linear infinite;
+  }
+  @keyframes shimmer {
+    0%   { background-position: -200% center; }
+    100% { background-position: 200% center; }
+  }
+
+  /* CTA Neon Button */
+  .btn-neon {
+    position: relative;
+    background: linear-gradient(135deg, rgba(167,139,250,0.18), rgba(59,130,246,0.10));
+    border: 1px solid rgba(167,139,250,0.35);
+    color: #ffffff;
+    transition: all 0.3s cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+  .btn-neon:hover {
+    border-color: rgba(167,139,250,0.7);
+    box-shadow: 0 0 24px rgba(167,139,250,0.45), 0 0 48px rgba(124,58,237,0.2);
+    transform: translateY(-1px);
+  }
+  .btn-neon-primary {
+    background: linear-gradient(135deg, #A78BFA 0%, #7C3AED 100%);
+    color: #ffffff;
+    border: 1px solid rgba(255,255,255,0.18);
+    box-shadow: 0 8px 24px rgba(124,58,237,0.32);
+  }
+  .btn-neon-primary:hover {
+    box-shadow: 0 0 36px rgba(167,139,250,0.6), 0 12px 36px rgba(124,58,237,0.5);
+    transform: translateY(-2px);
+  }
+
+  /* Spline placeholder — animated 3D-like sphere */
+  .spline-mock {
+    position: relative;
+    width: 100%;
+    max-width: 520px;
+    aspect-ratio: 1;
+    margin: 0 auto;
+    perspective: 1000px;
+  }
+  .spline-sphere {
+    position: absolute;
+    inset: 12%;
+    border-radius: 50%;
+    background:
+      conic-gradient(from 0deg,
+        rgba(167,139,250,0.85) 0%,
+        rgba(59,130,246,0.65) 25%,
+        rgba(124,58,237,0.85) 50%,
+        rgba(99,102,241,0.65) 75%,
+        rgba(167,139,250,0.85) 100%);
+    filter: blur(2px);
+    box-shadow:
+      inset 0 0 60px rgba(255,255,255,0.15),
+      inset -40px -40px 80px rgba(0,0,0,0.4),
+      0 0 80px rgba(167,139,250,0.4),
+      0 0 160px rgba(124,58,237,0.25);
+    animation: rotateSlow 30s linear infinite, float 8s ease-in-out infinite;
+  }
+  .spline-ring {
+    position: absolute;
+    inset: 4%;
+    border-radius: 50%;
+    border: 1px solid rgba(167,139,250,0.18);
+    animation: spinSlow 20s linear infinite;
+  }
+  .spline-ring-2 {
+    position: absolute;
+    inset: -6%;
+    border-radius: 50%;
+    border: 1px solid rgba(59,130,246,0.12);
+    animation: rotateSlow 40s linear infinite;
+  }
+  .spline-glow {
+    position: absolute;
+    inset: 20%;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,0.18) 0%, transparent 60%);
+    filter: blur(20px);
+    animation: glowPulse 4s ease-in-out infinite;
+  }
+  @keyframes rotateSlow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  @keyframes spinSlow { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }
+  @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-18px); } }
+  @keyframes glowPulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
+
+  /* Floating UI mock card */
+  .ui-mock {
+    position: absolute;
+    background: rgba(20, 20, 23, 0.85);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 12px 14px;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.6), 0 0 0 1px rgba(167,139,250,0.1);
+    font-size: 12px;
+  }
+
+  /* Bento card hover glow */
+  .bento-card {
+    transition: all 0.4s cubic-bezier(0.22, 0.61, 0.36, 1);
+    position: relative;
+    overflow: hidden;
+  }
+  .bento-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(600px circle at var(--mx, 50%) var(--my, 50%), rgba(167,139,250,0.08), transparent 40%);
+    opacity: 0;
+    transition: opacity 0.4s;
+    pointer-events: none;
+  }
+  .bento-card:hover::after { opacity: 1; }
+  .bento-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(167,139,250,0.32);
+    box-shadow: 0 16px 48px rgba(124,58,237,0.18), 0 0 0 1px rgba(167,139,250,0.18);
+  }
+
+  /* Icon neon */
+  .icon-neon {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, rgba(167,139,250,0.18), rgba(59,130,246,0.08));
+    border: 1px solid rgba(167,139,250,0.25);
+    color: #C4B5FD;
+    box-shadow: 0 0 16px rgba(167,139,250,0.18);
+  }
+
+  /* Fade up on scroll */
+  .fade-up { opacity: 0; transform: translateY(24px); transition: all 0.8s cubic-bezier(0.22, 0.61, 0.36, 1); }
+  .fade-up.visible { opacity: 1; transform: translateY(0); }
+
+  /* Mock chart */
+  .mock-chart {
+    width: 100%;
+    height: 80px;
+  }
+
+  /* Mobile menu */
+  .mobile-menu { display: none; }
+  .mobile-menu.open { display: flex; }
+
+  /* Section padding */
+  .section { padding: 80px 24px; }
+  @media (min-width: 768px) { .section { padding: 120px 48px; } }
+
+  /* Hide scrollbar style  */
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-track { background: #030303; }
+  ::-webkit-scrollbar-thumb { background: rgba(167,139,250,0.18); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(167,139,250,0.32); }
+</style>
+</head>
+<body class="bg-deep text-white">
+
+<!-- Mesh Gradient Background -->
+<div class="mesh-bg animate-mesh-move"></div>
+<div class="mesh-noise"></div>
+
+<!-- ==================== NAVBAR ==================== -->
+<nav class="fixed top-0 left-0 right-0 z-50 glass-strong">
+  <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+    <a href="#top" class="brand-logo text-xl">
+      <span class="bl-card">CARD</span><span class="bl-ex">EX</span>
+    </a>
+
+    <!-- Desktop menu -->
+    <div class="hidden md:flex items-center gap-8 text-sm text-white/70">
+      <a href="#funzionalita" class="hover:text-white transition">Funzionalità</a>
+      <a href="#come-funziona" class="hover:text-white transition">Come funziona</a>
+      <a href="#faq" class="hover:text-white transition">FAQ</a>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <a href="index.html" class="hidden sm:inline-flex btn-neon px-5 py-2.5 rounded-xl text-sm font-medium">
+        Early Access →
+      </a>
+      <button id="menu-btn" class="md:hidden glass rounded-lg p-2" aria-label="Menu">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile menu -->
+  <div id="mobile-menu" class="mobile-menu md:hidden flex-col px-6 pb-4 gap-3 border-t border-white/5">
+    <a href="#funzionalita" class="text-white/70 py-2 hover:text-white">Funzionalità</a>
+    <a href="#come-funziona" class="text-white/70 py-2 hover:text-white">Come funziona</a>
+    <a href="#faq" class="text-white/70 py-2 hover:text-white">FAQ</a>
+    <a href="index.html" class="btn-neon px-5 py-2.5 rounded-xl text-sm font-medium text-center mt-2">Early Access →</a>
+  </div>
+</nav>
+
+<!-- ==================== HERO ==================== -->
+<section id="top" class="relative pt-40 pb-24 md:pt-48 md:pb-32 px-6">
+  <div class="max-w-6xl mx-auto text-center">
+    <!-- Tag -->
+    <div class="inline-flex items-center gap-2 glass px-4 py-1.5 rounded-full text-xs text-white/70 mb-8 fade-up">
+      <span class="w-1.5 h-1.5 rounded-full bg-accent-purple animate-glow-pulse"></span>
+      Beta privata · Early Access aperto
+    </div>
+
+    <!-- Headline -->
+    <h1 class="font-display font-extrabold tracking-tight text-5xl sm:text-6xl md:text-7xl lg:text-8xl leading-[1.05] mb-6 fade-up">
+      <span class="gradient-text">La tua collezione TCG,</span><br>
+      <span class="shimmer-text">con prezzi reali italiani</span>
+    </h1>
+
+    <!-- Subtitle -->
+    <p class="text-lg md:text-xl text-white/60 max-w-2xl mx-auto mb-10 leading-relaxed fade-up">
+      Pokémon e One Piece. Tracking del valore in tempo reale da CardTrader.
+      Sapere quanto vale davvero la tua collezione, oggi.
+    </p>
+
+    <!-- CTAs -->
+    <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-20 fade-up">
+      <a href="index.html" class="btn-neon-primary px-8 py-4 rounded-xl text-base font-semibold transition-all">
+        Inizia gratis →
+      </a>
+      <a href="#funzionalita" class="glass px-8 py-4 rounded-xl text-base font-medium text-white/80 hover:text-white hover:border-white/15 transition-all">
+        Scopri di più
+      </a>
+    </div>
+
+    <!-- ============ SPLINE PLACEHOLDER ============
+         INTEGRATION POINT:
+         Quando hai il file Spline pronto, sostituisci tutto il contenuto
+         del div #spline-container con il tuo embed code <iframe>.
+         Rimuovi le classi .spline-mock e i div .spline-* interni.
+         ================================================ -->
+    <div id="spline-container" class="relative spline-mock fade-up">
+      <div class="spline-ring-2"></div>
+      <div class="spline-ring"></div>
+      <div class="spline-sphere"></div>
+      <div class="spline-glow"></div>
+
+      <!-- Floating UI mockups attorno alla sfera -->
+      <div class="ui-mock animate-float-slow hidden sm:block" style="top:8%;left:-8%;animation-delay:0s">
+        <div class="text-white/50 text-[10px] uppercase tracking-widest mb-1">Charizard ex</div>
+        <div class="font-mono text-base text-white">€ 142,50</div>
+        <div class="text-[11px] text-emerald-400 font-mono">+18.7% ▲</div>
+      </div>
+      <div class="ui-mock animate-float-medium hidden md:block" style="top:42%;right:-12%;animation-delay:1.5s">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+          <span class="text-[10px] uppercase tracking-widest text-white/50">Live CardTrader</span>
+        </div>
+        <div class="text-xs text-white/80">12 venditori 🇮🇹</div>
+      </div>
+      <div class="ui-mock animate-float-slow hidden sm:block" style="bottom:14%;left:-2%;animation-delay:3s">
+        <div class="text-white/50 text-[10px] uppercase tracking-widest mb-1">Collezione</div>
+        <div class="font-mono text-base text-white">€ 1.847,20</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== BENTO GRID ==================== -->
+<section id="funzionalita" class="section">
+  <div class="max-w-6xl mx-auto">
+    <div class="text-center mb-16 fade-up">
+      <div class="inline-block glass px-3 py-1 rounded-full text-xs text-white/60 mb-4 font-mono uppercase tracking-widest">Funzionalità</div>
+      <h2 class="font-display font-extrabold text-4xl md:text-6xl gradient-text mb-4">Tutto ciò che serve.</h2>
+      <p class="text-white/60 max-w-xl mx-auto">Dalla ricerca al tracking ROI, ogni strumento per gestire la tua collezione come un professionista.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-5 auto-rows-[200px]">
+      <!-- 1. Big card: Prezzi italiani (2x2) -->
+      <div class="bento-card glass-strong rounded-2xl p-7 md:col-span-2 md:row-span-2 flex flex-col justify-between fade-up">
+        <div>
+          <div class="icon-neon mb-5">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="6" x2="12" y2="18"/><path d="M16 9.5C16 8 14 7 12 7s-4 1-4 2.5 2 2.5 4 2.5 4 1 4 2.5S14 17 12 17s-4-1-4-2.5"/></svg>
+          </div>
+          <h3 class="font-display font-extrabold text-2xl md:text-3xl mb-3 text-white">Prezzi italiani 🇮🇹<br>direttamente da CardTrader</h3>
+          <p class="text-white/55 text-sm md:text-base leading-relaxed max-w-md">Nessun'altra app mostra i prezzi reali dei venditori italiani. CARDEX li recupera in tempo reale dall'API CardTrader, filtrando per lingua e condizione.</p>
+        </div>
+        <!-- Mini badge live -->
+        <div class="flex items-center gap-3 mt-6">
+          <div class="flex -space-x-2">
+            <div class="w-7 h-7 rounded-full bg-gradient-to-br from-accent-purple to-accent-blue border-2 border-deep"></div>
+            <div class="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-400 to-blue-500 border-2 border-deep"></div>
+            <div class="w-7 h-7 rounded-full bg-gradient-to-br from-pink-400 to-purple-500 border-2 border-deep"></div>
+          </div>
+          <span class="text-xs text-white/50 font-mono">+200 venditori IT verificati</span>
+        </div>
+      </div>
+
+      <!-- 2. Tall card: Tracking ROI (1x2) -->
+      <div class="bento-card glass-strong rounded-2xl p-6 md:col-span-2 md:row-span-2 flex flex-col justify-between fade-up">
+        <div>
+          <div class="icon-neon mb-4">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+          </div>
+          <h3 class="font-display font-extrabold text-2xl mb-2 text-white">Tracking ROI in tempo reale</h3>
+          <p class="text-white/55 text-sm leading-relaxed">Confronta quanto hai pagato vs il valore attuale. Grafico storico per ogni carta, delta percentuale, profit/loss visibile a colpo d'occhio.</p>
+        </div>
+        <!-- Mock chart -->
+        <div class="mt-4">
+          <svg class="mock-chart" viewBox="0 0 300 80" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#A78BFA" stop-opacity="0.4"/>
+                <stop offset="100%" stop-color="#A78BFA" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <path d="M 0 60 L 30 50 L 60 55 L 90 40 L 120 45 L 150 30 L 180 35 L 210 22 L 240 28 L 270 15 L 300 10 L 300 80 L 0 80 Z" fill="url(#chartGrad)"/>
+            <path d="M 0 60 L 30 50 L 60 55 L 90 40 L 120 45 L 150 30 L 180 35 L 210 22 L 240 28 L 270 15 L 300 10" fill="none" stroke="#A78BFA" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="300" cy="10" r="3.5" fill="#A78BFA" stroke="#030303" stroke-width="2"/>
+          </svg>
+          <div class="flex items-center justify-between mt-3 text-xs">
+            <span class="text-white/40 font-mono">Pagato € 89,50</span>
+            <span class="text-emerald-400 font-mono font-semibold">+34.2% ▲</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Multi-TCG (2x1) -->
+      <div class="bento-card glass-strong rounded-2xl p-6 md:col-span-2 fade-up">
+        <div class="flex items-start gap-4 h-full">
+          <div class="icon-neon flex-shrink-0">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+          </div>
+          <div class="flex-1">
+            <h3 class="font-display font-extrabold text-xl mb-2">Multi-TCG nativo</h3>
+            <p class="text-white/55 text-sm">Pokémon e One Piece in un'unica app. Statistiche separate per gioco, espansioni native italiane, giapponesi e inglesi.</p>
+            <div class="flex gap-2 mt-3">
+              <span class="text-xs px-2 py-1 rounded-md bg-yellow-500/15 text-yellow-300 border border-yellow-500/25 font-mono">⚡ Pokémon</span>
+              <span class="text-xs px-2 py-1 rounded-md bg-red-500/15 text-red-300 border border-red-500/25 font-mono">☠️ One Piece</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. Ricerca smart -->
+      <div class="bento-card glass-strong rounded-2xl p-6 fade-up">
+        <div class="icon-neon mb-4">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </div>
+        <h3 class="font-display font-extrabold text-lg mb-2">Ricerca smart</h3>
+        <p class="text-white/55 text-sm">Per nome (anche italiano) o codice carta — SV03-100, EB04-007, 201/165.</p>
+      </div>
+
+      <!-- 5. Condizioni & lingue -->
+      <div class="bento-card glass-strong rounded-2xl p-6 fade-up">
+        <div class="icon-neon mb-4">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16.5 9.4l-9-5.19"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+        </div>
+        <h3 class="font-display font-extrabold text-lg mb-2">Condizioni & lingue</h3>
+        <p class="text-white/55 text-sm">NM, SP, MP, Played. Italiano, inglese, giapponese. Quantità e note per ogni copia.</p>
+      </div>
+
+      <!-- 6. Stats -->
+      <div class="bento-card glass-strong rounded-2xl p-6 md:col-span-2 fade-up">
+        <div class="flex items-start gap-4 h-full">
+          <div class="icon-neon flex-shrink-0">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          </div>
+          <div class="flex-1">
+            <h3 class="font-display font-extrabold text-xl mb-2">Statistiche & top carte</h3>
+            <p class="text-white/55 text-sm">Top 5 più preziose, distribuzione per lingua, valore totale per gioco. Tutto in un colpo d'occhio.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== COME FUNZIONA ==================== -->
+<section id="come-funziona" class="section">
+  <div class="max-w-5xl mx-auto">
+    <div class="text-center mb-16 fade-up">
+      <div class="inline-block glass px-3 py-1 rounded-full text-xs text-white/60 mb-4 font-mono uppercase tracking-widest">Come funziona</div>
+      <h2 class="font-display font-extrabold text-4xl md:text-6xl gradient-text mb-4">Tre step. Niente più.</h2>
+      <p class="text-white/60 max-w-xl mx-auto">Dall'app al portfolio tracciato in meno di 60 secondi.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <!-- Step 1 -->
+      <div class="glass-strong rounded-2xl p-7 fade-up">
+        <div class="flex items-center gap-3 mb-5">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-purple to-accent-blue flex items-center justify-center font-mono font-bold">01</div>
+          <span class="text-xs uppercase tracking-widest text-white/50">Cerca</span>
+        </div>
+        <h3 class="font-display font-extrabold text-xl mb-2">Trova la tua carta</h3>
+        <p class="text-white/55 text-sm leading-relaxed">Digita il nome o il codice. Ti mostriamo tutte le versioni — promo, alternate, reprint — con immagine e prezzo italiano.</p>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="glass-strong rounded-2xl p-7 fade-up">
+        <div class="flex items-center gap-3 mb-5">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-purple to-accent-blue flex items-center justify-center font-mono font-bold">02</div>
+          <span class="text-xs uppercase tracking-widest text-white/50">Aggiungi</span>
+        </div>
+        <h3 class="font-display font-extrabold text-xl mb-2">Salva i dettagli</h3>
+        <p class="text-white/55 text-sm leading-relaxed">Condizione, lingua, prezzo che hai pagato, data di acquisto, note. Personalizzabile copia per copia.</p>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="glass-strong rounded-2xl p-7 fade-up">
+        <div class="flex items-center gap-3 mb-5">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-purple to-accent-blue flex items-center justify-center font-mono font-bold">03</div>
+          <span class="text-xs uppercase tracking-widest text-white/50">Monitora</span>
+        </div>
+        <h3 class="font-display font-extrabold text-xl mb-2">Vedi guadagno o perdita</h3>
+        <p class="text-white/55 text-sm leading-relaxed">Grafico storico, delta percentuale, top carte. Aggiorni i prezzi quando vuoi, lo storico cresce ad ogni refresh.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== FAQ MINI ==================== -->
+<section id="faq" class="section">
+  <div class="max-w-3xl mx-auto">
+    <div class="text-center mb-12 fade-up">
+      <div class="inline-block glass px-3 py-1 rounded-full text-xs text-white/60 mb-4 font-mono uppercase tracking-widest">FAQ</div>
+      <h2 class="font-display font-extrabold text-4xl md:text-5xl gradient-text mb-4">Domande frequenti.</h2>
+    </div>
+
+    <div class="space-y-3">
+      <details class="glass rounded-xl p-5 group fade-up cursor-pointer">
+        <summary class="flex items-center justify-between font-medium list-none">
+          <span>È davvero gratis?</span>
+          <span class="text-white/40 group-open:rotate-45 transition-transform">+</span>
+        </summary>
+        <p class="text-white/60 text-sm mt-3 leading-relaxed">Sì. Beta privata aperta a chiunque si iscriva. Nessuna carta di credito richiesta. Pianifichiamo un piano premium opzionale in futuro per funzionalità avanzate (alert prezzo, export, share).</p>
+      </details>
+
+      <details class="glass rounded-xl p-5 group fade-up cursor-pointer">
+        <summary class="flex items-center justify-between font-medium list-none">
+          <span>I prezzi sono affidabili?</span>
+          <span class="text-white/40 group-open:rotate-45 transition-transform">+</span>
+        </summary>
+        <p class="text-white/60 text-sm mt-3 leading-relaxed">I prezzi vengono direttamente da CardTrader, la più grande piattaforma marketplace TCG europea. Filtriamo automaticamente per priorità venditori italiani, lingua della carta e condizione.</p>
+      </details>
+
+      <details class="glass rounded-xl p-5 group fade-up cursor-pointer">
+        <summary class="flex items-center justify-between font-medium list-none">
+          <span>Quali TCG sono supportati?</span>
+          <span class="text-white/40 group-open:rotate-45 transition-transform">+</span>
+        </summary>
+        <p class="text-white/60 text-sm mt-3 leading-relaxed">Pokémon e One Piece. Stiamo valutando Dragon Ball Super, Lorcana e Digimon per le prossime release.</p>
+      </details>
+
+      <details class="glass rounded-xl p-5 group fade-up cursor-pointer">
+        <summary class="flex items-center justify-between font-medium list-none">
+          <span>Posso aggiungere carte non presenti su CardTrader?</span>
+          <span class="text-white/40 group-open:rotate-45 transition-transform">+</span>
+        </summary>
+        <p class="text-white/60 text-sm mt-3 leading-relaxed">Al momento la collezione è alimentata dal database CardTrader (oltre 250.000 carte). L'aggiunta manuale è in roadmap.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== FINAL CTA ==================== -->
+<section class="section">
+  <div class="max-w-4xl mx-auto text-center glass-strong rounded-3xl p-10 md:p-16 fade-up relative overflow-hidden">
+    <!-- Decorative glow -->
+    <div class="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-accent-purple/20 blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-40 -left-40 w-96 h-96 rounded-full bg-accent-blue/20 blur-3xl pointer-events-none"></div>
+
+    <div class="relative">
+      <h2 class="font-display font-extrabold text-4xl md:text-6xl gradient-text mb-5 leading-tight">
+        Pronto a tracciare<br>la tua collezione?
+      </h2>
+      <p class="text-white/60 text-lg mb-8 max-w-md mx-auto">Gratis. Nessuna carta di credito.<br>Inizia in meno di 30 secondi.</p>
+      <a href="index.html" class="btn-neon-primary inline-flex items-center gap-2 px-10 py-5 rounded-2xl text-lg font-semibold transition-all">
+        Inizia gratis →
+      </a>
+      <div class="text-xs text-white/40 mt-6 font-mono">⚡ Già attivo · 🇮🇹 Made in Italy</div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== FOOTER ==================== -->
+<footer class="border-t border-white/5 py-10 px-6">
+  <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+    <a href="#top" class="brand-logo text-lg">
+      <span class="bl-card">CARD</span><span class="bl-ex">EX</span>
+    </a>
+    <div class="flex items-center gap-6 text-xs text-white/40">
+      <a href="#" class="hover:text-white/70 transition">Privacy</a>
+      <a href="#" class="hover:text-white/70 transition">Termini</a>
+      <a href="mailto:hello@cardex.app" class="hover:text-white/70 transition">Contatti</a>
+    </div>
+    <div class="text-xs text-white/30 font-mono">© 2026 CARDEX</div>
+  </div>
+</footer>
+
+<!-- ==================== SCRIPTS ==================== -->
+<script>
+  // Mobile menu toggle
+  const menuBtn = document.getElementById('menu-btn');
+  const mobileMenu = document.getElementById('mobile-menu');
+  menuBtn?.addEventListener('click', () => mobileMenu.classList.toggle('open'));
+  mobileMenu?.querySelectorAll('a').forEach(a => a.addEventListener('click', () => mobileMenu.classList.remove('open')));
+
+  // Intersection Observer for fade-up
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+  document.querySelectorAll('.fade-up').forEach(el => io.observe(el));
+
+  // Mouse-tracked glow on bento cards
+  document.querySelectorAll('.bento-card').forEach(card => {
+    card.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      card.style.setProperty('--mx', (e.clientX - rect.left) + 'px');
+      card.style.setProperty('--my', (e.clientY - rect.top) + 'px');
+    });
+  });
+
+  // Subtle parallax on Spline mock
+  const spline = document.getElementById('spline-container');
+  if (spline) {
+    document.addEventListener('mousemove', (e) => {
+      const x = (e.clientX / window.innerWidth - 0.5) * 16;
+      const y = (e.clientY / window.innerHeight - 0.5) * 16;
+      spline.style.transform = `translate(${x}px, ${y}px)`;
+    });
+  }
+</script>
+
+</body>
+</html>
