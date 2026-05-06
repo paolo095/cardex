@@ -241,7 +241,7 @@ body::before {
   transition: transform .6s cubic-bezier(0.22,.61,.36,1);
 }
 .mock-panel.main {
-  width: 140px;
+  width: clamp(200px, 80vw, 320px);
   transform: translateZ(20px);
 }
 .mock-panel.side {
