@@ -686,7 +686,7 @@ async function confirmAddCard(){
     user_id: currentUser.id,
     bp_id: bp.id,
     name: bp.name,
-    expansion: bp.expansion?.name || '',
+    expansion: (bp.expansion?.name||'') + (bp.fixed_properties?.collector_number ? ' · #'+bp.fixed_properties.collector_number : ''),
     game: currentGame,
     lang: lang.code,
     lang_label: lang.label,
