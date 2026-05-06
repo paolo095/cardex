@@ -362,11 +362,12 @@ async function doSearch(query){
       });
       results.push(...matched);
     }
-    if(searchId===myId&&results.length>0) renderResultsGrid(results);
     if(results.length>=200) break;
   }
   if(searchId!==myId) return;
-  if(!results.length){
+  if(results.length){
+    renderResultsGrid(results);
+  }else{
     document.getElementById('results-grid').innerHTML=`<div class="empty-state"><span class="empty-icon">${ICONS.searchX()}</span>Nessuna carta trovata.</div>`;
   }
 }
