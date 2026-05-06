@@ -1,707 +1,1077 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="it" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CARDEX — La tua collezione TCG, con prezzi reali italiani</title>
-<meta name="description" content="Pokémon e One Piece. Tracking del valore in tempo reale da CardTrader. Sapere quanto vale davvero la tua collezione.">
-<meta property="og:title" content="CARDEX — TCG Collection Manager">
-<meta property="og:description" content="L'unica app per collezionisti italiani con prezzi reali da venditori IT.">
-<meta property="og:type" content="website">
+<title>CARDEX — La tua collezione TCG, prezzi reali italiani</title>
+<meta name="description" content="Pokémon e One Piece. Tracking del valore in tempo reale da CardTrader. Prezzi reali da venditori italiani.">
 
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNyIgZmlsbD0iIzAzMDMwMyIvPjx0ZXh0IHg9IjIiIHk9IjI0IiBmb250LWZhbWlseT0iJ0hlbHZldGljYSBOZXVlJyxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iMjAwIiBmb250LXNpemU9IjIwIiBsZXR0ZXItc3BhY2luZz0iLTEiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4zOCkiPkM8L3RleHQ+PHRleHQgeD0iMTUiIHk9IjI0IiBmb250LWZhbWlseT0iJ0hlbHZldGljYSBOZXVlJyxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iOTAwIiBmb250LXNpemU9IjIwIiBsZXR0ZXItc3BhY2luZz0iLTEiIGZpbGw9IiNmZmZmZmYiPlg8L3RleHQ+PC9zdmc+">
 
-<!-- Tailwind CDN -->
-<script src="https://cdn.tailwindcss.com"></script>
-
-<!-- Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Syne:wght@800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
-
-<script>
-  tailwind.config = {
-    theme: {
-      extend: {
-        colors: {
-          deep: '#030303',
-          'accent-purple': '#7C3AED',
-          'accent-blue': '#3B82F6',
-          glow: '#A78BFA',
-        },
-        fontFamily: {
-          sans: ['Inter', 'system-ui', 'sans-serif'],
-          display: ['Syne', 'sans-serif'],
-          mono: ['JetBrains Mono', 'monospace'],
-        },
-        animation: {
-          'mesh-move': 'meshMove 40s ease-in-out infinite alternate',
-          'glow-pulse': 'glowPulse 2.4s ease-in-out infinite',
-          'float-slow': 'float 8s ease-in-out infinite',
-          'float-medium': 'float 6s ease-in-out infinite',
-          'shimmer': 'shimmer 4s linear infinite',
-          'fade-up': 'fadeUp 0.8s cubic-bezier(0.22, 0.61, 0.36, 1) forwards',
-          'rotate-slow': 'rotateSlow 30s linear infinite',
-          'spin-slow': 'spinSlow 20s linear infinite',
-        },
-        keyframes: {
-          meshMove: {
-            '0%':   { transform: 'translate(0, 0) scale(1)' },
-            '50%':  { transform: 'translate(-3%, 2%) scale(1.05)' },
-            '100%': { transform: 'translate(2%, -3%) scale(0.98)' },
-          },
-          glowPulse: {
-            '0%, 100%': { boxShadow: '0 0 24px rgba(167,139,250,0.35), 0 0 48px rgba(124,58,237,0.18)' },
-            '50%':      { boxShadow: '0 0 36px rgba(167,139,250,0.55), 0 0 72px rgba(124,58,237,0.28)' },
-          },
-          float: {
-            '0%, 100%': { transform: 'translateY(0)' },
-            '50%':      { transform: 'translateY(-18px)' },
-          },
-          shimmer: {
-            '0%':   { backgroundPosition: '-200% center' },
-            '100%': { backgroundPosition: '200% center' },
-          },
-          fadeUp: {
-            from: { opacity: '0', transform: 'translateY(24px)' },
-            to:   { opacity: '1', transform: 'translateY(0)' },
-          },
-          rotateSlow: {
-            from: { transform: 'rotate(0deg)' },
-            to:   { transform: 'rotate(360deg)' },
-          },
-          spinSlow: {
-            from: { transform: 'rotate(0deg)' },
-            to:   { transform: 'rotate(-360deg)' },
-          },
-        },
-        boxShadow: {
-          'neon': '0 0 24px rgba(167,139,250,0.35)',
-          'neon-strong': '0 0 36px rgba(167,139,250,0.6), 0 0 72px rgba(124,58,237,0.3)',
-          'card-glow': '0 8px 32px rgba(124,58,237,0.15)',
-        },
-      }
-    }
-  }
-</script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
-  /* Reset & base */
-  * { -webkit-tap-highlight-color: transparent; }
-  html { scroll-behavior: smooth; }
-  body {
-    font-family: 'Inter', system-ui, sans-serif;
-    background: #030303;
-    color: #FAFAF9;
-    overflow-x: hidden;
-    -webkit-font-smoothing: antialiased;
-  }
+/* ─────── THEME VARIABLES ─────── */
+:root {
+  /* Light mode (default) */
+  --bg:        #ffffff;
+  --bg-soft:   #fafafa;
+  --bg-card:   #ffffff;
+  --text:      #0a0a0a;
+  --text-soft: #4a4a4a;
+  --text-mute: #8a8a8a;
+  --border:    rgba(0,0,0,0.08);
+  --border-h:  rgba(0,0,0,0.18);
+  --accent:    #0a0a0a;
+  --accent-soft: rgba(0,0,0,0.04);
+  --shadow:    0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.04);
+  --shadow-h:  0 1px 3px rgba(0,0,0,0.06), 0 16px 40px rgba(0,0,0,0.08);
+}
+[data-theme="dark"] {
+  /* Dark mode (matches index.html style.css) */
+  --bg:        #0E0E10;
+  --bg-soft:   #141417;
+  --bg-card:   #16161A;
+  --text:      #FAFAF9;
+  --text-soft: #9A9AA3;
+  --text-mute: #7A7A82;
+  --border:    rgba(255,255,255,0.06);
+  --border-h:  rgba(255,255,255,0.18);
+  --accent:    #e8e8e8;
+  --accent-soft: rgba(255,255,255,0.05);
+  --shadow:    0 1px 3px rgba(0,0,0,0.5), 0 16px 40px rgba(0,0,0,0.4);
+  --shadow-h:  0 1px 3px rgba(0,0,0,0.6), 0 24px 64px rgba(0,0,0,0.55);
+}
 
-  /* Mesh gradient background */
-  .mesh-bg {
-    position: fixed;
-    inset: -10%;
-    z-index: -2;
-    background:
-      radial-gradient(circle at 20% 30%, rgba(124, 58, 237, 0.35) 0%, transparent 45%),
-      radial-gradient(circle at 75% 25%, rgba(59, 130, 246, 0.28) 0%, transparent 45%),
-      radial-gradient(circle at 50% 80%, rgba(167, 139, 250, 0.22) 0%, transparent 50%),
-      radial-gradient(circle at 90% 90%, rgba(99, 102, 241, 0.20) 0%, transparent 40%),
-      #030303;
-    filter: blur(40px);
-    opacity: 0.9;
-  }
-  .mesh-noise {
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.4'/></svg>");
-    opacity: 0.04;
-    pointer-events: none;
-    mix-blend-mode: overlay;
-  }
+/* ─────── RESET & BASE ─────── */
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: -0.01em;
+  transition: background-color .35s ease, color .35s ease;
+  overflow-x: hidden;
+}
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; }
+img, svg { display: block; max-width: 100%; }
 
-  /* Logo */
-  .brand-logo { display: inline-flex; align-items: baseline; gap: 0; line-height: 1; }
-  .bl-card { font-family: 'Syne', sans-serif; font-weight: 300; letter-spacing: -1px; color: rgba(255,255,255,0.42); }
-  .bl-ex   { font-family: 'Syne', sans-serif; font-weight: 800; letter-spacing: -1px; color: #ffffff; }
+/* ─────── LAYOUT ─────── */
+.container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+.section { padding: 96px 0; }
+@media (min-width: 768px) { .section { padding: 140px 0; } }
 
-  /* Glassmorphism */
-  .glass {
-    background: rgba(255, 255, 255, 0.025);
-    backdrop-filter: blur(24px) saturate(140%);
-    -webkit-backdrop-filter: blur(24px) saturate(140%);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-  }
-  .glass-strong {
-    background: rgba(255, 255, 255, 0.04);
-    backdrop-filter: blur(32px) saturate(160%);
-    -webkit-backdrop-filter: blur(32px) saturate(160%);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-  }
-  .gradient-border {
-    position: relative;
-    background: rgba(255,255,255,0.025);
-    border: 1px solid transparent;
-    background-clip: padding-box;
-  }
-  .gradient-border::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    padding: 1px;
-    border-radius: inherit;
-    background: linear-gradient(135deg, rgba(167,139,250,0.4), rgba(59,130,246,0.18), rgba(255,255,255,0.06));
-    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-    -webkit-mask-composite: xor;
-            mask-composite: exclude;
-    pointer-events: none;
-  }
+/* ─────── NAVBAR ─────── */
+nav.topbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  background: color-mix(in srgb, var(--bg) 75%, transparent);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border-bottom: 1px solid var(--border);
+  transition: background-color .35s ease, border-color .35s ease;
+}
+.topbar-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+.brand-logo {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0;
+  font-weight: 700;
+  font-size: 19px;
+  letter-spacing: -0.04em;
+  color: var(--text);
+}
+.brand-logo .lite { font-weight: 300; opacity: 0.5; }
 
-  /* Headline gradient text */
-  .gradient-text {
-    background: linear-gradient(135deg, #ffffff 0%, rgba(255,255,255,0.85) 50%, rgba(255,255,255,0.45) 100%);
-    -webkit-background-clip: text;
-            background-clip: text;
-    -webkit-text-fill-color: transparent;
-            color: transparent;
-  }
-  .shimmer-text {
-    background: linear-gradient(90deg, rgba(255,255,255,0.6) 0%, #ffffff 50%, rgba(255,255,255,0.6) 100%);
-    background-size: 200% 100%;
-    -webkit-background-clip: text;
-            background-clip: text;
-    -webkit-text-fill-color: transparent;
-            color: transparent;
-    animation: shimmer 4s linear infinite;
-  }
-  @keyframes shimmer {
-    0%   { background-position: -200% center; }
-    100% { background-position: 200% center; }
-  }
+.nav-links {
+  display: none;
+  gap: 28px;
+  font-size: 14px;
+  color: var(--text-soft);
+}
+@media (min-width: 768px) { .nav-links { display: flex; } }
+.nav-links a { transition: color .2s; }
+.nav-links a:hover { color: var(--text); }
 
-  /* CTA Neon Button */
-  .btn-neon {
-    position: relative;
-    background: linear-gradient(135deg, rgba(167,139,250,0.18), rgba(59,130,246,0.10));
-    border: 1px solid rgba(167,139,250,0.35);
-    color: #ffffff;
-    transition: all 0.3s cubic-bezier(0.22, 0.61, 0.36, 1);
-  }
-  .btn-neon:hover {
-    border-color: rgba(167,139,250,0.7);
-    box-shadow: 0 0 24px rgba(167,139,250,0.45), 0 0 48px rgba(124,58,237,0.2);
-    transform: translateY(-1px);
-  }
-  .btn-neon-primary {
-    background: linear-gradient(135deg, #A78BFA 0%, #7C3AED 100%);
-    color: #ffffff;
-    border: 1px solid rgba(255,255,255,0.18);
-    box-shadow: 0 8px 24px rgba(124,58,237,0.32);
-  }
-  .btn-neon-primary:hover {
-    box-shadow: 0 0 36px rgba(167,139,250,0.6), 0 12px 36px rgba(124,58,237,0.5);
-    transform: translateY(-2px);
-  }
+.nav-actions { display: flex; align-items: center; gap: 8px; }
+.theme-toggle {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-soft);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .2s;
+}
+.theme-toggle:hover { border-color: var(--border-h); color: var(--text); }
+.theme-toggle .icon-sun { display: block; }
+.theme-toggle .icon-moon { display: none; }
+[data-theme="dark"] .theme-toggle .icon-sun { display: none; }
+[data-theme="dark"] .theme-toggle .icon-moon { display: block; }
 
-  /* Spline placeholder — animated 3D-like sphere */
-  .spline-mock {
-    position: relative;
-    width: 100%;
-    max-width: 520px;
-    aspect-ratio: 1;
-    margin: 0 auto;
-    perspective: 1000px;
-  }
-  .spline-sphere {
-    position: absolute;
-    inset: 12%;
-    border-radius: 50%;
-    background:
-      conic-gradient(from 0deg,
-        rgba(167,139,250,0.85) 0%,
-        rgba(59,130,246,0.65) 25%,
-        rgba(124,58,237,0.85) 50%,
-        rgba(99,102,241,0.65) 75%,
-        rgba(167,139,250,0.85) 100%);
-    filter: blur(2px);
-    box-shadow:
-      inset 0 0 60px rgba(255,255,255,0.15),
-      inset -40px -40px 80px rgba(0,0,0,0.4),
-      0 0 80px rgba(167,139,250,0.4),
-      0 0 160px rgba(124,58,237,0.25);
-    animation: rotateSlow 30s linear infinite, float 8s ease-in-out infinite;
-  }
-  .spline-ring {
-    position: absolute;
-    inset: 4%;
-    border-radius: 50%;
-    border: 1px solid rgba(167,139,250,0.18);
-    animation: spinSlow 20s linear infinite;
-  }
-  .spline-ring-2 {
-    position: absolute;
-    inset: -6%;
-    border-radius: 50%;
-    border: 1px solid rgba(59,130,246,0.12);
-    animation: rotateSlow 40s linear infinite;
-  }
-  .spline-glow {
-    position: absolute;
-    inset: 20%;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(255,255,255,0.18) 0%, transparent 60%);
-    filter: blur(20px);
-    animation: glowPulse 4s ease-in-out infinite;
-  }
-  @keyframes rotateSlow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-  @keyframes spinSlow { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }
-  @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-18px); } }
-  @keyframes glowPulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  border: 1px solid transparent;
+  transition: all .2s;
+  white-space: nowrap;
+}
+.btn-primary {
+  background: var(--text);
+  color: var(--bg);
+}
+.btn-primary:hover { transform: translateY(-1px); box-shadow: var(--shadow-h); }
+.btn-ghost {
+  background: transparent;
+  color: var(--text);
+  border-color: var(--border);
+}
+.btn-ghost:hover { border-color: var(--border-h); background: var(--accent-soft); }
+.btn-lg { padding: 14px 24px; font-size: 15px; }
 
-  /* Floating UI mock card */
-  .ui-mock {
-    position: absolute;
-    background: rgba(20, 20, 23, 0.85);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 12px;
-    padding: 12px 14px;
-    box-shadow: 0 16px 48px rgba(0,0,0,0.6), 0 0 0 1px rgba(167,139,250,0.1);
-    font-size: 12px;
+.hamburger {
+  display: inline-flex;
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  align-items: center;
+  justify-content: center;
+}
+@media (min-width: 768px) { .hamburger { display: none; } }
+
+.mobile-menu {
+  display: none;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0 24px 16px;
+  border-top: 1px solid var(--border);
+}
+.mobile-menu.open { display: flex; }
+.mobile-menu a { padding: 10px 0; color: var(--text-soft); font-size: 15px; }
+
+/* ─────── HERO ─────── */
+.hero {
+  padding: 140px 0 80px;
+  text-align: center;
+  position: relative;
+}
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 100px;
+  background: var(--accent-soft);
+  border: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--text-soft);
+  margin-bottom: 28px;
+}
+.hero-badge .dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #FF6B00;
+  box-shadow: 0 0 8px rgba(255,107,0,0.6);
+  animation: dotPulse 2s ease-in-out infinite;
+}
+@keyframes dotPulse { 0%,100% { opacity:1 } 50% { opacity:0.5 } }
+.hero h1 {
+  font-size: clamp(38px, 7vw, 76px);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  margin-bottom: 22px;
+  max-width: 14ch;
+  margin-left: auto;
+  margin-right: auto;
+}
+.hero h1 em {
+  font-style: normal;
+  color: var(--text-mute);
+  font-weight: 400;
+}
+.hero p.lead {
+  font-size: clamp(16px, 2vw, 19px);
+  color: var(--text-soft);
+  max-width: 560px;
+  margin: 0 auto 36px;
+  line-height: 1.55;
+}
+.hero-ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 64px;
+}
+
+/* ─────── DRAGON STAGE ─────── */
+.dragon-stage {
+  position: relative;
+  width: 100%;
+  max-width: 920px;
+  aspect-ratio: 16 / 10;
+  margin: 0 auto;
+  border-radius: 24px;
+  background: radial-gradient(ellipse at 50% 50%, #1a1a1f 0%, #08080a 65%, #050505 100%);
+  border: 1px solid rgba(255,107,0,0.08);
+  overflow: hidden;
+  box-shadow:
+    0 32px 80px rgba(0,0,0,0.25),
+    0 0 0 1px rgba(255,255,255,0.02),
+    inset 0 0 120px rgba(255,107,0,0.06);
+  cursor: crosshair;
+}
+[data-theme="dark"] .dragon-stage {
+  border-color: rgba(255,107,0,0.16);
+  box-shadow:
+    0 32px 80px rgba(0,0,0,0.6),
+    0 0 0 1px rgba(255,107,0,0.06),
+    inset 0 0 140px rgba(255,107,0,0.08);
+}
+.dragon-stage::before {
+  /* faint ember texture */
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 30% 70%, rgba(255,107,0,0.10) 0%, transparent 40%),
+    radial-gradient(circle at 70% 30%, rgba(255,200,0,0.08) 0%, transparent 35%),
+    radial-gradient(circle at 50% 100%, rgba(255,80,0,0.12) 0%, transparent 50%);
+  pointer-events: none;
+  opacity: 0.8;
+}
+#dragon-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.dragon-hint {
+  position: absolute;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  color: rgba(255,200,150,0.5);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  pointer-events: none;
+  font-weight: 500;
+}
+
+/* ─────── SECTION HEADERS ─────── */
+.section-head { text-align: center; margin-bottom: 64px; }
+.section-tag {
+  display: inline-block;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+  padding: 5px 12px;
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  margin-bottom: 18px;
+}
+.section-head h2 {
+  font-size: clamp(28px, 5vw, 52px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin-bottom: 16px;
+}
+.section-head p {
+  color: var(--text-soft);
+  font-size: 16px;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+/* ─────── BENTO GRID ─────── */
+.bento {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 16px;
+  grid-auto-rows: min-content;
+}
+@media (min-width: 768px) {
+  .bento {
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-rows: 200px;
   }
+}
+.bento-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+  transition: all .35s cubic-bezier(0.22, 0.61, 0.36, 1);
+  display: flex;
+  flex-direction: column;
+}
+.bento-card:hover {
+  border-color: var(--border-h);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-h);
+}
+@media (min-width: 768px) {
+  .b-2x2 { grid-column: span 2; grid-row: span 2; }
+  .b-2x1 { grid-column: span 2; }
+  .b-1x2 { grid-row: span 2; }
+}
+.icon-box {
+  width: 38px; height: 38px;
+  border-radius: 10px;
+  background: var(--accent-soft);
+  border: 1px solid var(--border);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text);
+  margin-bottom: 16px;
+}
+.bento-card h3 {
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+  margin-bottom: 8px;
+}
+.bento-card.b-2x2 h3 { font-size: 26px; }
+.bento-card p {
+  color: var(--text-soft);
+  font-size: 14px;
+  line-height: 1.55;
+}
 
-  /* Bento card hover glow */
-  .bento-card {
-    transition: all 0.4s cubic-bezier(0.22, 0.61, 0.36, 1);
-    position: relative;
-    overflow: hidden;
-  }
-  .bento-card::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: radial-gradient(600px circle at var(--mx, 50%) var(--my, 50%), rgba(167,139,250,0.08), transparent 40%);
-    opacity: 0;
-    transition: opacity 0.4s;
-    pointer-events: none;
-  }
-  .bento-card:hover::after { opacity: 1; }
-  .bento-card:hover {
-    transform: translateY(-4px);
-    border-color: rgba(167,139,250,0.32);
-    box-shadow: 0 16px 48px rgba(124,58,237,0.18), 0 0 0 1px rgba(167,139,250,0.18);
-  }
+/* Mock chart inside bento */
+.mini-chart {
+  margin-top: auto;
+  padding-top: 20px;
+}
+.mini-chart svg { width: 100%; height: 70px; }
+.chart-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  font-size: 12px;
+  font-family: 'Inter', monospace;
+}
+.chart-meta .delta { color: #16A34A; font-weight: 600; }
+[data-theme="dark"] .chart-meta .delta { color: #5BC97D; }
 
-  /* Icon neon */
-  .icon-neon {
-    width: 44px; height: 44px;
-    border-radius: 12px;
-    display: inline-flex; align-items: center; justify-content: center;
-    background: linear-gradient(135deg, rgba(167,139,250,0.18), rgba(59,130,246,0.08));
-    border: 1px solid rgba(167,139,250,0.25);
-    color: #C4B5FD;
-    box-shadow: 0 0 16px rgba(167,139,250,0.18);
-  }
+/* Game pills */
+.pills { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+.pill {
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 100px;
+  border: 1px solid var(--border);
+  font-weight: 500;
+  color: var(--text-soft);
+}
+.pill-pokemon { color: #B8860B; border-color: rgba(232,197,71,0.3); background: rgba(232,197,71,0.06); }
+.pill-onepiece { color: #C94A3A; border-color: rgba(201,74,58,0.3); background: rgba(201,74,58,0.06); }
+[data-theme="dark"] .pill-pokemon { color: #E8C547; }
 
-  /* Fade up on scroll */
-  .fade-up { opacity: 0; transform: translateY(24px); transition: all 0.8s cubic-bezier(0.22, 0.61, 0.36, 1); }
-  .fade-up.visible { opacity: 1; transform: translateY(0); }
+/* ─────── HOW IT WORKS ─────── */
+.steps {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+@media (min-width: 768px) { .steps { grid-template-columns: repeat(3, 1fr); } }
+.step-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px;
+  transition: all .3s;
+}
+.step-card:hover { border-color: var(--border-h); }
+.step-num {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-mute);
+  font-family: 'Inter', monospace;
+  margin-bottom: 18px;
+  letter-spacing: 0.08em;
+}
+.step-card h3 {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
+}
+.step-card p { color: var(--text-soft); font-size: 14px; line-height: 1.6; }
 
-  /* Mock chart */
-  .mock-chart {
-    width: 100%;
-    height: 80px;
-  }
+/* ─────── FAQ ─────── */
+.faq-list { display: flex; flex-direction: column; gap: 8px; max-width: 720px; margin: 0 auto; }
+.faq-item {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg-card);
+  transition: border-color .2s;
+}
+.faq-item:hover { border-color: var(--border-h); }
+.faq-item summary {
+  list-style: none;
+  padding: 18px 22px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 500;
+  font-size: 15px;
+}
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item summary::after {
+  content: '+';
+  font-size: 22px;
+  font-weight: 300;
+  color: var(--text-mute);
+  transition: transform .25s;
+}
+.faq-item[open] summary::after { transform: rotate(45deg); }
+.faq-item div.answer {
+  padding: 0 22px 20px;
+  color: var(--text-soft);
+  font-size: 14px;
+  line-height: 1.65;
+}
 
-  /* Mobile menu */
-  .mobile-menu { display: none; }
-  .mobile-menu.open { display: flex; }
+/* ─────── FINAL CTA ─────── */
+.final-cta {
+  text-align: center;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 64px 32px;
+  max-width: 800px;
+  margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+}
+.final-cta h2 {
+  font-size: clamp(28px, 5vw, 48px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  margin-bottom: 14px;
+}
+.final-cta p { color: var(--text-soft); margin-bottom: 28px; }
+.final-cta::before {
+  content: '';
+  position: absolute;
+  top: -100px; right: -100px;
+  width: 280px; height: 280px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,107,0,0.08) 0%, transparent 65%);
+  pointer-events: none;
+}
 
-  /* Section padding */
-  .section { padding: 80px 24px; }
-  @media (min-width: 768px) { .section { padding: 120px 48px; } }
+/* ─────── FOOTER ─────── */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 40px 24px;
+  margin-top: 40px;
+}
+.foot-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+}
+@media (min-width: 768px) { .foot-inner { flex-direction: row; justify-content: space-between; } }
+.foot-links { display: flex; gap: 22px; font-size: 13px; color: var(--text-mute); }
+.foot-links a:hover { color: var(--text-soft); }
+.foot-copy { font-size: 12px; color: var(--text-mute); font-family: 'Inter', monospace; }
 
-  /* Hide scrollbar style  */
-  ::-webkit-scrollbar { width: 8px; }
-  ::-webkit-scrollbar-track { background: #030303; }
-  ::-webkit-scrollbar-thumb { background: rgba(167,139,250,0.18); border-radius: 4px; }
-  ::-webkit-scrollbar-thumb:hover { background: rgba(167,139,250,0.32); }
+/* ─────── FADE UP ANIMATION ─────── */
+.fade-up {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity .8s cubic-bezier(0.22, 0.61, 0.36, 1), transform .8s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.fade-up.visible { opacity: 1; transform: translateY(0); }
 </style>
 </head>
-<body class="bg-deep text-white">
+<body>
 
-<!-- Mesh Gradient Background -->
-<div class="mesh-bg animate-mesh-move"></div>
-<div class="mesh-noise"></div>
-
-<!-- ==================== NAVBAR ==================== -->
-<nav class="fixed top-0 left-0 right-0 z-50 glass-strong">
-  <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-    <a href="#top" class="brand-logo text-xl">
-      <span class="bl-card">CARD</span><span class="bl-ex">EX</span>
+<!-- ──────── NAVBAR ──────── -->
+<nav class="topbar">
+  <div class="topbar-inner">
+    <a href="#top" class="brand-logo">
+      <span class="lite">CARD</span><span>EX</span>
     </a>
-
-    <!-- Desktop menu -->
-    <div class="hidden md:flex items-center gap-8 text-sm text-white/70">
-      <a href="#funzionalita" class="hover:text-white transition">Funzionalità</a>
-      <a href="#come-funziona" class="hover:text-white transition">Come funziona</a>
-      <a href="#faq" class="hover:text-white transition">FAQ</a>
+    <div class="nav-links">
+      <a href="#funzionalita">Funzionalità</a>
+      <a href="#come-funziona">Come funziona</a>
+      <a href="#faq">FAQ</a>
     </div>
-
-    <div class="flex items-center gap-3">
-      <a href="index.html" class="hidden sm:inline-flex btn-neon px-5 py-2.5 rounded-xl text-sm font-medium">
-        Early Access →
-      </a>
-      <button id="menu-btn" class="md:hidden glass rounded-lg p-2" aria-label="Menu">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    <div class="nav-actions">
+      <button class="theme-toggle" id="theme-toggle" aria-label="Cambia tema">
+        <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+        <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+      <a href="index.html" class="btn btn-primary" style="display:none" id="cta-desktop">Inizia gratis</a>
+      <button class="hamburger" id="menu-btn" aria-label="Menu">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
       </button>
     </div>
   </div>
-
-  <!-- Mobile menu -->
-  <div id="mobile-menu" class="mobile-menu md:hidden flex-col px-6 pb-4 gap-3 border-t border-white/5">
-    <a href="#funzionalita" class="text-white/70 py-2 hover:text-white">Funzionalità</a>
-    <a href="#come-funziona" class="text-white/70 py-2 hover:text-white">Come funziona</a>
-    <a href="#faq" class="text-white/70 py-2 hover:text-white">FAQ</a>
-    <a href="index.html" class="btn-neon px-5 py-2.5 rounded-xl text-sm font-medium text-center mt-2">Early Access →</a>
+  <div class="mobile-menu" id="mobile-menu">
+    <a href="#funzionalita">Funzionalità</a>
+    <a href="#come-funziona">Come funziona</a>
+    <a href="#faq">FAQ</a>
+    <a href="index.html" class="btn btn-primary" style="margin-top:8px;">Inizia gratis →</a>
   </div>
 </nav>
 
-<!-- ==================== HERO ==================== -->
-<section id="top" class="relative pt-40 pb-24 md:pt-48 md:pb-32 px-6">
-  <div class="max-w-6xl mx-auto text-center">
-    <!-- Tag -->
-    <div class="inline-flex items-center gap-2 glass px-4 py-1.5 rounded-full text-xs text-white/70 mb-8 fade-up">
-      <span class="w-1.5 h-1.5 rounded-full bg-accent-purple animate-glow-pulse"></span>
-      Beta privata · Early Access aperto
+<!-- ──────── HERO ──────── -->
+<section id="top" class="hero">
+  <div class="container">
+    <div class="hero-badge fade-up">
+      <span class="dot"></span>
+      <span>Beta privata · Early Access</span>
     </div>
-
-    <!-- Headline -->
-    <h1 class="font-display font-extrabold tracking-tight text-5xl sm:text-6xl md:text-7xl lg:text-8xl leading-[1.05] mb-6 fade-up">
-      <span class="gradient-text">La tua collezione TCG,</span><br>
-      <span class="shimmer-text">con prezzi reali italiani</span>
+    <h1 class="fade-up">
+      La tua collezione TCG,<br>
+      <em>con prezzi reali italiani.</em>
     </h1>
-
-    <!-- Subtitle -->
-    <p class="text-lg md:text-xl text-white/60 max-w-2xl mx-auto mb-10 leading-relaxed fade-up">
+    <p class="lead fade-up">
       Pokémon e One Piece. Tracking del valore in tempo reale da CardTrader.
       Sapere quanto vale davvero la tua collezione, oggi.
     </p>
-
-    <!-- CTAs -->
-    <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-20 fade-up">
-      <a href="index.html" class="btn-neon-primary px-8 py-4 rounded-xl text-base font-semibold transition-all">
-        Inizia gratis →
-      </a>
-      <a href="#funzionalita" class="glass px-8 py-4 rounded-xl text-base font-medium text-white/80 hover:text-white hover:border-white/15 transition-all">
-        Scopri di più
-      </a>
+    <div class="hero-ctas fade-up">
+      <a href="index.html" class="btn btn-primary btn-lg">Inizia gratis →</a>
+      <a href="#funzionalita" class="btn btn-ghost btn-lg">Scopri di più</a>
     </div>
 
-    <!-- ============ SPLINE PLACEHOLDER ============
-         INTEGRATION POINT:
-         Quando hai il file Spline pronto, sostituisci tutto il contenuto
-         del div #spline-container con il tuo embed code <iframe>.
-         Rimuovi le classi .spline-mock e i div .spline-* interni.
-         ================================================ -->
-    <div id="spline-container" class="relative spline-mock fade-up">
-      <div class="spline-ring-2"></div>
-      <div class="spline-ring"></div>
-      <div class="spline-sphere"></div>
-      <div class="spline-glow"></div>
-
-      <!-- Floating UI mockups attorno alla sfera -->
-      <div class="ui-mock animate-float-slow hidden sm:block" style="top:8%;left:-8%;animation-delay:0s">
-        <div class="text-white/50 text-[10px] uppercase tracking-widest mb-1">Charizard ex</div>
-        <div class="font-mono text-base text-white">€ 142,50</div>
-        <div class="text-[11px] text-emerald-400 font-mono">+18.7% ▲</div>
-      </div>
-      <div class="ui-mock animate-float-medium hidden md:block" style="top:42%;right:-12%;animation-delay:1.5s">
-        <div class="flex items-center gap-2 mb-1">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-          <span class="text-[10px] uppercase tracking-widest text-white/50">Live CardTrader</span>
-        </div>
-        <div class="text-xs text-white/80">12 venditori 🇮🇹</div>
-      </div>
-      <div class="ui-mock animate-float-slow hidden sm:block" style="bottom:14%;left:-2%;animation-delay:3s">
-        <div class="text-white/50 text-[10px] uppercase tracking-widest mb-1">Collezione</div>
-        <div class="font-mono text-base text-white">€ 1.847,20</div>
-      </div>
+    <!-- ──────── DRAGON STAGE ──────── -->
+    <div class="dragon-stage fade-up" id="dragon-stage">
+      <svg id="dragon-svg" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <linearGradient id="emberGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#FFD700"/>
+            <stop offset="50%" stop-color="#FF8C00"/>
+            <stop offset="100%" stop-color="#FF4500"/>
+          </linearGradient>
+          <filter id="emberGlow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="2" result="blur"/>
+            <feMerge>
+              <feMergeNode in="blur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+        </defs>
+        <!-- Lines drawn by JS -->
+        <g id="dragon-lines" filter="url(#emberGlow)"></g>
+      </svg>
+      <div class="dragon-hint" id="dragon-hint">Muovi il mouse</div>
     </div>
   </div>
 </section>
 
-<!-- ==================== BENTO GRID ==================== -->
+<!-- ──────── BENTO ──────── -->
 <section id="funzionalita" class="section">
-  <div class="max-w-6xl mx-auto">
-    <div class="text-center mb-16 fade-up">
-      <div class="inline-block glass px-3 py-1 rounded-full text-xs text-white/60 mb-4 font-mono uppercase tracking-widest">Funzionalità</div>
-      <h2 class="font-display font-extrabold text-4xl md:text-6xl gradient-text mb-4">Tutto ciò che serve.</h2>
-      <p class="text-white/60 max-w-xl mx-auto">Dalla ricerca al tracking ROI, ogni strumento per gestire la tua collezione come un professionista.</p>
+  <div class="container">
+    <div class="section-head fade-up">
+      <span class="section-tag">Funzionalità</span>
+      <h2>Tutto ciò che serve.<br>Niente di superfluo.</h2>
+      <p>Dalla ricerca al tracking ROI, ogni strumento per gestire la tua collezione come un professionista.</p>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-5 auto-rows-[200px]">
-      <!-- 1. Big card: Prezzi italiani (2x2) -->
-      <div class="bento-card glass-strong rounded-2xl p-7 md:col-span-2 md:row-span-2 flex flex-col justify-between fade-up">
-        <div>
-          <div class="icon-neon mb-5">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="6" x2="12" y2="18"/><path d="M16 9.5C16 8 14 7 12 7s-4 1-4 2.5 2 2.5 4 2.5 4 1 4 2.5S14 17 12 17s-4-1-4-2.5"/></svg>
-          </div>
-          <h3 class="font-display font-extrabold text-2xl md:text-3xl mb-3 text-white">Prezzi italiani 🇮🇹<br>direttamente da CardTrader</h3>
-          <p class="text-white/55 text-sm md:text-base leading-relaxed max-w-md">Nessun'altra app mostra i prezzi reali dei venditori italiani. CARDEX li recupera in tempo reale dall'API CardTrader, filtrando per lingua e condizione.</p>
+    <div class="bento">
+      <!-- 1. Big card: Prezzi italiani -->
+      <div class="bento-card b-2x2 fade-up">
+        <div class="icon-box">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="6" x2="12" y2="18"/><path d="M16 9.5C16 8 14 7 12 7s-4 1-4 2.5 2 2.5 4 2.5 4 1 4 2.5S14 17 12 17s-4-1-4-2.5"/></svg>
         </div>
-        <!-- Mini badge live -->
-        <div class="flex items-center gap-3 mt-6">
-          <div class="flex -space-x-2">
-            <div class="w-7 h-7 rounded-full bg-gradient-to-br from-accent-purple to-accent-blue border-2 border-deep"></div>
-            <div class="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-400 to-blue-500 border-2 border-deep"></div>
-            <div class="w-7 h-7 rounded-full bg-gradient-to-br from-pink-400 to-purple-500 border-2 border-deep"></div>
-          </div>
-          <span class="text-xs text-white/50 font-mono">+200 venditori IT verificati</span>
+        <h3>Prezzi reali italiani.<br>Direttamente da CardTrader.</h3>
+        <p style="margin-top:10px;">Nessun'altra app mostra i prezzi reali dei venditori italiani. CARDEX li recupera in tempo reale dall'API CardTrader, filtrando per lingua e condizione.</p>
+        <div class="pills" style="margin-top:auto; padding-top:24px;">
+          <span class="pill">🇮🇹 Venditori IT</span>
+          <span class="pill">📦 200+ store verificati</span>
         </div>
       </div>
 
-      <!-- 2. Tall card: Tracking ROI (1x2) -->
-      <div class="bento-card glass-strong rounded-2xl p-6 md:col-span-2 md:row-span-2 flex flex-col justify-between fade-up">
-        <div>
-          <div class="icon-neon mb-4">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
-          </div>
-          <h3 class="font-display font-extrabold text-2xl mb-2 text-white">Tracking ROI in tempo reale</h3>
-          <p class="text-white/55 text-sm leading-relaxed">Confronta quanto hai pagato vs il valore attuale. Grafico storico per ogni carta, delta percentuale, profit/loss visibile a colpo d'occhio.</p>
+      <!-- 2. Tracking ROI -->
+      <div class="bento-card b-1x2 fade-up">
+        <div class="icon-box">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
         </div>
-        <!-- Mock chart -->
-        <div class="mt-4">
-          <svg class="mock-chart" viewBox="0 0 300 80" xmlns="http://www.w3.org/2000/svg">
+        <h3>Tracking ROI</h3>
+        <p>Confronta quanto hai pagato vs il valore attuale. Grafico storico, delta percentuale.</p>
+        <div class="mini-chart">
+          <svg viewBox="0 0 300 70" xmlns="http://www.w3.org/2000/svg">
             <defs>
-              <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#A78BFA" stop-opacity="0.4"/>
-                <stop offset="100%" stop-color="#A78BFA" stop-opacity="0"/>
+              <linearGradient id="cg" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#16A34A" stop-opacity="0.32"/>
+                <stop offset="100%" stop-color="#16A34A" stop-opacity="0"/>
               </linearGradient>
             </defs>
-            <path d="M 0 60 L 30 50 L 60 55 L 90 40 L 120 45 L 150 30 L 180 35 L 210 22 L 240 28 L 270 15 L 300 10 L 300 80 L 0 80 Z" fill="url(#chartGrad)"/>
-            <path d="M 0 60 L 30 50 L 60 55 L 90 40 L 120 45 L 150 30 L 180 35 L 210 22 L 240 28 L 270 15 L 300 10" fill="none" stroke="#A78BFA" stroke-width="2" stroke-linecap="round"/>
-            <circle cx="300" cy="10" r="3.5" fill="#A78BFA" stroke="#030303" stroke-width="2"/>
+            <path d="M 0 55 L 30 50 L 60 52 L 90 38 L 120 42 L 150 30 L 180 32 L 210 22 L 240 25 L 270 14 L 300 8 L 300 70 L 0 70 Z" fill="url(#cg)"/>
+            <path d="M 0 55 L 30 50 L 60 52 L 90 38 L 120 42 L 150 30 L 180 32 L 210 22 L 240 25 L 270 14 L 300 8" fill="none" stroke="#16A34A" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="300" cy="8" r="3.5" fill="#16A34A" stroke="var(--bg-card)" stroke-width="2"/>
           </svg>
-          <div class="flex items-center justify-between mt-3 text-xs">
-            <span class="text-white/40 font-mono">Pagato € 89,50</span>
-            <span class="text-emerald-400 font-mono font-semibold">+34.2% ▲</span>
+          <div class="chart-meta">
+            <span style="color:var(--text-mute)">Pagato € 89,50</span>
+            <span class="delta">+34.2% ▲</span>
           </div>
         </div>
       </div>
 
-      <!-- 3. Multi-TCG (2x1) -->
-      <div class="bento-card glass-strong rounded-2xl p-6 md:col-span-2 fade-up">
-        <div class="flex items-start gap-4 h-full">
-          <div class="icon-neon flex-shrink-0">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
-          </div>
-          <div class="flex-1">
-            <h3 class="font-display font-extrabold text-xl mb-2">Multi-TCG nativo</h3>
-            <p class="text-white/55 text-sm">Pokémon e One Piece in un'unica app. Statistiche separate per gioco, espansioni native italiane, giapponesi e inglesi.</p>
-            <div class="flex gap-2 mt-3">
-              <span class="text-xs px-2 py-1 rounded-md bg-yellow-500/15 text-yellow-300 border border-yellow-500/25 font-mono">⚡ Pokémon</span>
-              <span class="text-xs px-2 py-1 rounded-md bg-red-500/15 text-red-300 border border-red-500/25 font-mono">☠️ One Piece</span>
-            </div>
-          </div>
+      <!-- 3. Multi-TCG -->
+      <div class="bento-card b-2x1 fade-up">
+        <div class="icon-box">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+        </div>
+        <h3>Multi-TCG nativo</h3>
+        <p>Pokémon e One Piece in un'unica app. Espansioni italiane, inglesi e giapponesi.</p>
+        <div class="pills">
+          <span class="pill pill-pokemon">⚡ Pokémon</span>
+          <span class="pill pill-onepiece">☠️ One Piece</span>
         </div>
       </div>
 
-      <!-- 4. Ricerca smart -->
-      <div class="bento-card glass-strong rounded-2xl p-6 fade-up">
-        <div class="icon-neon mb-4">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <!-- 4. Ricerca -->
+      <div class="bento-card fade-up">
+        <div class="icon-box">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         </div>
-        <h3 class="font-display font-extrabold text-lg mb-2">Ricerca smart</h3>
-        <p class="text-white/55 text-sm">Per nome (anche italiano) o codice carta — SV03-100, EB04-007, 201/165.</p>
+        <h3>Ricerca smart</h3>
+        <p>Per nome o codice — SV03-100, EB04-007.</p>
       </div>
 
-      <!-- 5. Condizioni & lingue -->
-      <div class="bento-card glass-strong rounded-2xl p-6 fade-up">
-        <div class="icon-neon mb-4">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16.5 9.4l-9-5.19"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+      <!-- 5. Condizioni -->
+      <div class="bento-card fade-up">
+        <div class="icon-box">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6v6H9z"/></svg>
         </div>
-        <h3 class="font-display font-extrabold text-lg mb-2">Condizioni & lingue</h3>
-        <p class="text-white/55 text-sm">NM, SP, MP, Played. Italiano, inglese, giapponese. Quantità e note per ogni copia.</p>
+        <h3>Condizioni & lingue</h3>
+        <p>NM, SP, MP. IT, EN, JP. Note e quantità per ogni copia.</p>
       </div>
 
       <!-- 6. Stats -->
-      <div class="bento-card glass-strong rounded-2xl p-6 md:col-span-2 fade-up">
-        <div class="flex items-start gap-4 h-full">
-          <div class="icon-neon flex-shrink-0">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-          </div>
-          <div class="flex-1">
-            <h3 class="font-display font-extrabold text-xl mb-2">Statistiche & top carte</h3>
-            <p class="text-white/55 text-sm">Top 5 più preziose, distribuzione per lingua, valore totale per gioco. Tutto in un colpo d'occhio.</p>
-          </div>
+      <div class="bento-card b-2x1 fade-up">
+        <div class="icon-box">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
         </div>
+        <h3>Statistiche & top carte</h3>
+        <p>Top 5 più preziose, distribuzione per lingua, valore totale per gioco.</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ==================== COME FUNZIONA ==================== -->
-<section id="come-funziona" class="section">
-  <div class="max-w-5xl mx-auto">
-    <div class="text-center mb-16 fade-up">
-      <div class="inline-block glass px-3 py-1 rounded-full text-xs text-white/60 mb-4 font-mono uppercase tracking-widest">Come funziona</div>
-      <h2 class="font-display font-extrabold text-4xl md:text-6xl gradient-text mb-4">Tre step. Niente più.</h2>
-      <p class="text-white/60 max-w-xl mx-auto">Dall'app al portfolio tracciato in meno di 60 secondi.</p>
+<!-- ──────── COME FUNZIONA ──────── -->
+<section id="come-funziona" class="section" style="background:var(--bg-soft);">
+  <div class="container">
+    <div class="section-head fade-up">
+      <span class="section-tag">Come funziona</span>
+      <h2>Tre step. Niente più.</h2>
+      <p>Dall'app al portfolio tracciato in meno di 60 secondi.</p>
     </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-      <!-- Step 1 -->
-      <div class="glass-strong rounded-2xl p-7 fade-up">
-        <div class="flex items-center gap-3 mb-5">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-purple to-accent-blue flex items-center justify-center font-mono font-bold">01</div>
-          <span class="text-xs uppercase tracking-widest text-white/50">Cerca</span>
-        </div>
-        <h3 class="font-display font-extrabold text-xl mb-2">Trova la tua carta</h3>
-        <p class="text-white/55 text-sm leading-relaxed">Digita il nome o il codice. Ti mostriamo tutte le versioni — promo, alternate, reprint — con immagine e prezzo italiano.</p>
+    <div class="steps">
+      <div class="step-card fade-up">
+        <div class="step-num">01 — CERCA</div>
+        <h3>Trova la tua carta</h3>
+        <p>Digita il nome o il codice. Ti mostriamo tutte le versioni — promo, alternate, reprint — con immagine e prezzo italiano.</p>
       </div>
-
-      <!-- Step 2 -->
-      <div class="glass-strong rounded-2xl p-7 fade-up">
-        <div class="flex items-center gap-3 mb-5">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-purple to-accent-blue flex items-center justify-center font-mono font-bold">02</div>
-          <span class="text-xs uppercase tracking-widest text-white/50">Aggiungi</span>
-        </div>
-        <h3 class="font-display font-extrabold text-xl mb-2">Salva i dettagli</h3>
-        <p class="text-white/55 text-sm leading-relaxed">Condizione, lingua, prezzo che hai pagato, data di acquisto, note. Personalizzabile copia per copia.</p>
+      <div class="step-card fade-up">
+        <div class="step-num">02 — AGGIUNGI</div>
+        <h3>Salva i dettagli</h3>
+        <p>Condizione, lingua, prezzo che hai pagato, data di acquisto, note. Personalizzabile copia per copia.</p>
       </div>
-
-      <!-- Step 3 -->
-      <div class="glass-strong rounded-2xl p-7 fade-up">
-        <div class="flex items-center gap-3 mb-5">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-purple to-accent-blue flex items-center justify-center font-mono font-bold">03</div>
-          <span class="text-xs uppercase tracking-widest text-white/50">Monitora</span>
-        </div>
-        <h3 class="font-display font-extrabold text-xl mb-2">Vedi guadagno o perdita</h3>
-        <p class="text-white/55 text-sm leading-relaxed">Grafico storico, delta percentuale, top carte. Aggiorni i prezzi quando vuoi, lo storico cresce ad ogni refresh.</p>
+      <div class="step-card fade-up">
+        <div class="step-num">03 — MONITORA</div>
+        <h3>Vedi guadagno o perdita</h3>
+        <p>Grafico storico, delta percentuale, top carte. Aggiorni i prezzi quando vuoi, lo storico cresce ad ogni refresh.</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ==================== FAQ MINI ==================== -->
+<!-- ──────── FAQ ──────── -->
 <section id="faq" class="section">
-  <div class="max-w-3xl mx-auto">
-    <div class="text-center mb-12 fade-up">
-      <div class="inline-block glass px-3 py-1 rounded-full text-xs text-white/60 mb-4 font-mono uppercase tracking-widest">FAQ</div>
-      <h2 class="font-display font-extrabold text-4xl md:text-5xl gradient-text mb-4">Domande frequenti.</h2>
+  <div class="container">
+    <div class="section-head fade-up">
+      <span class="section-tag">FAQ</span>
+      <h2>Domande frequenti.</h2>
     </div>
-
-    <div class="space-y-3">
-      <details class="glass rounded-xl p-5 group fade-up cursor-pointer">
-        <summary class="flex items-center justify-between font-medium list-none">
-          <span>È davvero gratis?</span>
-          <span class="text-white/40 group-open:rotate-45 transition-transform">+</span>
-        </summary>
-        <p class="text-white/60 text-sm mt-3 leading-relaxed">Sì. Beta privata aperta a chiunque si iscriva. Nessuna carta di credito richiesta. Pianifichiamo un piano premium opzionale in futuro per funzionalità avanzate (alert prezzo, export, share).</p>
+    <div class="faq-list">
+      <details class="faq-item fade-up">
+        <summary>È davvero gratis?</summary>
+        <div class="answer">Sì. Beta privata aperta a chiunque si iscriva. Nessuna carta di credito richiesta. Pianifichiamo un piano premium opzionale in futuro per funzionalità avanzate (alert prezzo, export, share).</div>
       </details>
-
-      <details class="glass rounded-xl p-5 group fade-up cursor-pointer">
-        <summary class="flex items-center justify-between font-medium list-none">
-          <span>I prezzi sono affidabili?</span>
-          <span class="text-white/40 group-open:rotate-45 transition-transform">+</span>
-        </summary>
-        <p class="text-white/60 text-sm mt-3 leading-relaxed">I prezzi vengono direttamente da CardTrader, la più grande piattaforma marketplace TCG europea. Filtriamo automaticamente per priorità venditori italiani, lingua della carta e condizione.</p>
+      <details class="faq-item fade-up">
+        <summary>I prezzi sono affidabili?</summary>
+        <div class="answer">I prezzi vengono direttamente da CardTrader, la più grande piattaforma marketplace TCG europea. Filtriamo automaticamente per priorità venditori italiani, lingua della carta e condizione.</div>
       </details>
-
-      <details class="glass rounded-xl p-5 group fade-up cursor-pointer">
-        <summary class="flex items-center justify-between font-medium list-none">
-          <span>Quali TCG sono supportati?</span>
-          <span class="text-white/40 group-open:rotate-45 transition-transform">+</span>
-        </summary>
-        <p class="text-white/60 text-sm mt-3 leading-relaxed">Pokémon e One Piece. Stiamo valutando Dragon Ball Super, Lorcana e Digimon per le prossime release.</p>
+      <details class="faq-item fade-up">
+        <summary>Quali TCG sono supportati?</summary>
+        <div class="answer">Pokémon e One Piece. Stiamo valutando Dragon Ball Super, Lorcana e Digimon per le prossime release.</div>
       </details>
-
-      <details class="glass rounded-xl p-5 group fade-up cursor-pointer">
-        <summary class="flex items-center justify-between font-medium list-none">
-          <span>Posso aggiungere carte non presenti su CardTrader?</span>
-          <span class="text-white/40 group-open:rotate-45 transition-transform">+</span>
-        </summary>
-        <p class="text-white/60 text-sm mt-3 leading-relaxed">Al momento la collezione è alimentata dal database CardTrader (oltre 250.000 carte). L'aggiunta manuale è in roadmap.</p>
+      <details class="faq-item fade-up">
+        <summary>Posso aggiungere carte non presenti su CardTrader?</summary>
+        <div class="answer">Al momento la collezione è alimentata dal database CardTrader (oltre 250.000 carte). L'aggiunta manuale è in roadmap.</div>
       </details>
     </div>
   </div>
 </section>
 
-<!-- ==================== FINAL CTA ==================== -->
+<!-- ──────── FINAL CTA ──────── -->
 <section class="section">
-  <div class="max-w-4xl mx-auto text-center glass-strong rounded-3xl p-10 md:p-16 fade-up relative overflow-hidden">
-    <!-- Decorative glow -->
-    <div class="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-accent-purple/20 blur-3xl pointer-events-none"></div>
-    <div class="absolute -bottom-40 -left-40 w-96 h-96 rounded-full bg-accent-blue/20 blur-3xl pointer-events-none"></div>
-
-    <div class="relative">
-      <h2 class="font-display font-extrabold text-4xl md:text-6xl gradient-text mb-5 leading-tight">
-        Pronto a tracciare<br>la tua collezione?
-      </h2>
-      <p class="text-white/60 text-lg mb-8 max-w-md mx-auto">Gratis. Nessuna carta di credito.<br>Inizia in meno di 30 secondi.</p>
-      <a href="index.html" class="btn-neon-primary inline-flex items-center gap-2 px-10 py-5 rounded-2xl text-lg font-semibold transition-all">
-        Inizia gratis →
-      </a>
-      <div class="text-xs text-white/40 mt-6 font-mono">⚡ Già attivo · 🇮🇹 Made in Italy</div>
+  <div class="container">
+    <div class="final-cta fade-up">
+      <h2>Pronto a tracciare<br>la tua collezione?</h2>
+      <p>Gratis. Nessuna carta di credito.<br>Inizia in meno di 30 secondi.</p>
+      <a href="index.html" class="btn btn-primary btn-lg">Inizia gratis →</a>
     </div>
   </div>
 </section>
 
-<!-- ==================== FOOTER ==================== -->
-<footer class="border-t border-white/5 py-10 px-6">
-  <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-    <a href="#top" class="brand-logo text-lg">
-      <span class="bl-card">CARD</span><span class="bl-ex">EX</span>
-    </a>
-    <div class="flex items-center gap-6 text-xs text-white/40">
-      <a href="#" class="hover:text-white/70 transition">Privacy</a>
-      <a href="#" class="hover:text-white/70 transition">Termini</a>
-      <a href="mailto:hello@cardex.app" class="hover:text-white/70 transition">Contatti</a>
+<!-- ──────── FOOTER ──────── -->
+<footer>
+  <div class="foot-inner">
+    <a href="#top" class="brand-logo"><span class="lite">CARD</span><span>EX</span></a>
+    <div class="foot-links">
+      <a href="#">Privacy</a>
+      <a href="#">Termini</a>
+      <a href="mailto:hello@cardex.app">Contatti</a>
     </div>
-    <div class="text-xs text-white/30 font-mono">© 2026 CARDEX</div>
+    <div class="foot-copy">© 2026 CARDEX</div>
   </div>
 </footer>
 
-<!-- ==================== SCRIPTS ==================== -->
+<!-- ──────── SCRIPTS ──────── -->
 <script>
-  // Mobile menu toggle
-  const menuBtn = document.getElementById('menu-btn');
-  const mobileMenu = document.getElementById('mobile-menu');
-  menuBtn?.addEventListener('click', () => mobileMenu.classList.toggle('open'));
-  mobileMenu?.querySelectorAll('a').forEach(a => a.addEventListener('click', () => mobileMenu.classList.remove('open')));
+/* ===== Theme toggle ===== */
+const root = document.documentElement;
+const stored = localStorage.getItem('cardex-theme');
+if (stored === 'dark' || stored === 'light') root.setAttribute('data-theme', stored);
+else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) root.setAttribute('data-theme', 'dark');
+document.getElementById('theme-toggle').addEventListener('click', () => {
+  const cur = root.getAttribute('data-theme');
+  const next = cur === 'dark' ? 'light' : 'dark';
+  root.setAttribute('data-theme', next);
+  localStorage.setItem('cardex-theme', next);
+});
 
-  // Intersection Observer for fade-up
-  const io = new IntersectionObserver((entries) => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        e.target.classList.add('visible');
-        io.unobserve(e.target);
-      }
-    });
-  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
-  document.querySelectorAll('.fade-up').forEach(el => io.observe(el));
+/* ===== Mobile menu ===== */
+const menuBtn = document.getElementById('menu-btn');
+const mm = document.getElementById('mobile-menu');
+menuBtn.addEventListener('click', () => mm.classList.toggle('open'));
+mm.querySelectorAll('a').forEach(a => a.addEventListener('click', () => mm.classList.remove('open')));
 
-  // Mouse-tracked glow on bento cards
-  document.querySelectorAll('.bento-card').forEach(card => {
-    card.addEventListener('mousemove', (e) => {
-      const rect = card.getBoundingClientRect();
-      card.style.setProperty('--mx', (e.clientX - rect.left) + 'px');
-      card.style.setProperty('--my', (e.clientY - rect.top) + 'px');
-    });
+/* ===== Show desktop CTA after JS load ===== */
+const ctaDesk = document.getElementById('cta-desktop');
+if (window.innerWidth >= 768) ctaDesk.style.display = 'inline-flex';
+window.addEventListener('resize', () => ctaDesk.style.display = (window.innerWidth >= 768) ? 'inline-flex' : 'none');
+
+/* ===== Fade-up on scroll ===== */
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      io.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.fade-up').forEach(el => io.observe(el));
+
+/* ===========================================================
+   ===== DRAGON WIREFRAME — mouse-driven scatter/converge =====
+   =========================================================== */
+
+/* ViewBox is 800 x 500.
+   Each line has a "home" position [x1,y1,x2,y2] forming a stylized
+   Charizard side profile (head left, mouth open, neck curving,
+   wing top-right, tail down-right). When mouse is near center
+   of stage, lines converge to home. When far/idle, they scatter. */
+
+const DRAGON = [
+  // Head outline - top
+  [110,180, 165,160],
+  [165,160, 220,150],
+  [220,150, 275,160],
+  [275,160, 320,180],
+  [320,180, 360,200],
+  [360,200, 380,225],
+
+  // Snout / nose bridge
+  [380,225, 360,250],
+  [360,250, 330,255],
+
+  // Upper jaw (mouth open)
+  [330,255, 295,265],
+  [295,265, 250,270],
+  [250,270, 210,275],
+  [210,275, 175,280],
+
+  // Teeth upper
+  [320,255, 322,270],
+  [290,260, 292,278],
+  [255,265, 257,285],
+  [220,270, 222,290],
+  [185,275, 187,295],
+
+  // Lower jaw
+  [175,280, 145,310],
+  [145,310, 120,335],
+  [120,335, 110,350],
+
+  // Teeth lower
+  [165,295, 168,308],
+  [195,300, 198,315],
+  [225,302, 228,318],
+  [255,300, 258,315],
+
+  // Inner mouth glow lines
+  [200,290, 280,290],
+  [220,300, 290,295],
+  [240,310, 300,305],
+
+  // Throat / chin
+  [110,350, 130,365],
+  [130,365, 160,370],
+  [160,370, 200,365],
+
+  // Back of jaw / cheek
+  [380,225, 400,250],
+  [400,250, 410,285],
+  [410,285, 405,320],
+
+  // HORNS (top of head, pointing back-up)
+  [220,150, 215,95],
+  [215,95, 235,140],
+  [255,150, 255,80],
+  [255,80, 280,135],
+  [285,155, 290,100],
+  [290,100, 310,150],
+
+  // Eye area (small angular)
+  [280,200, 305,205],
+  [305,205, 300,222],
+  [300,222, 280,218],
+  [280,218, 280,200],
+
+  // Brow above eye
+  [275,190, 310,185],
+
+  // Neck (curving down-right)
+  [405,320, 460,340],
+  [460,340, 510,355],
+  [510,355, 550,360],
+
+  // Belly / chest
+  [200,365, 260,380],
+  [260,380, 330,385],
+  [330,385, 400,380],
+  [400,380, 460,375],
+  [460,375, 510,365],
+
+  // Shoulder / wing root
+  [410,285, 480,260],
+  [480,260, 530,250],
+
+  // WING - main bones
+  [530,250, 600,180],
+  [600,180, 680,140],
+  [680,140, 750,160],
+
+  [530,250, 620,220],
+  [620,220, 700,200],
+  [700,200, 770,230],
+
+  [530,250, 615,260],
+  [615,260, 705,270],
+  [705,270, 770,290],
+
+  [530,250, 605,300],
+  [605,300, 680,320],
+
+  // Wing membrane (vertical struts)
+  [600,180, 620,220],
+  [680,140, 700,200],
+  [750,160, 770,230],
+  [620,220, 615,260],
+  [700,200, 705,270],
+  [770,230, 770,290],
+  [615,260, 605,300],
+  [705,270, 680,320],
+
+  // TAIL (lower right)
+  [510,365, 555,395],
+  [555,395, 600,420],
+  [600,420, 650,440],
+  [650,440, 685,460],
+  [550,360, 590,395],
+  [590,395, 630,425],
+  [630,425, 660,455],
+
+  // Flame at tail tip
+  [685,460, 720,440],
+  [720,440, 730,470],
+  [730,470, 700,475],
+  [700,475, 685,460],
+
+  // Body fractures (interior cracks for "shattered" look)
+  [240,250, 280,275],
+  [180,260, 220,290],
+  [320,210, 360,235],
+  [310,295, 360,320],
+  [380,300, 425,330],
+  [255,330, 310,360],
+  [335,340, 390,365],
+  [415,335, 470,355],
+  [490,295, 540,320],
+  [545,275, 580,305],
+
+  // Decorative ember sparks (short floating)
+  [60,140, 75,135],
+  [50,200, 65,205],
+  [45,290, 60,288],
+  [780,90, 795,95],
+  [770,400, 790,405],
+  [55,420, 70,418],
+];
+
+const W = 800, H = 500;
+
+/* Generate "scattered" random positions for each line */
+const LINES = DRAGON.map(home => {
+  // Random scattered endpoints
+  const r1x = Math.random() * W;
+  const r1y = Math.random() * H;
+  const r2x = r1x + (Math.random() - 0.5) * 120;
+  const r2y = r1y + (Math.random() - 0.5) * 120;
+  return {
+    home: { x1: home[0], y1: home[1], x2: home[2], y2: home[3] },
+    scatter: { x1: r1x, y1: r1y, x2: r2x, y2: r2y },
+    el: null,
+  };
+});
+
+const group = document.getElementById('dragon-lines');
+const stage = document.getElementById('dragon-stage');
+const hint = document.getElementById('dragon-hint');
+const svgNS = 'http://www.w3.org/2000/svg';
+
+/* Create line elements */
+LINES.forEach((L, i) => {
+  const line = document.createElementNS(svgNS, 'line');
+  line.setAttribute('x1', L.scatter.x1);
+  line.setAttribute('y1', L.scatter.y1);
+  line.setAttribute('x2', L.scatter.x2);
+  line.setAttribute('y2', L.scatter.y2);
+  line.setAttribute('stroke', 'url(#emberGrad)');
+  line.setAttribute('stroke-width', 1.2 + Math.random() * 0.8);
+  line.setAttribute('stroke-linecap', 'round');
+  line.setAttribute('opacity', 0.85);
+  group.appendChild(line);
+  L.el = line;
+});
+
+/* Mouse-driven convergence */
+let targetT = 0; // 0 = scattered, 1 = formed
+let currentT = 0;
+let mouseInside = false;
+let mouseX = 0.5, mouseY = 0.5; // normalized 0-1
+
+stage.addEventListener('mouseenter', () => { mouseInside = true; hint.style.opacity = '0'; });
+stage.addEventListener('mouseleave', () => { mouseInside = false; hint.style.opacity = '0.7'; });
+stage.addEventListener('mousemove', (e) => {
+  const r = stage.getBoundingClientRect();
+  mouseX = (e.clientX - r.left) / r.width;
+  mouseY = (e.clientY - r.top) / r.height;
+  // Distance from center -> 0 (center) to ~0.7 (edges)
+  const dx = mouseX - 0.5;
+  const dy = mouseY - 0.5;
+  const dist = Math.sqrt(dx*dx + dy*dy);
+  // Inverse: closer to center => higher t
+  targetT = Math.max(0, Math.min(1, 1 - dist * 1.6));
+});
+
+/* Touch support */
+stage.addEventListener('touchmove', (e) => {
+  if (!e.touches[0]) return;
+  const r = stage.getBoundingClientRect();
+  mouseX = (e.touches[0].clientX - r.left) / r.width;
+  mouseY = (e.touches[0].clientY - r.top) / r.height;
+  const dx = mouseX - 0.5, dy = mouseY - 0.5;
+  const dist = Math.sqrt(dx*dx + dy*dy);
+  targetT = Math.max(0, Math.min(1, 1 - dist * 1.6));
+}, { passive: true });
+
+/* Animation loop */
+function lerp(a, b, t) { return a + (b - a) * t; }
+function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
+
+function animate() {
+  // Smooth follow
+  currentT += (targetT - currentT) * 0.08;
+  const t = easeOut(currentT);
+
+  // Subtle ambient breathing when not converged
+  const time = performance.now() * 0.001;
+  const breathe = (1 - t) * 4 * Math.sin(time);
+
+  LINES.forEach((L, i) => {
+    const phase = i * 0.13;
+    const wob = (1 - t) * 6 * Math.sin(time * 1.2 + phase);
+    const wob2 = (1 - t) * 6 * Math.cos(time * 1.0 + phase);
+
+    const x1 = lerp(L.scatter.x1, L.home.x1, t) + wob;
+    const y1 = lerp(L.scatter.y1, L.home.y1, t) + wob2;
+    const x2 = lerp(L.scatter.x2, L.home.x2, t) - wob;
+    const y2 = lerp(L.scatter.y2, L.home.y2, t) - wob2;
+
+    L.el.setAttribute('x1', x1.toFixed(1));
+    L.el.setAttribute('y1', y1.toFixed(1));
+    L.el.setAttribute('x2', x2.toFixed(1));
+    L.el.setAttribute('y2', y2.toFixed(1));
+    // Brightness scales with t
+    L.el.setAttribute('opacity', (0.4 + t * 0.55).toFixed(2));
   });
 
-  // Subtle parallax on Spline mock
-  const spline = document.getElementById('spline-container');
-  if (spline) {
-    document.addEventListener('mousemove', (e) => {
-      const x = (e.clientX / window.innerWidth - 0.5) * 16;
-      const y = (e.clientY / window.innerHeight - 0.5) * 16;
-      spline.style.transform = `translate(${x}px, ${y}px)`;
-    });
-  }
+  requestAnimationFrame(animate);
+}
+
+/* Initial gentle target so user sees the dragon faintly */
+setTimeout(() => { targetT = 0.4; }, 800);
+animate();
 </script>
 
 </body>
