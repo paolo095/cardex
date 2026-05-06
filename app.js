@@ -383,8 +383,11 @@ function renderResultsGrid(bps){
   document.getElementById('results-grid').innerHTML=bps.map((bp,i)=>{
     const cn=bp.fixed_properties?.collector_number||'';
     const expCode=abbrevCode(bp.expansion?.code||bp.expansion?.name||'');
+    const img=bp.image_url
+      ?`<img src="${bp.image_url}" alt="${bp.name}" loading="lazy" onerror="this.style.display='none'">`
+      :`<div style="aspect-ratio:2/3;background:var(--bg3);display:flex;align-items:center;justify-content:center;">${currentGame==='pokemon'?ICONS.zap(32):ICONS.skull(32)}</div>`;
     return `<div class="result-card" onclick="openDetailByIndex(${i})">
-      <img src="${bp.image_url||''}" alt="${bp.name}" loading="lazy" onerror="this.style.display='none'">
+      ${img}
       <div class="result-card-body">
         <div class="result-card-name">${bp.name}</div>
         <div class="result-card-footer">
