@@ -388,7 +388,7 @@ function renderResultsGridProgressive(allResults, searchIdSnapshot){
       const cn=bp.fixed_properties?.collector_number||'';
       const expCode=abbrevCode(bp.expansion?.code||bp.expansion?.name||'');
       const img=bp.image_url
-        ?`<img src="${bp.image_url}" alt="${bp.name}" onerror="this.style.display='none'">`
+        ?`<div style="aspect-ratio:2/3;background:var(--bg3);overflow:hidden;"><img src="${bp.image_url}" alt="${bp.name}" style="width:100%;height:100%;object-fit:cover;"></div>`
         :`<div style="aspect-ratio:2/3;background:var(--bg3);display:flex;align-items:center;justify-content:center;">${currentGame==='pokemon'?ICONS.zap(32):ICONS.skull(32)}</div>`;
       return `<div class="result-card" onclick="openDetailByIndex(${i})">
         ${img}
