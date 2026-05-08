@@ -1,0 +1,1601 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CARDEX — Scopri quanto vale la tua collezione</title>
+<meta name="description" content="Prezzi reali da venditori italiani per Pokémon e One Piece. Portfolio tracker, storico prezzi, aggiornato ogni giorno da CardTrader.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNyIgZmlsbD0iIzBFMEUxMCIvPjx0ZXh0IHg9IjIiIHk9IjI0IiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtd2VpZ2h0PSIzMDAiIGZvbnQtc2l6ZT0iMjAiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4zOCkiPkM8L3RleHQ+PHRleHQgeD0iMTUiIHk9IjI0IiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtd2VpZ2h0PSI5MDAiIGZvbnQtc2l6ZT0iMjAiIGZpbGw9IiNmZmZmZmYiPlg8L3RleHQ+PC9zdmc+">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+
+/* ─── VARIABLES ─── */
+:root {
+  --bg:         #090910;
+  --surface:    #10101c;
+  --surface2:   #16162a;
+  --surface3:   #1e1e36;
+  --gold:       #D4A843;
+  --gold-dim:   #A07C2E;
+  --gold-glow:  rgba(212,168,67,0.22);
+  --gold-glow2: rgba(212,168,67,0.08);
+  --violet:     #7C5CFC;
+  --violet-dim: rgba(124,92,252,0.18);
+  --text:       #F2F2FA;
+  --text-soft:  rgba(242,242,250,0.55);
+  --text-muted: rgba(242,242,250,0.30);
+  --border:     rgba(255,255,255,0.07);
+  --border-h:   rgba(255,255,255,0.15);
+  --green:      #22C55E;
+  --red:        #EF4444;
+  --radius:     14px;
+  --ease:       cubic-bezier(0.23, 1, 0.32, 1);
+  --ease2:      cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ─── RESET ─── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: -0.01em;
+  overflow-x: hidden;
+}
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; border: none; background: none; }
+img, svg { display: block; }
+
+/* ─── NOISE TEXTURE ─── */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity: 1;
+}
+
+/* ─── SCROLL PROGRESS ─── */
+.scroll-progress {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+  height: 2px;
+  background: linear-gradient(90deg, var(--gold), var(--violet));
+  transform-origin: left;
+  transform: scaleX(0);
+  transition: transform 0.1s linear;
+}
+
+/* ─── LAYOUT ─── */
+.container { max-width: 1160px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+
+/* ─── NAV ─── */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  padding: 0;
+  transition: background 0.4s var(--ease), border-color 0.4s var(--ease), padding 0.4s var(--ease);
+}
+.nav.scrolled {
+  background: rgba(9,9,16,0.82);
+  backdrop-filter: blur(24px) saturate(150%);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  border-bottom: 1px solid var(--border);
+}
+.nav-inner {
+  max-width: 1160px; margin: 0 auto;
+  padding: 20px 24px;
+  display: flex; align-items: center; justify-content: space-between; gap: 24px;
+  transition: padding 0.4s var(--ease);
+}
+.nav.scrolled .nav-inner { padding: 14px 24px; }
+
+.brand {
+  font-family: 'Syne', sans-serif;
+  font-size: 20px; font-weight: 800; letter-spacing: -0.06em;
+  color: var(--text);
+}
+.brand span { color: var(--gold); }
+
+.nav-links {
+  display: none;
+  gap: 32px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-soft);
+}
+@media (min-width: 768px) { .nav-links { display: flex; } }
+.nav-links a { transition: color 150ms; }
+.nav-links a:hover { color: var(--text); }
+
+.btn-nav {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 9px 20px;
+  border-radius: 10px;
+  font-size: 14px; font-weight: 600;
+  background: var(--gold);
+  color: #0A0805;
+  transition: transform 150ms var(--ease), box-shadow 200ms var(--ease), opacity 150ms;
+  white-space: nowrap;
+}
+.btn-nav:hover { transform: translateY(-1px); box-shadow: 0 8px 24px var(--gold-glow); }
+.btn-nav:active { transform: scale(0.97); }
+
+/* ─── HERO ─── */
+.hero {
+  min-height: 100dvh;
+  padding: 120px 0 60px;
+  display: flex; flex-direction: column; justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+.hero-bg-glow {
+  position: absolute;
+  top: -10%; right: -5%;
+  width: 700px; height: 700px;
+  background: radial-gradient(circle at center, rgba(124,92,252,0.12) 0%, rgba(212,168,67,0.06) 40%, transparent 70%);
+  pointer-events: none;
+  animation: bgGlowDrift 18s ease-in-out infinite alternate;
+  will-change: transform;
+}
+.hero-bg-glow2 {
+  position: absolute;
+  bottom: -20%; left: -10%;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle at center, rgba(212,168,67,0.07) 0%, transparent 65%);
+  pointer-events: none;
+  animation: bgGlowDrift2 22s ease-in-out infinite alternate;
+  will-change: transform;
+}
+@keyframes bgGlowDrift  { 0%{transform:translate(0,0) scale(1)} 100%{transform:translate(-4%,6%) scale(1.08)} }
+@keyframes bgGlowDrift2 { 0%{transform:translate(0,0) scale(1)} 100%{transform:translate(5%,-4%) scale(1.05)} }
+
+.hero-inner {
+  max-width: 1160px; margin: 0 auto; padding: 0 24px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 60px;
+  align-items: center;
+  position: relative; z-index: 1;
+}
+@media (min-width: 900px) {
+  .hero-inner { grid-template-columns: 1fr 1fr; gap: 40px; }
+}
+
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 5px 14px; border-radius: 100px;
+  background: rgba(212,168,67,0.08);
+  border: 1px solid rgba(212,168,67,0.25);
+  font-size: 12px; font-weight: 500; color: var(--gold);
+  margin-bottom: 24px;
+  letter-spacing: 0.01em;
+  animation: fadeInDown 0.7s var(--ease) both;
+}
+.dot-live {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 8px rgba(34,197,94,0.7);
+  animation: dotPulse 2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+@keyframes dotPulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+.hero-h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(46px, 6.5vw, 84px);
+  font-weight: 800;
+  letter-spacing: -0.055em;
+  line-height: 1.02;
+  margin-bottom: 22px;
+  animation: fadeInUp 0.8s var(--ease) 0.1s both;
+}
+.gradient-text {
+  background: linear-gradient(120deg, var(--gold) 0%, #F5C842 40%, var(--violet) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: inline-block;
+}
+
+.hero-sub {
+  font-size: clamp(15px, 1.8vw, 17px);
+  color: var(--text-soft);
+  max-width: 460px;
+  line-height: 1.65;
+  margin-bottom: 34px;
+  animation: fadeInUp 0.8s var(--ease) 0.2s both;
+}
+
+.hero-actions {
+  display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+  margin-bottom: 48px;
+  animation: fadeInUp 0.8s var(--ease) 0.3s both;
+}
+
+.btn-gold {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 13px 26px;
+  border-radius: 11px;
+  font-size: 15px; font-weight: 700;
+  background: var(--gold);
+  color: #0A0805;
+  transition: transform 150ms var(--ease), box-shadow 200ms var(--ease);
+  white-space: nowrap;
+}
+.btn-gold:hover { transform: translateY(-2px); box-shadow: 0 12px 32px var(--gold-glow); }
+.btn-gold:active { transform: scale(0.97); box-shadow: none; }
+.btn-gold svg { transition: transform 200ms var(--ease); }
+.btn-gold:hover svg { transform: translateX(3px); }
+
+.btn-ghost-hero {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 12px 22px;
+  border-radius: 11px;
+  font-size: 15px; font-weight: 500;
+  color: var(--text-soft);
+  border: 1px solid var(--border);
+  transition: border-color 150ms, color 150ms, background 150ms;
+  white-space: nowrap;
+}
+.btn-ghost-hero:hover { border-color: var(--border-h); color: var(--text); background: rgba(255,255,255,0.03); }
+
+.hero-stats {
+  display: flex; gap: 28px; align-items: center;
+  animation: fadeInUp 0.8s var(--ease) 0.4s both;
+}
+.stat-item { display: flex; flex-direction: column; gap: 2px; }
+.stat-val {
+  font-family: 'Syne', sans-serif;
+  font-size: 22px; font-weight: 700; letter-spacing: -0.04em;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+.stat-lbl { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.12em; }
+.stat-div { width: 1px; height: 32px; background: var(--border); flex-shrink: 0; }
+
+/* ─── TCG CARD CSS ART ─── */
+.hero-visual {
+  display: flex; justify-content: center; align-items: center;
+  position: relative;
+  animation: fadeInRight 0.9s var(--ease) 0.15s both;
+}
+
+.cards-scene {
+  perspective: 900px;
+  perspective-origin: 50% 40%;
+  position: relative;
+  width: 280px; height: 380px;
+}
+
+.tcg-card {
+  position: absolute;
+  width: 180px; height: 252px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 4px 12px rgba(0,0,0,0.4);
+  cursor: default;
+  will-change: transform;
+}
+
+/* Back cards */
+.card-back-2 {
+  top: 60px; left: 0px;
+  transform: rotateX(-4deg) rotateY(18deg) rotateZ(-6deg) translateZ(-60px);
+  opacity: 0.55;
+  animation: floatCard3 6s ease-in-out 1s infinite;
+}
+.card-back-1 {
+  top: 30px; left: 20px;
+  transform: rotateX(-4deg) rotateY(14deg) rotateZ(-3deg) translateZ(-25px);
+  opacity: 0.75;
+  animation: floatCard2 5.5s ease-in-out 0.5s infinite;
+}
+.flip-card {
+  top: 0; left: 50px;
+  transform: rotateX(-4deg) rotateY(10deg) rotateZ(0deg) translateZ(0px);
+  animation: floatCard1 5s ease-in-out infinite;
+  transform-style: preserve-3d;
+}
+
+@keyframes floatCard1 {
+  0%,100% { transform: rotateX(-4deg) rotateY(10deg) rotateZ(0deg) translateZ(0px) translateY(0px); }
+  50%     { transform: rotateX(-4deg) rotateY(10deg) rotateZ(0deg) translateZ(0px) translateY(-14px); }
+}
+@keyframes floatCard2 {
+  0%,100% { transform: rotateX(-4deg) rotateY(14deg) rotateZ(-3deg) translateZ(-25px) translateY(0px); }
+  50%     { transform: rotateX(-4deg) rotateY(14deg) rotateZ(-3deg) translateZ(-25px) translateY(-10px); }
+}
+@keyframes floatCard3 {
+  0%,100% { transform: rotateX(-4deg) rotateY(18deg) rotateZ(-6deg) translateZ(-60px) translateY(0px); }
+  50%     { transform: rotateX(-4deg) rotateY(18deg) rotateZ(-6deg) translateZ(-60px) translateY(-7px); }
+}
+
+.card-inner { position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; }
+
+.card-header {
+  height: 36px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 10px;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.02em;
+}
+.card-name-label { color: rgba(255,255,255,0.85); font-size: 11px; }
+.card-hp { color: rgba(255,255,255,0.65); font-size: 10px; }
+
+.charizard-header {
+  background: linear-gradient(135deg, #1a0800 0%, #7c2d12 50%, #ea580c 100%);
+}
+.luffy-header {
+  background: linear-gradient(135deg, #0f0f0f 0%, #7f1d1d 50%, #dc2626 100%);
+}
+.blue-eyes-header {
+  background: linear-gradient(135deg, #0f1729 0%, #1e3a8a 50%, #3b82f6 100%);
+}
+
+.card-art {
+  flex: 1;
+  position: relative; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+}
+.charizard-art  { background: linear-gradient(160deg, #1c0600 0%, #7c2d12 50%, #ea580c 85%, #f97316 100%); }
+.luffy-art      { background: linear-gradient(160deg, #1a0000 0%, #991b1b 55%, #dc2626 85%, #f87171 100%); }
+.blue-eyes-art  { background: linear-gradient(160deg, #050c1f 0%, #1e3a8a 55%, #2563eb 85%, #60a5fa 100%); }
+
+.card-art-glow {
+  position: absolute;
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.card-silhouette {
+  position: absolute; width: 80%; height: 80%; opacity: 0.6;
+}
+
+.card-footer {
+  height: 28px; flex-shrink: 0;
+  background: rgba(0,0,0,0.55);
+  border-top: 1px solid rgba(255,255,255,0.08);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 10px;
+}
+.card-expansion { font-size: 8px; color: rgba(255,255,255,0.4); letter-spacing: 0.06em; }
+.card-rarity { display: flex; gap: 2px; }
+.star { font-size: 9px; }
+.star.gold { color: var(--gold); }
+.star.gray { color: rgba(255,255,255,0.3); }
+
+/* Holographic shimmer overlay */
+.card-holo {
+  position: absolute; inset: 0; border-radius: 12px;
+  background: linear-gradient(
+    115deg,
+    transparent 20%,
+    rgba(255,219,77,0.12) 30%,
+    rgba(124,92,252,0.12) 45%,
+    rgba(0,200,255,0.08) 55%,
+    rgba(255,219,77,0.06) 65%,
+    transparent 75%
+  );
+  background-size: 300% 300%;
+  animation: holoShimmer 4s ease-in-out infinite;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+@keyframes holoShimmer {
+  0%   { background-position: 200% 0%; }
+  50%  { background-position: -100% 100%; }
+  100% { background-position: 200% 0%; }
+}
+
+/* ─── FLIP CARD ─── */
+.flip-card { transform-style: preserve-3d; }
+.flip-card-inner {
+  width: 100%; height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+.flip-card-inner.flipped { transform: rotateY(180deg); }
+.flip-face {
+  position: absolute; inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: 12px; overflow: hidden;
+}
+.flip-back-face { transform: rotateY(180deg); }
+
+/* Price reveal face */
+.price-reveal {
+  background: linear-gradient(135deg, #0d0d1f 0%, #12122a 100%);
+  border: 1px solid rgba(212,168,67,0.25);
+  display: flex; flex-direction: column;
+  padding: 14px;
+  height: 100%;
+}
+.price-header {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 11px; font-weight: 600; color: var(--gold);
+  letter-spacing: 0.06em; text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.price-main {
+  font-family: 'Syne', sans-serif;
+  font-size: 36px; font-weight: 800; letter-spacing: -0.04em;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.price-decimal { font-size: 20px; opacity: 0.55; }
+.price-delta {
+  font-size: 11px; font-weight: 600; margin-bottom: 12px;
+  padding: 4px 8px; border-radius: 6px; display: inline-block;
+  width: fit-content;
+}
+.price-delta.up { color: var(--green); background: rgba(34,197,94,0.1); }
+.price-delta.down { color: var(--red); background: rgba(239,68,68,0.1); }
+.price-meta { display: flex; flex-direction: column; gap: 5px; margin-bottom: 10px; }
+.price-row {
+  display: flex; justify-content: space-between;
+  font-size: 10px;
+}
+.price-row span:first-child { color: var(--text-muted); }
+.price-row span:last-child { color: var(--text-soft); font-weight: 500; }
+.price-chart-mini { margin-top: auto; }
+.sparkline { width: 100%; height: 32px; }
+.chart-labels {
+  display: flex; justify-content: space-between;
+  font-size: 9px; color: var(--text-muted);
+  margin-top: 3px;
+}
+
+/* ─── SCROLL HINT ─── */
+.scroll-hint {
+  position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  font-size: 11px; color: var(--text-muted); letter-spacing: 0.1em;
+  animation: fadeInUp 1s var(--ease) 0.8s both;
+  z-index: 1;
+}
+.scroll-arrow {
+  animation: scrollBounce 2s ease-in-out infinite;
+  font-size: 14px;
+}
+@keyframes scrollBounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(6px)} }
+
+/* ─── TICKER ─── */
+.ticker-wrap {
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  overflow: hidden;
+  padding: 0;
+  position: relative; z-index: 1;
+}
+.ticker-inner {
+  display: flex; align-items: center;
+  padding: 14px 0;
+  white-space: nowrap;
+}
+.ticker-track {
+  display: flex; gap: 0;
+  animation: tickerScroll 36s linear infinite;
+  will-change: transform;
+}
+.ticker-track:hover { animation-play-state: paused; }
+.ticker-item {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 0 24px;
+  font-size: 13px; font-weight: 500;
+  border-right: 1px solid var(--border);
+  white-space: nowrap;
+}
+.ticker-card-name { color: var(--text-soft); }
+.ticker-price { color: var(--text); font-variant-numeric: tabular-nums; font-weight: 600; }
+.ticker-delta-up   { color: var(--green); font-size: 11px; font-weight: 600; }
+.ticker-delta-down { color: var(--red);   font-size: 11px; font-weight: 600; }
+.ticker-game {
+  font-size: 9px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 2px 7px; border-radius: 100px;
+}
+.ticker-game.pok { background: rgba(232,197,71,.12); color: #E8C547; border: 1px solid rgba(232,197,71,.2); }
+.ticker-game.op  { background: rgba(239,68,68,.12);  color: #F87171; border: 1px solid rgba(239,68,68,.2); }
+@keyframes tickerScroll { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+
+/* ─── SECTIONS ─── */
+.section { padding: 110px 0; position: relative; z-index: 1; }
+
+.section-label {
+  display: inline-block;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--gold); padding: 4px 14px;
+  border: 1px solid rgba(212,168,67,0.25);
+  border-radius: 100px; margin-bottom: 18px;
+}
+.section-h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(32px, 4.5vw, 56px);
+  font-weight: 800; letter-spacing: -0.04em; line-height: 1.06;
+  margin-bottom: 16px;
+}
+.section-sub {
+  font-size: 17px; color: var(--text-soft); max-width: 480px;
+  line-height: 1.65;
+}
+.section-head { margin-bottom: 64px; }
+.section-head.center { text-align: center; }
+.section-head.center .section-sub { margin: 0 auto; }
+
+/* ─── FEATURES ─── */
+.features-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+@media (min-width: 640px) { .features-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1024px) { .features-grid { grid-template-columns: repeat(3, 1fr); grid-auto-rows: 280px; } }
+
+.feat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px;
+  position: relative; overflow: hidden;
+  display: flex; flex-direction: column;
+  transition: border-color 200ms var(--ease), transform 200ms var(--ease), box-shadow 200ms var(--ease);
+  cursor: default;
+}
+.feat-card:hover {
+  border-color: var(--border-h);
+  transform: translateY(-3px);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+}
+.feat-card.feat-large {
+  grid-column: 1 / -1;
+}
+@media (min-width: 1024px) {
+  .feat-card.feat-large { grid-column: span 2; }
+}
+
+.feat-icon {
+  width: 44px; height: 44px; border-radius: 11px;
+  background: var(--gold-glow2);
+  border: 1px solid rgba(212,168,67,0.2);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 20px;
+  flex-shrink: 0;
+}
+.feat-icon svg { color: var(--gold); }
+.feat-icon.violet {
+  background: var(--violet-dim);
+  border-color: rgba(124,92,252,0.25);
+}
+.feat-icon.violet svg { color: var(--violet); }
+.feat-icon.green {
+  background: rgba(34,197,94,0.08);
+  border-color: rgba(34,197,94,0.2);
+}
+.feat-icon.green svg { color: var(--green); }
+
+.feat-card h3 {
+  font-family: 'Syne', sans-serif;
+  font-size: 20px; font-weight: 700; letter-spacing: -0.03em;
+  margin-bottom: 8px; line-height: 1.25;
+}
+.feat-card p {
+  font-size: 14px; color: var(--text-soft); line-height: 1.6;
+  flex: 1;
+}
+
+/* Feature card visual areas */
+.feat-visual {
+  margin-top: 24px;
+  flex-shrink: 0;
+}
+
+/* Mini price chart in feature card */
+.mini-price-list { display: flex; flex-direction: column; gap: 6px; }
+.mini-price-row {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--surface2); border-radius: 8px; padding: 8px 12px;
+  border: 1px solid var(--border);
+  font-size: 12px;
+}
+.mini-price-row .mpr-name { flex: 1; color: var(--text-soft); font-weight: 500; }
+.mini-price-row .mpr-price { font-weight: 700; font-variant-numeric: tabular-nums; }
+.mini-price-row .mpr-delta-up   { color: var(--green); font-size: 11px; }
+.mini-price-row .mpr-delta-down { color: var(--red);   font-size: 11px; }
+.mini-price-row .mpk { font-size: 8px; padding: 2px 6px; border-radius: 4px; background: rgba(232,197,71,0.1); color: #E8C547; font-weight: 600; letter-spacing: 0.06em; }
+.mini-price-row .mop { font-size: 8px; padding: 2px 6px; border-radius: 4px; background: rgba(239,68,68,0.1);   color: #F87171; font-weight: 600; letter-spacing: 0.06em; }
+
+/* Sparkline chart for large feature card */
+.feat-sparkline-wrap {
+  background: var(--surface2); border-radius: 10px; padding: 16px;
+  border: 1px solid var(--border);
+}
+.feat-sparkline-header {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  margin-bottom: 12px;
+}
+.feat-sparkline-name { font-size: 13px; font-weight: 600; }
+.feat-sparkline-price { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 700; letter-spacing: -0.04em; }
+.feat-sparkline-delta { font-size: 12px; color: var(--green); font-weight: 600; margin-top: 2px; }
+.sparkline-big { width: 100%; height: 60px; }
+
+/* Vendors feature */
+.vendor-list { display: flex; flex-direction: column; gap: 6px; }
+.vendor-row {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 13px; padding: 8px 12px;
+  background: var(--surface2); border-radius: 8px; border: 1px solid var(--border);
+}
+.vendor-flag { font-size: 16px; flex-shrink: 0; }
+.vendor-name { flex: 1; font-weight: 500; }
+.vendor-price { font-weight: 700; font-variant-numeric: tabular-nums; color: var(--gold); }
+.vendor-stock { font-size: 11px; color: var(--text-muted); }
+
+/* Glow hover effect on large card */
+.feat-card.feat-large::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 30% 100%, rgba(212,168,67,0.05) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+/* ─── HOW IT WORKS ─── */
+.howto-steps {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2px;
+}
+@media (min-width: 768px) {
+  .howto-steps {
+    grid-template-columns: repeat(3, 1fr);
+    position: relative;
+  }
+  .howto-steps::before {
+    content: '';
+    position: absolute;
+    top: 40px; left: calc(16.666% + 20px); right: calc(16.666% + 20px);
+    height: 1px;
+    background: linear-gradient(90deg, var(--border), var(--gold-dim), var(--border));
+  }
+}
+
+.step-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 32px;
+  position: relative;
+  transition: border-color 200ms var(--ease), transform 200ms var(--ease);
+}
+.step-card:hover { border-color: var(--border-h); transform: translateY(-2px); }
+
+.step-num {
+  font-family: 'Syne', sans-serif;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.15em;
+  color: var(--gold); text-transform: uppercase;
+  margin-bottom: 20px;
+  display: flex; align-items: center; gap: 8px;
+}
+.step-num::before {
+  content: '';
+  display: inline-block;
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--gold-glow2);
+  border: 1px solid rgba(212,168,67,0.3);
+}
+.step-num span {
+  position: absolute;
+  font-size: 12px;
+}
+
+.step-card h3 {
+  font-family: 'Syne', sans-serif;
+  font-size: 20px; font-weight: 700; letter-spacing: -0.03em;
+  margin-bottom: 10px; line-height: 1.25;
+}
+.step-card p { font-size: 14px; color: var(--text-soft); line-height: 1.65; }
+
+.step-num-circle {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--gold-glow2);
+  border: 1px solid rgba(212,168,67,0.3);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: var(--gold);
+  margin-bottom: 20px;
+  flex-shrink: 0;
+}
+
+/* ─── CALLOUT / BIG NUMBER ─── */
+.callout {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.callout-inner {
+  max-width: 1160px; margin: 0 auto; padding: 80px 24px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 48px;
+  position: relative; z-index: 1;
+}
+@media (min-width: 768px) {
+  .callout-inner { grid-template-columns: 1fr 1fr 1fr; gap: 0; }
+}
+.callout-stat {
+  text-align: center;
+  padding: 24px;
+  border-right: 0;
+}
+@media (min-width: 768px) {
+  .callout-stat { border-right: 1px solid var(--border); }
+  .callout-stat:last-child { border-right: none; }
+}
+.callout-val {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(44px, 6vw, 72px);
+  font-weight: 800; letter-spacing: -0.05em;
+  line-height: 1; margin-bottom: 8px;
+  font-variant-numeric: tabular-nums;
+}
+.callout-val.gold { color: var(--gold); }
+.callout-val.violet { color: var(--violet); }
+.callout-val.white { color: var(--text); }
+.callout-desc { font-size: 15px; color: var(--text-soft); line-height: 1.5; max-width: 200px; margin: 0 auto; }
+
+/* ─── GAME LOGOS SECTION ─── */
+.games-section {
+  padding: 60px 0;
+  position: relative; z-index: 1;
+}
+.games-inner {
+  max-width: 1160px; margin: 0 auto; padding: 0 24px;
+  display: flex; flex-direction: column; align-items: center; gap: 32px;
+}
+.games-label { font-size: 13px; color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase; }
+.games-row { display: flex; align-items: center; gap: 40px; flex-wrap: wrap; justify-content: center; }
+
+.game-pill {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 10px 20px; border-radius: 100px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-size: 15px; font-weight: 600;
+  color: var(--text-soft);
+  transition: border-color 200ms, color 200ms;
+}
+.game-pill:hover { border-color: var(--border-h); color: var(--text); }
+.game-pill .g-icon { font-size: 20px; }
+.game-pill.pok { border-color: rgba(232,197,71,0.2); }
+.game-pill.pok:hover { border-color: rgba(232,197,71,0.5); color: #E8C547; }
+.game-pill.op  { border-color: rgba(239,68,68,0.2); }
+.game-pill.op:hover  { border-color: rgba(239,68,68,0.5); color: #F87171; }
+
+/* ─── FINAL CTA ─── */
+.final-cta {
+  padding: 120px 0;
+  position: relative; overflow: hidden; z-index: 1;
+}
+.final-cta-glow {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 800px; height: 400px;
+  background: radial-gradient(ellipse at center, rgba(212,168,67,0.12) 0%, rgba(124,92,252,0.06) 40%, transparent 70%);
+  pointer-events: none;
+}
+.final-cta-inner {
+  max-width: 700px; margin: 0 auto; padding: 0 24px;
+  text-align: center; position: relative; z-index: 1;
+}
+.final-cta h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(36px, 5vw, 64px);
+  font-weight: 800; letter-spacing: -0.05em; line-height: 1.05;
+  margin-bottom: 20px;
+}
+.final-cta p {
+  font-size: 17px; color: var(--text-soft); margin-bottom: 36px; line-height: 1.65;
+}
+.final-cta-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.btn-gold-lg {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 16px 34px; border-radius: 13px;
+  font-size: 16px; font-weight: 700;
+  background: var(--gold);
+  color: #0A0805;
+  transition: transform 150ms var(--ease), box-shadow 200ms var(--ease);
+}
+.btn-gold-lg:hover { transform: translateY(-2px); box-shadow: 0 16px 48px var(--gold-glow); }
+.btn-gold-lg:active { transform: scale(0.97); }
+
+/* ─── FOOTER ─── */
+.footer {
+  border-top: 1px solid var(--border);
+  padding: 48px 0;
+  position: relative; z-index: 1;
+}
+.footer-inner {
+  max-width: 1160px; margin: 0 auto; padding: 0 24px;
+  display: flex; flex-direction: column; gap: 24px; align-items: center;
+}
+@media (min-width: 640px) {
+  .footer-inner { flex-direction: row; justify-content: space-between; }
+}
+.footer-brand {
+  font-family: 'Syne', sans-serif;
+  font-size: 18px; font-weight: 800; letter-spacing: -0.06em;
+  color: var(--text);
+}
+.footer-brand span { color: var(--gold); }
+.footer-sub { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+.footer-links { display: flex; gap: 24px; }
+.footer-links a { font-size: 14px; color: var(--text-muted); transition: color 150ms; }
+.footer-links a:hover { color: var(--text); }
+.footer-copy { font-size: 12px; color: var(--text-muted); }
+
+/* ─── REVEAL ANIMATIONS ─── */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.7s var(--ease2), transform 0.7s var(--ease2);
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+
+/* ─── HERO ENTRY ANIMATIONS ─── */
+@keyframes fadeInUp   { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeInDown { from { opacity: 0; transform: translateY(-16px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeInRight{ from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 899px) {
+  .hero-inner { text-align: center; }
+  .hero-sub { margin-left: auto; margin-right: auto; }
+  .hero-actions { justify-content: center; }
+  .hero-stats { justify-content: center; }
+}
+@media (max-width: 640px) {
+  .hero-stats { gap: 16px; }
+  .stat-val { font-size: 18px; }
+  .scroll-hint { display: none; }
+  .callout-stat { border-right: none; border-bottom: 1px solid var(--border); padding: 24px; }
+  .callout-stat:last-child { border-bottom: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- Scroll progress bar -->
+<div class="scroll-progress" id="scrollProgress"></div>
+
+<!-- ─── NAV ─── -->
+<nav class="nav" id="mainNav">
+  <div class="nav-inner">
+    <div class="brand">CARD<span>EX</span></div>
+    <div class="nav-links">
+      <a href="#features">Funzioni</a>
+      <a href="#howto">Come funziona</a>
+      <a href="#numbers">Numeri</a>
+    </div>
+    <a href="https://cardex-eight.vercel.app" class="btn-nav">Inizia gratis →</a>
+  </div>
+</nav>
+
+<!-- ─── HERO ─── -->
+<section class="hero">
+  <div class="hero-bg-glow"></div>
+  <div class="hero-bg-glow2"></div>
+
+  <div class="hero-inner">
+
+    <!-- Left: content -->
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="dot-live"></span>
+        Prezzi aggiornati oggi · 12.847 carte nel DB
+      </div>
+
+      <h1 class="hero-h1">
+        Sai davvero<br>
+        <em class="gradient-text">quanto valgono</em><br>
+        le tue carte?
+      </h1>
+
+      <p class="hero-sub">
+        Prezzi reali da venditori italiani su CardTrader.
+        Portfolio Pokémon e One Piece sempre aggiornato.
+        Scopri il valore nascosto della tua collezione.
+      </p>
+
+      <div class="hero-actions">
+        <a href="https://cardex-eight.vercel.app" class="btn-gold">
+          Inizia gratis
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+        <a href="#features" class="btn-ghost-hero">Scopri le funzioni</a>
+      </div>
+
+      <div class="hero-stats">
+        <div class="stat-item">
+          <span class="stat-val" data-count="12847">0</span>
+          <span class="stat-lbl">Carte nel DB</span>
+        </div>
+        <div class="stat-div"></div>
+        <div class="stat-item">
+          <span class="stat-val" data-count="2400000" data-format="currency">0</span>
+          <span class="stat-lbl">Valore tracciato</span>
+        </div>
+        <div class="stat-div"></div>
+        <div class="stat-item">
+          <span class="stat-val" data-count="800" data-suffix="+">0</span>
+          <span class="stat-lbl">Venditori IT</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: floating 3D cards -->
+    <div class="hero-visual" id="heroVisual">
+      <div class="cards-scene" id="cardsScene">
+
+        <!-- Card back-2: Blue-Eyes style -->
+        <div class="tcg-card card-back-2">
+          <div class="card-inner">
+            <div class="card-header blue-eyes-header">
+              <span class="card-name-label">Blue-Eyes</span>
+              <span class="card-hp">★ EX</span>
+            </div>
+            <div class="card-art blue-eyes-art">
+              <div class="card-art-glow" style="background:radial-gradient(circle at 50% 50%, rgba(96,165,250,0.45) 0%, transparent 70%); left:10%; top:10%;"></div>
+              <svg class="card-silhouette" viewBox="0 0 100 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <ellipse cx="50" cy="48" rx="28" ry="20" fill="rgba(96,165,250,0.2)"/>
+                <path d="M50 20 L58 36 L74 36 L62 46 L66 62 L50 52 L34 62 L38 46 L26 36 L42 36 Z" fill="rgba(147,197,253,0.3)"/>
+                <circle cx="50" cy="38" r="8" fill="rgba(59,130,246,0.4)"/>
+              </svg>
+            </div>
+            <div class="card-footer">
+              <span class="card-expansion">Temporal Forces · #201</span>
+              <div class="card-rarity">
+                <span class="star gold">★</span><span class="star gold">★</span><span class="star gray">★</span>
+              </div>
+            </div>
+          </div>
+          <div class="card-holo"></div>
+        </div>
+
+        <!-- Card back-1: Luffy style -->
+        <div class="tcg-card card-back-1">
+          <div class="card-inner">
+            <div class="card-header luffy-header">
+              <span class="card-name-label">Monkey D. Luffy</span>
+              <span class="card-hp">7000</span>
+            </div>
+            <div class="card-art luffy-art">
+              <div class="card-art-glow" style="background:radial-gradient(circle at 50% 50%, rgba(252,165,165,0.5) 0%, transparent 65%); left:15%; top:20%;"></div>
+              <svg class="card-silhouette" viewBox="0 0 100 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="50" cy="30" r="14" fill="rgba(239,68,68,0.25)"/>
+                <rect x="34" y="20" width="7" height="3" rx="1.5" fill="rgba(252,165,165,0.5)"/>
+                <path d="M30 44 Q50 56 70 44 L68 68 L32 68 Z" fill="rgba(239,68,68,0.2)"/>
+                <path d="M42 44 L50 52 L58 44" stroke="rgba(252,165,165,0.6)" stroke-width="2" fill="none"/>
+              </svg>
+            </div>
+            <div class="card-footer">
+              <span class="card-expansion">Romance Dawn · OP01</span>
+              <div class="card-rarity">
+                <span class="star gold">★</span><span class="star gold">★</span><span class="star gold">★</span>
+              </div>
+            </div>
+          </div>
+          <div class="card-holo"></div>
+        </div>
+
+        <!-- Front flip card: Charizard -->
+        <div class="tcg-card flip-card" id="flipCard">
+          <div class="flip-card-inner" id="flipCardInner">
+
+            <!-- Front face: Charizard card art -->
+            <div class="flip-face">
+              <div class="card-inner">
+                <div class="card-header charizard-header">
+                  <span class="card-name-label">Charizard ex</span>
+                  <span class="card-hp">♦ 330</span>
+                </div>
+                <div class="card-art charizard-art">
+                  <div class="card-art-glow" style="background:radial-gradient(circle at 40% 55%, rgba(251,146,60,0.65) 0%, rgba(239,68,68,0.3) 45%, transparent 70%); left:0; top:0; width:100%; height:100%;"></div>
+                  <svg class="card-silhouette" viewBox="0 0 100 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M50 68 C36 68 22 58 16 46 C10 34 14 20 22 14 C30 8 42 12 48 20 L50 24 L52 20 C58 12 70 8 78 14 C86 20 90 34 84 46 C78 58 64 68 50 68Z" fill="rgba(251,146,60,0.22)"/>
+                    <path d="M50 24 L46 34 L38 30 L42 42 L30 38 L38 48 L28 56 L50 68 L72 56 L62 48 L70 38 L58 42 L62 30 L54 34 Z" fill="rgba(239,68,68,0.35)"/>
+                    <path d="M28 14 L22 2 L34 10 Z" fill="rgba(251,146,60,0.55)"/>
+                    <path d="M72 14 L78 2 L66 10 Z" fill="rgba(251,146,60,0.55)"/>
+                    <circle cx="50" cy="44" r="10" fill="rgba(253,186,116,0.2)"/>
+                  </svg>
+                </div>
+                <div class="card-footer">
+                  <span class="card-expansion">Obsidian Flames · #4/197</span>
+                  <div class="card-rarity">
+                    <span class="star gold">★</span><span class="star gold">★</span><span class="star gold">★</span>
+                  </div>
+                </div>
+              </div>
+              <div class="card-holo"></div>
+            </div>
+
+            <!-- Back face: price reveal -->
+            <div class="flip-face flip-back-face">
+              <div class="price-reveal" style="height:100%">
+                <div class="price-header">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#D4A843" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  Charizard ex
+                </div>
+                <div class="price-main">€ 347<span class="price-decimal">,00</span></div>
+                <div class="price-delta up">▲ +12.3% questa settimana</div>
+                <div class="price-meta">
+                  <div class="price-row"><span>Condizione</span><span>NM</span></div>
+                  <div class="price-row"><span>Lingua</span><span>🇮🇹 Italiano</span></div>
+                  <div class="price-row"><span>Fonte</span><span>CardTrader</span></div>
+                  <div class="price-row"><span>Aggiornato</span><span>Oggi</span></div>
+                </div>
+                <div class="price-chart-mini">
+                  <svg class="sparkline" viewBox="0 0 130 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                      <linearGradient id="sparkGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#D4A843" stop-opacity="0.35"/>
+                        <stop offset="100%" stop-color="#D4A843" stop-opacity="0"/>
+                      </linearGradient>
+                    </defs>
+                    <path d="M0 30 L22 26 L44 28 L65 22 L86 18 L108 12 L130 7" stroke="#D4A843" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+                    <path d="M0 30 L22 26 L44 28 L65 22 L86 18 L108 12 L130 7 L130 36 L0 36Z" fill="url(#sparkGrad)"/>
+                  </svg>
+                  <div class="chart-labels">
+                    <span>30 giorni fa</span><span>Oggi</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="scroll-hint">
+    <span>Scorri per scoprire</span>
+    <div class="scroll-arrow">↓</div>
+  </div>
+</section>
+
+<!-- ─── TICKER ─── -->
+<div class="ticker-wrap" aria-hidden="true">
+  <div class="ticker-inner">
+    <div class="ticker-track" id="tickerTrack">
+      <!-- First set -->
+      <div class="ticker-item">
+        <span class="ticker-game pok">POK</span>
+        <span class="ticker-card-name">Charizard ex · Obsidian Flames</span>
+        <span class="ticker-price">€ 347,00</span>
+        <span class="ticker-delta-up">+12.3%</span>
+      </div>
+      <div class="ticker-item">
+        <span class="ticker-game op">OP</span>
+        <span class="ticker-card-name">Monkey D. Luffy · OP01-001</span>
+        <span class="ticker-price">€ 89,50</span>
+        <span class="ticker-delta-up">+5.8%</span>
+      </div>
+      <div class="ticker-item">
+        <span class="ticker-game pok">POK</span>
+        <span class="ticker-card-name">Umbreon VMAX · Evolving Skies</span>
+        <span class="ticker-price">€ 112,00</span>
+        <span class="ticker-delta-down">-2.1%</span>
+      </div>
+      <div class="ticker-item">
+        <span class="ticker-game op">OP</span>
+        <span class="ticker-card-name">Rob Lucci · OP06-118</span>
+        <span class="ticker-price">€ 38,00</span>
+        <span class="ticker-delta-up">+18.4%</span>
+      </div>
+      <div class="ticker-item">
+        <span class="ticker-game pok">POK</span>
+        <span class="ticker-card-name">Pikachu VMAX · Vivid Voltage</span>
+        <span class="ticker-price">€ 78,00</span>
+        <span class="ticker-delta-down">-1.5%</span>
+      </div>
+      <div class="ticker-item">
+        <span class="ticker-game op">OP</span>
+        <span class="ticker-card-name">Yamato · OP02-121</span>
+        <span class="ticker-price">€ 54,00</span>
+        <span class="ticker-delta-up">+7.2%</span>
+      </div>
+      <div class="ticker-item">
+        <span class="ticker-game pok">POK</span>
+        <span class="ticker-card-name">Rayquaza VMAX · Evolving Skies</span>
+        <span class="ticker-price">€ 95,00</span>
+        <span class="ticker-delta-up">+3.6%</span>
+      </div>
+      <div class="ticker-item">
+        <span class="ticker-game op">OP</span>
+        <span class="ticker-card-name">Shanks · OP01-120</span>
+        <span class="ticker-price">€ 210,00</span>
+        <span class="ticker-delta-up">+22.0%</span>
+      </div>
+      <div class="ticker-item">
+        <span class="ticker-game pok">POK</span>
+        <span class="ticker-card-name">Mewtwo V-UNION · SWSH Promos</span>
+        <span class="ticker-price">€ 42,00</span>
+        <span class="ticker-delta-down">-4.3%</span>
+      </div>
+      <!-- Duplicate set for seamless loop -->
+      <div class="ticker-item">
+        <span class="ticker-game pok">POK</span>
+        <span class="ticker-card-name">Charizard ex · Obsidian Flames</span>
+        <span class="ticker-price">€ 347,00</span>
+        <span class="ticker-delta-up">+12.3%</span>
+      </div>
+      <div class="ticker-item">
+        <span class="ticker-game op">OP</span>
+        <span class="ticker-card-name">Monkey D. Luffy · OP01-001</span>
+        <span class="ticker-price">€ 89,50</span>
+        <span class="ticker-delta-up">+5.8%</span>
+      </div>
+      <div class="ticker-item">
+        <span class="ticker-game pok">POK</span>
+        <span class="ticker-card-name">Umbreon VMAX · Evolving Skies</span>
+        <span class="ticker-price">€ 112,00</span>
+        <span class="ticker-delta-down">-2.1%</span>
+      </div>
+      <div class="ticker-item">
+        <span class="ticker-game op">OP</span>
+        <span class="ticker-card-name">Rob Lucci · OP06-118</span>
+        <span class="ticker-price">€ 38,00</span>
+        <span class="ticker-delta-up">+18.4%</span>
+      </div>
+      <div class="ticker-item">
+        <span class="ticker-game pok">POK</span>
+        <span class="ticker-card-name">Pikachu VMAX · Vivid Voltage</span>
+        <span class="ticker-price">€ 78,00</span>
+        <span class="ticker-delta-down">-1.5%</span>
+      </div>
+      <div class="ticker-item">
+        <span class="ticker-game op">OP</span>
+        <span class="ticker-card-name">Yamato · OP02-121</span>
+        <span class="ticker-price">€ 54,00</span>
+        <span class="ticker-delta-up">+7.2%</span>
+      </div>
+      <div class="ticker-item">
+        <span class="ticker-game pok">POK</span>
+        <span class="ticker-card-name">Rayquaza VMAX · Evolving Skies</span>
+        <span class="ticker-price">€ 95,00</span>
+        <span class="ticker-delta-up">+3.6%</span>
+      </div>
+      <div class="ticker-item">
+        <span class="ticker-game op">OP</span>
+        <span class="ticker-card-name">Shanks · OP01-120</span>
+        <span class="ticker-price">€ 210,00</span>
+        <span class="ticker-delta-up">+22.0%</span>
+      </div>
+      <div class="ticker-item">
+        <span class="ticker-game pok">POK</span>
+        <span class="ticker-card-name">Mewtwo V-UNION · SWSH Promos</span>
+        <span class="ticker-price">€ 42,00</span>
+        <span class="ticker-delta-down">-4.3%</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── FEATURES ─── -->
+<section class="section" id="features">
+  <div class="container">
+    <div class="section-head reveal">
+      <div class="section-label">Funzioni</div>
+      <h2 class="section-h2">Tutto quello che ti serve<br>per gestire la tua collezione</h2>
+      <p class="section-sub">Da collezionista per collezionisti. Nessun'altra app mostra prezzi in italiano.</p>
+    </div>
+
+    <div class="features-grid">
+
+      <!-- Large feature: Price tracker -->
+      <div class="feat-card feat-large reveal">
+        <div class="feat-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
+            <polyline points="16 7 22 7 22 13"></polyline>
+          </svg>
+        </div>
+        <h3>Storico prezzi in tempo reale</h3>
+        <p>Ogni carta nella tua collezione viene monitorata giornalmente. Vedi l'andamento del valore nel tempo e saprai esattamente quando vendere al momento giusto.</p>
+        <div class="feat-visual">
+          <div class="feat-sparkline-wrap">
+            <div class="feat-sparkline-header">
+              <div>
+                <div class="feat-sparkline-name">Charizard ex · Obsidian Flames</div>
+                <div class="feat-sparkline-delta">▲ +12.3% ultimi 30 giorni</div>
+              </div>
+              <div>
+                <div class="feat-sparkline-price">€ 347</div>
+              </div>
+            </div>
+            <svg class="sparkline-big" viewBox="0 0 400 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="bigSparkGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#D4A843" stop-opacity="0.25"/>
+                  <stop offset="100%" stop-color="#D4A843" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <path d="M0 50 L44 46 L88 48 L132 40 L176 38 L220 30 L264 26 L308 20 L352 14 L400 8" stroke="#D4A843" stroke-width="2" fill="none" stroke-linecap="round"/>
+              <path d="M0 50 L44 46 L88 48 L132 40 L176 38 L220 30 L264 26 L308 20 L352 14 L400 8 L400 60 L0 60Z" fill="url(#bigSparkGrad)"/>
+              <!-- Reference line at ~350 level -->
+              <line x1="0" y1="30" x2="400" y2="30" stroke="rgba(255,255,255,0.05)" stroke-width="1" stroke-dasharray="4,4"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feature: Italian prices -->
+      <div class="feat-card reveal reveal-delay-1">
+        <div class="feat-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="2" y1="12" x2="22" y2="12"></line>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+          </svg>
+        </div>
+        <h3>Prezzi reali italiani</h3>
+        <p>Prezzi filtrati da venditori 🇮🇹 italiani su CardTrader. Niente medie globali — solo quanto costa davvero comprare in Italia.</p>
+        <div class="feat-visual">
+          <div class="vendor-list">
+            <div class="vendor-row">
+              <span class="vendor-flag">🇮🇹</span>
+              <span class="vendor-name">CardShop Roma</span>
+              <span class="vendor-price">€ 340,00</span>
+              <span class="vendor-stock">NM</span>
+            </div>
+            <div class="vendor-row">
+              <span class="vendor-flag">🇮🇹</span>
+              <span class="vendor-name">MilanCards</span>
+              <span class="vendor-price">€ 347,00</span>
+              <span class="vendor-stock">NM</span>
+            </div>
+            <div class="vendor-row">
+              <span class="vendor-flag">🇮🇹</span>
+              <span class="vendor-name">CardTrader Store</span>
+              <span class="vendor-price">€ 355,00</span>
+              <span class="vendor-stock">LP</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feature: Portfolio value -->
+      <div class="feat-card reveal reveal-delay-2">
+        <div class="feat-icon violet">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+          </svg>
+        </div>
+        <h3>Portfolio sempre aggiornato</h3>
+        <p>Il valore totale della tua collezione calcolato automaticamente ogni giorno. Vedi quanto hai guadagnato rispetto al prezzo di acquisto.</p>
+        <div class="feat-visual">
+          <div class="mini-price-list">
+            <div class="mini-price-row">
+              <span class="mpk">POK</span>
+              <span class="mpr-name">Charizard ex</span>
+              <span class="mpr-price">€ 347</span>
+              <span class="mpr-delta-up">+12%</span>
+            </div>
+            <div class="mini-price-row">
+              <span class="mop">OP</span>
+              <span class="mpr-name">Luffy OP01-001</span>
+              <span class="mpr-price">€ 89</span>
+              <span class="mpr-delta-up">+5%</span>
+            </div>
+            <div class="mini-price-row">
+              <span class="mpk">POK</span>
+              <span class="mpr-name">Umbreon VMAX</span>
+              <span class="mpr-price">€ 112</span>
+              <span class="mpr-delta-down">-2%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feature: Multi-game -->
+      <div class="feat-card reveal reveal-delay-1">
+        <div class="feat-icon green">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+          </svg>
+        </div>
+        <h3>Pokémon &amp; One Piece</h3>
+        <p>Supporto completo per entrambi i giochi. Database integrato di set ed espansioni, con ricerca per nome anche in italiano.</p>
+        <div class="feat-visual">
+          <div style="display:flex; gap:8px; margin-top:4px;">
+            <div class="game-pill pok" style="flex:1; justify-content:center; padding:8px 12px;">
+              <span class="g-icon">⚡</span>
+              <span style="font-size:13px;">Pokémon</span>
+            </div>
+            <div class="game-pill op" style="flex:1; justify-content:center; padding:8px 12px;">
+              <span class="g-icon">⚓</span>
+              <span style="font-size:13px;">One Piece</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feature: Conditions -->
+      <div class="feat-card reveal reveal-delay-2">
+        <div class="feat-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          </svg>
+        </div>
+        <h3>Condizioni e lingue</h3>
+        <p>Traccia ogni copia con condizione (NM/LP/MP/HP) e lingua. Prezzi separati per carta italiana, inglese, giapponese.</p>
+        <div class="feat-visual">
+          <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:6px;">
+            <span style="font-size:12px; padding:4px 10px; border-radius:6px; background:rgba(34,197,94,0.1); color:#4ade80; border:1px solid rgba(34,197,94,0.2); font-weight:600;">NM</span>
+            <span style="font-size:12px; padding:4px 10px; border-radius:6px; background:rgba(250,204,21,0.1); color:#fbbf24; border:1px solid rgba(250,204,21,0.2); font-weight:600;">LP</span>
+            <span style="font-size:12px; padding:4px 10px; border-radius:6px; background:rgba(249,115,22,0.1); color:#fb923c; border:1px solid rgba(249,115,22,0.2); font-weight:600;">MP</span>
+            <span style="font-size:12px; padding:4px 10px; border-radius:6px; background:rgba(239,68,68,0.1); color:#f87171; border:1px solid rgba(239,68,68,0.2); font-weight:600;">HP</span>
+            <span style="font-size:12px; padding:4px 10px; border-radius:6px; background:rgba(255,255,255,0.05); color:rgba(255,255,255,0.5); border:1px solid rgba(255,255,255,0.08); font-weight:600;">🇮🇹</span>
+            <span style="font-size:12px; padding:4px 10px; border-radius:6px; background:rgba(255,255,255,0.05); color:rgba(255,255,255,0.5); border:1px solid rgba(255,255,255,0.08); font-weight:600;">🇬🇧</span>
+            <span style="font-size:12px; padding:4px 10px; border-radius:6px; background:rgba(255,255,255,0.05); color:rgba(255,255,255,0.5); border:1px solid rgba(255,255,255,0.08); font-weight:600;">🇯🇵</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ─── BIG NUMBERS ─── -->
+<div class="callout" id="numbers">
+  <div class="callout-inner">
+    <div class="callout-stat reveal">
+      <div class="callout-val gold" data-count="12847" data-animate>0</div>
+      <div class="callout-desc">Carte monitorate nel database, aggiornate ogni giorno</div>
+    </div>
+    <div class="callout-stat reveal reveal-delay-1">
+      <div class="callout-val violet" data-count="2400000" data-format="currency" data-animate>0</div>
+      <div class="callout-desc">Valore totale tracciato nelle collezioni degli utenti</div>
+    </div>
+    <div class="callout-stat reveal reveal-delay-2">
+      <div class="callout-val white" data-count="800" data-suffix="+" data-animate>0</div>
+      <div class="callout-desc">Venditori italiani attivi su CardTrader nel database</div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── HOW IT WORKS ─── -->
+<section class="section" id="howto">
+  <div class="container">
+    <div class="section-head center reveal">
+      <div class="section-label">Come funziona</div>
+      <h2 class="section-h2">In tre passi, la tua<br>collezione è sotto controllo</h2>
+      <p class="section-sub">Nessuna configurazione complicata. Inizia in meno di un minuto.</p>
+    </div>
+
+    <div class="howto-steps">
+      <div class="step-card reveal">
+        <div class="step-num-circle">1</div>
+        <h3>Crea il tuo account</h3>
+        <p>Registrati gratuitamente con email. Nessuna carta di credito richiesta. Il tuo spazio privato su CardEx è subito attivo.</p>
+      </div>
+      <div class="step-card reveal reveal-delay-1">
+        <div class="step-num-circle">2</div>
+        <h3>Aggiungi le tue carte</h3>
+        <p>Cerca per nome — anche in italiano per Pokémon. Seleziona espansione, condizione e lingua. La carta entra nella tua collezione in pochi secondi.</p>
+      </div>
+      <div class="step-card reveal reveal-delay-2">
+        <div class="step-num-circle">3</div>
+        <h3>Guarda il valore crescere</h3>
+        <p>Ogni giorno CardEx aggiorna i prezzi da CardTrader. Il valore del tuo portfolio si aggiorna automaticamente. Nessuna azione richiesta da parte tua.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── FINAL CTA ─── -->
+<section class="final-cta">
+  <div class="final-cta-glow"></div>
+  <div class="final-cta-inner reveal">
+    <div class="section-label" style="margin-bottom:24px;">Inizia oggi — è gratis</div>
+    <h2>
+      La tua collezione merita<br>
+      <em class="gradient-text">prezzi reali</em>
+    </h2>
+    <p>
+      Nessuna app italiana fa quello che fa CardEx. Prezzi da venditori italiani,
+      storico giornaliero, portfolio sempre aggiornato. Gratis per sempre.
+    </p>
+    <div class="final-cta-actions">
+      <a href="https://cardex-eight.vercel.app" class="btn-gold-lg">
+        Inizia gratis
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+    </div>
+    <p style="margin-top:16px; margin-bottom:0; font-size:13px; color:var(--text-muted);">
+      Già usato da collezionisti italiani · Dati in beta
+    </p>
+  </div>
+</section>
+
+<!-- ─── FOOTER ─── -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div>
+      <div class="footer-brand">CARD<span>EX</span></div>
+      <div class="footer-sub">Prezzi reali per collezionisti italiani · CardTrader API v2</div>
+    </div>
+    <div class="footer-links">
+      <a href="https://cardex-eight.vercel.app">App</a>
+      <a href="https://cardtrader.com" target="_blank" rel="noopener">CardTrader</a>
+    </div>
+    <div class="footer-copy">© 2025 CardEx · Made with ♦ in Italy</div>
+  </div>
+</footer>
+
+<!-- ─── JAVASCRIPT ─── -->
+<script>
+(function () {
+  'use strict';
+
+  /* ── Scroll progress bar ── */
+  const progressBar = document.getElementById('scrollProgress');
+  function updateProgress() {
+    const scrollTop = window.scrollY;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const pct = docHeight > 0 ? scrollTop / docHeight : 0;
+    progressBar.style.transform = 'scaleX(' + pct + ')';
+  }
+
+  /* ── Nav scroll state ── */
+  const nav = document.getElementById('mainNav');
+  function updateNav() {
+    if (window.scrollY > 40) {
+      nav.classList.add('scrolled');
+    } else {
+      nav.classList.remove('scrolled');
+    }
+  }
+
+  window.addEventListener('scroll', function () {
+    updateProgress();
+    updateNav();
+  }, { passive: true });
+
+  /* ── Counter animation ── */
+  function animateCounter(el) {
+    const target = parseInt(el.dataset.count, 10);
+    const isCurrency = el.dataset.format === 'currency';
+    const suffix = el.dataset.suffix || '';
+    const duration = 1800;
+    const start = performance.now();
+
+    function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
+
+    function tick(now) {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = easeOut(progress);
+      const value = Math.round(target * eased);
+
+      if (isCurrency) {
+        if (value >= 1000000) {
+          el.textContent = '€ ' + (value / 1000000).toFixed(1) + 'M';
+        } else if (value >= 1000) {
+          el.textContent = '€ ' + Math.round(value / 1000) + 'k';
+        } else {
+          el.textContent = '€ ' + value;
+        }
+      } else {
+        el.textContent = value.toLocaleString('it-IT') + suffix;
+      }
+
+      if (progress < 1) requestAnimationFrame(tick);
+    }
+
+    requestAnimationFrame(tick);
+  }
+
+  /* ── Intersection Observer for reveals & counters ── */
+  const revealEls = document.querySelectorAll('.reveal');
+  const counterEls = document.querySelectorAll('[data-count]');
+  const triggeredCounters = new Set();
+
+  const observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12 });
+
+  const counterObserver = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting && !triggeredCounters.has(entry.target)) {
+        triggeredCounters.add(entry.target);
+        animateCounter(entry.target);
+        counterObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.3 });
+
+  revealEls.forEach(function (el) { observer.observe(el); });
+  counterEls.forEach(function (el) { counterObserver.observe(el); });
+
+  /* ── Hero counter observer (fires on load for above-fold stats) ── */
+  const heroStats = document.querySelectorAll('.hero-stats [data-count]');
+  setTimeout(function () {
+    heroStats.forEach(function (el) {
+      if (!triggeredCounters.has(el)) {
+        triggeredCounters.add(el);
+        animateCounter(el);
+      }
+    });
+  }, 600);
+
+  /* ── Card flip auto-cycle ── */
+  const flipCardInner = document.getElementById('flipCardInner');
+  let isFlipped = false;
+
+  function scheduleFlip() {
+    setTimeout(function () {
+      isFlipped = !isFlipped;
+      flipCardInner.classList.toggle('flipped', isFlipped);
+      setTimeout(scheduleFlip, isFlipped ? 4000 : 6000);
+    }, isFlipped ? 4000 : 7000);
+  }
+
+  scheduleFlip();
+
+  /* ── Mouse parallax on hero cards ── */
+  const cardsScene = document.getElementById('cardsScene');
+  const heroVisual = document.getElementById('heroVisual');
+
+  if (heroVisual && window.matchMedia('(pointer: fine)').matches) {
+    heroVisual.addEventListener('mousemove', function (e) {
+      const rect = heroVisual.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const dx = (e.clientX - cx) / rect.width;
+      const dy = (e.clientY - cy) / rect.height;
+      const rotX = dy * -8;
+      const rotY = dx * 12;
+      cardsScene.style.transform = 'rotateX(' + rotX + 'deg) rotateY(' + rotY + 'deg)';
+    });
+
+    heroVisual.addEventListener('mouseleave', function () {
+      cardsScene.style.transform = '';
+      cardsScene.style.transition = 'transform 0.8s cubic-bezier(0.23,1,0.32,1)';
+      setTimeout(function () { cardsScene.style.transition = ''; }, 800);
+    });
+  }
+
+  /* ── Reduced motion: disable heavy animations ── */
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.querySelectorAll('[style*="animation"], .card-holo').forEach(function (el) {
+      el.style.animation = 'none';
+    });
+  }
+})();
+</script>
+
+</body>
+</html>
