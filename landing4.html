@@ -398,33 +398,89 @@ body::after {
 /* ─── FEATURES SECTION WITH PATH ─── */
 .features-wrap { position: relative; }
 
-/* Scroll SVG path on left side */
+/* Scroll SVG path */
 .scroll-path-container {
   position: absolute; left: 50%; top: 0; bottom: 0;
   transform: translateX(-50%);
   width: 2px; pointer-events: none;
-  overflow: visible;
+  overflow: visible; z-index: 2;
 }
 .scroll-path-bg {
-  position: absolute; inset: 0;
-  background: rgba(255,255,255,0.05);
-  width: 2px;
+  position: absolute; inset: 0; width: 2px;
+  background: rgba(255,255,255,0.04);
 }
 .scroll-path-fill {
   position: absolute; top: 0; left: 0;
   width: 2px; height: 0%;
-  background: linear-gradient(to bottom, var(--gold), var(--violet));
-  transition: height 0.1s linear;
-  box-shadow: 0 0 8px rgba(212,168,67,0.6);
+  background: linear-gradient(to bottom, var(--gold) 0%, var(--violet) 100%);
+  box-shadow: 0 0 10px rgba(212,168,67,0.9), 0 0 22px rgba(212,168,67,0.45), 0 0 50px rgba(212,168,67,0.18);
+  will-change: height;
 }
 .scroll-path-dot {
   position: absolute; left: 50%; top: 0;
-  width: 8px; height: 8px; border-radius: 50%;
+  width: 11px; height: 11px; border-radius: 50%;
   background: var(--gold);
-  box-shadow: 0 0 12px rgba(212,168,67,0.8);
+  box-shadow: 0 0 18px rgba(212,168,67,1), 0 0 36px rgba(212,168,67,0.65), 0 0 70px rgba(212,168,67,0.2);
   transform: translateX(-50%);
-  transition: top 0.1s linear;
+  will-change: top;
+  animation: dotPulseB 1.6s ease-in-out infinite;
 }
+.scroll-path-dot::after {
+  content: '';
+  position: absolute; inset: -8px; border-radius: 50%;
+  border: 1.5px solid rgba(212,168,67,0.4);
+  animation: dotRingOut 1.6s ease-in-out infinite;
+}
+@keyframes dotPulseB  { 0%,100%{transform:translateX(-50%) scale(1)} 50%{transform:translateX(-50%) scale(1.45)} }
+@keyframes dotRingOut { 0%{opacity:0.7;transform:scale(1)} 100%{opacity:0;transform:scale(3.5)} }
+
+/* Directional reveals */
+.reveal-left {
+  opacity: 0;
+  transform: translateX(-58px);
+  transition: opacity 0.85s var(--ease2), transform 0.85s var(--ease2);
+}
+.reveal-right {
+  opacity: 0;
+  transform: translateX(58px);
+  transition: opacity 0.85s var(--ease2), transform 0.85s var(--ease2);
+}
+.reveal-left.visible  { opacity: 1; transform: translateX(0); }
+.reveal-right.visible { opacity: 1; transform: translateX(0); }
+.reveal-left.reveal-d1  { transition-delay: 0.12s; }
+.reveal-right.reveal-d1 { transition-delay: 0.12s; }
+
+/* h3 scramble flash color */
+.scrambling-feat { color: var(--gold) !important; }
+
+/* Marquee strip */
+.marquee-strip {
+  overflow: hidden;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 0;
+  background: var(--surface);
+  position: relative; z-index: 1;
+  cursor: default;
+}
+.marquee-track {
+  display: flex;
+  animation: marqueeRoll 28s linear infinite;
+  will-change: transform;
+  white-space: nowrap;
+}
+.marquee-strip:hover .marquee-track { animation-play-state: paused; }
+.marquee-item {
+  display: inline-flex; align-items: center; gap: 14px;
+  padding: 0 24px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 12px; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase;
+  color: var(--muted);
+  transition: color 200ms;
+}
+.marquee-item:hover { color: var(--text); }
+.marquee-dot { color: var(--gold); font-size: 7px; flex-shrink: 0; }
+@keyframes marqueeRoll { from{transform:translateX(0)} to{transform:translateX(-50%)} }
 
 /* Feature rows */
 .feature-row {
@@ -813,14 +869,14 @@ body::after {
       </div>
 
       <!-- Feature 1: Prezzi italiani -->
-      <div class="feature-row reveal">
-        <div class="feature-text">
+      <div class="feature-row">
+        <div class="feature-text reveal-left">
           <div class="feature-tag gold">◆ Prezzi reali</div>
-          <h3>Venditori italiani,<br>prezzi italiani.</h3>
+          <h3 data-scramble>Venditori italiani,<br>prezzi italiani.</h3>
           <p>CardTrader filtra solo i venditori con sede in Italia. Il prezzo che vedi è quello che pagheresti davvero comprando da un collezionista italiano — non una media globale distorta.</p>
           <p style="font-size:14px; color:var(--muted);">Lingua 🇮🇹 · Condizioni NM/LP/MP/HP · Prezzi aggiornati ogni giorno</p>
         </div>
-        <div class="feature-panel reveal reveal-d1">
+        <div class="feature-panel reveal-right reveal-d1">
           <div class="fp-bar">
             <div class="fp-dot" style="background:#EF4444"></div>
             <div class="fp-dot" style="background:#F59E0B"></div>
@@ -856,14 +912,14 @@ body::after {
       </div>
 
       <!-- Feature 2: Storico prezzi (reversed) -->
-      <div class="feature-row reverse reveal">
-        <div class="feature-text">
+      <div class="feature-row reverse">
+        <div class="feature-text reveal-right">
           <div class="feature-tag gold">◆ Storico giornaliero</div>
-          <h3>Il mercato si muove<br>ogni giorno.</h3>
+          <h3 data-scramble>Il mercato si muove<br>ogni giorno.</h3>
           <p>CardEx salva un snapshot del prezzo ogni mattina per ogni carta nella tua collezione. Vedi se il valore sta salendo o scendendo — e decidi quando è il momento giusto per vendere.</p>
           <p style="font-size:14px; color:var(--muted);">1 snapshot/giorno · Sparkline 30 giorni · Delta percentuale</p>
         </div>
-        <div class="feature-panel reveal reveal-d1">
+        <div class="feature-panel reveal-left reveal-d1">
           <div class="fp-bar">
             <div class="fp-dot" style="background:#EF4444"></div>
             <div class="fp-dot" style="background:#F59E0B"></div>
@@ -900,14 +956,14 @@ body::after {
       </div>
 
       <!-- Feature 3: Portfolio tracker -->
-      <div class="feature-row reveal">
-        <div class="feature-text">
+      <div class="feature-row">
+        <div class="feature-text reveal-left">
           <div class="feature-tag violet">◆ Portfolio tracker</div>
-          <h3>Quanto hai speso.<br>Quanto vale ora.</h3>
+          <h3 data-scramble>Quanto hai speso.<br>Quanto vale ora.</h3>
           <p>Aggiungi ogni carta con il prezzo che hai pagato. CardEx confronta il prezzo di acquisto con quello attuale e ti mostra il guadagno o la perdita in euro e in percentuale.</p>
           <p style="font-size:14px; color:var(--muted);">Pokémon + One Piece · Multi-lingua · Multi-condizione</p>
         </div>
-        <div class="feature-panel reveal reveal-d1">
+        <div class="feature-panel reveal-right reveal-d1">
           <div class="fp-bar">
             <div class="fp-dot" style="background:#EF4444"></div>
             <div class="fp-dot" style="background:#F59E0B"></div>
@@ -940,6 +996,33 @@ body::after {
     </div>
   </div>
 </section>
+
+<!-- ─── MARQUEE STRIP ─── -->
+<div class="marquee-strip" aria-hidden="true">
+  <div class="marquee-track">
+    <span class="marquee-item">Prezzi reali <span class="marquee-dot">◆</span></span>
+    <span class="marquee-item">Venditori italiani <span class="marquee-dot">◆</span></span>
+    <span class="marquee-item">Storico giornaliero <span class="marquee-dot">◆</span></span>
+    <span class="marquee-item">Portfolio tracker <span class="marquee-dot">◆</span></span>
+    <span class="marquee-item">Pokémon TCG <span class="marquee-dot">◆</span></span>
+    <span class="marquee-item">One Piece Card Game <span class="marquee-dot">◆</span></span>
+    <span class="marquee-item">CardTrader API <span class="marquee-dot">◆</span></span>
+    <span class="marquee-item">Aggiornato ogni giorno <span class="marquee-dot">◆</span></span>
+    <span class="marquee-item">Collezionisti italiani <span class="marquee-dot">◆</span></span>
+    <span class="marquee-item">NM · LP · MP · HP <span class="marquee-dot">◆</span></span>
+    <!-- duplicate for seamless loop -->
+    <span class="marquee-item">Prezzi reali <span class="marquee-dot">◆</span></span>
+    <span class="marquee-item">Venditori italiani <span class="marquee-dot">◆</span></span>
+    <span class="marquee-item">Storico giornaliero <span class="marquee-dot">◆</span></span>
+    <span class="marquee-item">Portfolio tracker <span class="marquee-dot">◆</span></span>
+    <span class="marquee-item">Pokémon TCG <span class="marquee-dot">◆</span></span>
+    <span class="marquee-item">One Piece Card Game <span class="marquee-dot">◆</span></span>
+    <span class="marquee-item">CardTrader API <span class="marquee-dot">◆</span></span>
+    <span class="marquee-item">Aggiornato ogni giorno <span class="marquee-dot">◆</span></span>
+    <span class="marquee-item">Collezionisti italiani <span class="marquee-dot">◆</span></span>
+    <span class="marquee-item">NM · LP · MP · HP <span class="marquee-dot">◆</span></span>
+  </div>
+</div>
 
 <div class="divider"></div>
 
@@ -1199,18 +1282,27 @@ body::after {
     prog.style.transform = 'scaleX(' + frac + ')';
     nav.classList.toggle('scrolled', y > 40);
 
-    /* Scroll path for features section */
-    if (pathContainer && pathFill && pathDot) {
+    /* Scroll path for features section — write to targetFill, lerp handles CSS */
+    if (pathContainer) {
       var rect = pathContainer.parentElement.getBoundingClientRect();
       var parentH = pathContainer.parentElement.offsetHeight;
-      var viewH = window.innerHeight;
-      var entered = -rect.top;
+      var entered = -rect.top + window.innerHeight * 0.5;
       if (entered < 0) entered = 0;
-      var fillPct = Math.min(entered / parentH, 1) * 100;
-      pathFill.style.height = fillPct + '%';
-      pathDot.style.top = fillPct + '%';
+      targetFill = Math.min(entered / parentH, 1) * 100;
     }
   }
+
+  /* Smooth lerp for scroll path */
+  var currentFill = 0;
+  var targetFill  = 0;
+
+  function lerpPath() {
+    currentFill += (targetFill - currentFill) * 0.12;
+    if (pathFill) pathFill.style.height = currentFill.toFixed(2) + '%';
+    if (pathDot)  pathDot.style.top     = currentFill.toFixed(2) + '%';
+    requestAnimationFrame(lerpPath);
+  }
+  lerpPath();
 
   var ticking = false;
   window.addEventListener('scroll', function () {
@@ -1239,17 +1331,27 @@ body::after {
     requestAnimationFrame(tick);
   }
 
-  /* ── INTERSECTION OBSERVER ── */
-  var revEls = document.querySelectorAll('.reveal');
-  var cntEls = document.querySelectorAll('[data-count]');
+  /* ── INTERSECTION OBSERVERS ── */
+  var cntEls   = document.querySelectorAll('[data-count]');
   var triggered = new Set();
 
+  /* Generic reveal (up) */
   var revObs = new IntersectionObserver(function (entries) {
     entries.forEach(function (e) {
       if (e.isIntersecting) { e.target.classList.add('visible'); revObs.unobserve(e.target); }
     });
   }, { threshold: 0.10 });
+  document.querySelectorAll('.reveal').forEach(function (el) { revObs.observe(el); });
 
+  /* Directional reveals (left / right) */
+  var dirObs = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) { e.target.classList.add('visible'); dirObs.unobserve(e.target); }
+    });
+  }, { threshold: 0.08 });
+  document.querySelectorAll('.reveal-left, .reveal-right').forEach(function (el) { dirObs.observe(el); });
+
+  /* Counters */
   var cntObs = new IntersectionObserver(function (entries) {
     entries.forEach(function (e) {
       if (e.isIntersecting && !triggered.has(e.target)) {
@@ -1259,9 +1361,41 @@ body::after {
       }
     });
   }, { threshold: 0.25 });
-
-  revEls.forEach(function (el) { revObs.observe(el); });
   cntEls.forEach(function (el) { cntObs.observe(el); });
+
+  /* Scramble on feature h3 */
+  var SCHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#◆♦$%&';
+  function scrambleEl(el) {
+    if (reduced) return;
+    var lines = el.querySelectorAll ? Array.from(el.querySelectorAll('*')) : [];
+    var original = el.innerHTML;
+    var plainText = el.textContent;
+    var frame = 0, total = Math.round(700 / 45);
+    el.classList.add('scrambling-feat');
+    var iv = setInterval(function () {
+      var progress = frame / total;
+      el.textContent = plainText.split('').map(function (ch, i) {
+        if (ch === '\n' || ch === ' ') return ch;
+        return progress > i / plainText.length ? ch : SCHARS[Math.floor(Math.random() * SCHARS.length)];
+      }).join('');
+      frame++;
+      if (frame >= total) {
+        clearInterval(iv);
+        el.innerHTML = original;
+        el.classList.remove('scrambling-feat');
+      }
+    }, 45);
+  }
+
+  var scrObs = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) {
+        scrambleEl(e.target);
+        scrObs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.5 });
+  document.querySelectorAll('[data-scramble]').forEach(function (el) { scrObs.observe(el); });
 
   /* ── PARTICLE SYSTEM ── */
   (function () {
