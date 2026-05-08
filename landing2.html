@@ -52,6 +52,14 @@ a { color: inherit; text-decoration: none; }
 button { font-family: inherit; cursor: pointer; border: none; background: none; }
 img, svg { display: block; }
 
+/* ─── PARTICLE CANVAS ─── */
+#particleCanvas {
+  position: fixed; inset: 0; z-index: 0;
+  pointer-events: none;
+  width: 100%; height: 100%;
+  will-change: auto;
+}
+
 /* ─── NOISE TEXTURE ─── */
 body::before {
   content: '';
@@ -873,6 +881,8 @@ body::before {
 </head>
 <body>
 
+<canvas id="particleCanvas" aria-hidden="true"></canvas>
+
 <!-- Scroll progress bar -->
 <div class="scroll-progress" id="scrollProgress"></div>
 
@@ -1594,6 +1604,139 @@ body::before {
       el.style.animation = 'none';
     });
   }
+
+  /* ── Canvas Particle System ── */
+  (function () {
+    var canvas = document.getElementById('particleCanvas');
+    if (!canvas) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { canvas.style.display = 'none'; return; }
+    var ctx = canvas.getContext('2d');
+
+    // gold / violet / white — gold weighted 3x
+    var COLORS = [
+      [212, 168,  67],
+      [212, 168,  67],
+      [212, 168,  67],
+      [124,  92, 252],
+      [160, 120, 255],
+      [242, 242, 250],
+    ];
+
+    var W = 0, H = 0, dpr = 1, particles = [], animId = 0;
+
+    function rand(a, b) { return a + Math.random() * (b - a); }
+
+    function mkParticle(forceBottom) {
+      var c = COLORS[Math.floor(Math.random() * COLORS.length)];
+      var isDiamond = Math.random() < 0.28;
+      return {
+        x:        rand(0, W),
+        y:        forceBottom ? rand(H * 0.85, H + 40) : rand(-10, H),
+        size:     rand(isDiamond ? 1.5 : 0.8, isDiamond ? 3.6 : 2.2),
+        alpha:    rand(0.06, 0.32),
+        vx:       rand(-0.12, 0.12),
+        vy:       rand(-0.22, -0.07),
+        c:        c,
+        pulse:    rand(0, Math.PI * 2),
+        pSpeed:   rand(0.009, 0.020),
+        diamond:  isDiamond,
+        rot:      rand(0, Math.PI * 2),
+        rSpeed:   rand(-0.006, 0.006),
+      };
+    }
+
+    function populate() {
+      particles = [];
+      var n = Math.max(35, Math.min(80, Math.floor(W * H / 16000)));
+      for (var i = 0; i < n; i++) particles.push(mkParticle(false));
+    }
+
+    function resize() {
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      W = window.innerWidth;
+      H = window.innerHeight;
+      canvas.width  = Math.round(W * dpr);
+      canvas.height = Math.round(H * dpr);
+      canvas.style.width  = W + 'px';
+      canvas.style.height = H + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      populate();
+    }
+
+    function diamond(cx, cy, s, rot) {
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(rot);
+      ctx.beginPath();
+      ctx.moveTo(0, -s);
+      ctx.lineTo(s * 0.58, 0);
+      ctx.lineTo(0, s);
+      ctx.lineTo(-s * 0.58, 0);
+      ctx.closePath();
+      ctx.restore();
+    }
+
+    function loop() {
+      ctx.clearRect(0, 0, W, H);
+      for (var i = 0; i < particles.length; i++) {
+        var p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.pulse += p.pSpeed;
+        p.rot += p.rSpeed;
+        if (p.y < -12) { particles[i] = mkParticle(true); continue; }
+        var a = p.alpha * (0.45 + 0.55 * Math.sin(p.pulse));
+        ctx.globalAlpha = a;
+        ctx.fillStyle = 'rgb(' + p.c[0] + ',' + p.c[1] + ',' + p.c[2] + ')';
+        if (p.diamond) {
+          diamond(p.x, p.y, p.size, p.rot);
+          ctx.fill();
+        } else {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, 6.2832);
+          ctx.fill();
+        }
+      }
+      ctx.globalAlpha = 1;
+      animId = requestAnimationFrame(loop);
+    }
+
+    resize();
+    loop();
+
+    var rt;
+    window.addEventListener('resize', function () {
+      clearTimeout(rt);
+      rt = setTimeout(resize, 220);
+    });
+  })();
+
+  /* ── Scroll Parallax ── */
+  (function () {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    var bg1      = document.querySelector('.hero-bg-glow');
+    var bg2      = document.querySelector('.hero-bg-glow2');
+    var hContent = document.querySelector('.hero-content');
+    var hVisual  = document.getElementById('heroVisual');
+
+    var lastY = 0, ticking = false;
+
+    function apply() {
+      var y = lastY;
+      if (bg1)      bg1.style.transform      = 'translateY(' + (y * 0.46) + 'px)';
+      if (bg2)      bg2.style.transform      = 'translateY(' + (y * 0.28) + 'px)';
+      if (hContent) hContent.style.transform = 'translateY(' + (y * 0.11) + 'px)';
+      if (hVisual)  hVisual.style.transform  = 'translateY(' + (y * 0.19) + 'px)';
+      ticking = false;
+    }
+
+    window.addEventListener('scroll', function () {
+      lastY = window.scrollY;
+      if (!ticking) { requestAnimationFrame(apply); ticking = true; }
+    }, { passive: true });
+  })();
+
 })();
 </script>
 
