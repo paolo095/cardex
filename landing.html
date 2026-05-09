@@ -349,22 +349,6 @@ body::before {
 
 @keyframes spinBorderL { to { transform: rotate(360deg); } }
 
-/* ─── THEME TRANSITION OVERLAY ─── */
-#theme-overlay {
-  position: fixed; inset: 0; z-index: 9997;
-  pointer-events: none;
-  opacity: 0;
-  backdrop-filter: blur(0px) brightness(1);
-  -webkit-backdrop-filter: blur(0px) brightness(1);
-}
-#theme-overlay.switching {
-  animation: themeBlurSwitch 0.52s cubic-bezier(0.4,0,0.2,1) forwards;
-}
-@keyframes themeBlurSwitch {
-  0%   { opacity: 0;   backdrop-filter: blur(0px)  brightness(1);    -webkit-backdrop-filter: blur(0px)  brightness(1);    }
-  38%  { opacity: 1;   backdrop-filter: blur(16px) brightness(0.88); -webkit-backdrop-filter: blur(16px) brightness(0.88); }
-  100% { opacity: 0;   backdrop-filter: blur(0px)  brightness(1);    -webkit-backdrop-filter: blur(0px)  brightness(1);    }
-}
 
 /* ─── 3D HERO MOCKUP ─── */
 .mockup-scene {
@@ -506,6 +490,7 @@ body::before {
   .b-2x2 { grid-column: span 2; grid-row: span 2; }
   .b-2x1 { grid-column: span 2; }
   .b-1x2 { grid-row: span 2; }
+  .b-full { grid-column: 1 / -1; }
 }
 .bento-card h3 { font-size: 18px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.25; margin-bottom: 8px; }
 .bento-card.b-2x2 h3 { font-size: 24px; }
@@ -761,7 +746,6 @@ footer { border-top: 1px solid var(--border); padding: 40px 24px; margin-top: 40
 </head>
 <body>
 
-<div id="theme-overlay" aria-hidden="true"></div>
 <a href="#top" class="skip-link">Vai al contenuto principale</a>
 
 <!-- Background blobs -->
@@ -1021,16 +1005,24 @@ footer { border-top: 1px solid var(--border); padding: 40px 24px; margin-top: 40
         </div>
       </div>
 
-      <div class="bento-card b-1x2 reveal reveal-delay-1">
+      <div class="bento-card b-2x2 reveal reveal-delay-1">
         <h3>Tracking ROI</h3>
-        <p>Confronta quanto hai pagato vs il valore attuale. Grafico storico, delta percentuale.</p>
-        <div class="mini-chart">
-          <svg viewBox="0 0 220 55" xmlns="http://www.w3.org/2000/svg" height="55">
+        <p>Confronta quanto hai pagato vs il valore attuale. Grafico storico e delta percentuale per ogni carta.</p>
+        <div class="mini-chart" style="margin-top:auto;">
+          <svg viewBox="0 0 320 60" xmlns="http://www.w3.org/2000/svg" width="100%" height="60">
             <defs><linearGradient id="g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#16a34a" stop-opacity=".3"/><stop offset="100%" stop-color="#16a34a" stop-opacity="0"/></linearGradient></defs>
-            <path d="M0 44 L22 40 L44 42 L66 30 L88 32 L110 22 L132 26 L154 14 L176 18 L198 8 L220 4 L220 55 L0 55Z" fill="url(#g2)"/>
-            <path d="M0 44 L22 40 L44 42 L66 30 L88 32 L110 22 L132 26 L154 14 L176 18 L198 8 L220 4" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round"/>
+            <path d="M0 50 L32 46 L64 48 L96 36 L128 38 L160 26 L192 30 L224 18 L256 22 L288 10 L320 5 L320 60 L0 60Z" fill="url(#g2)"/>
+            <path d="M0 50 L32 46 L64 48 L96 36 L128 38 L160 26 L192 30 L224 18 L256 22 L288 10 L320 5" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round"/>
           </svg>
-          <div class="chart-meta"><span style="color:var(--text-mute)">Pagato € 89,50</span><span class="pos">+34.2% ▲</span></div>
+          <div class="chart-meta">
+            <span style="color:var(--text-mute)">Pagato totale € 892</span>
+            <span class="pos">+34.2% ▲</span>
+          </div>
+        </div>
+        <div class="pills" style="margin-top:14px;">
+          <span class="pill">📈 Storico giornaliero</span>
+          <span class="pill">🎯 Delta percentuale</span>
+          <span class="pill">💰 Guadagno/perdita</span>
         </div>
       </div>
 
@@ -1050,9 +1042,16 @@ footer { border-top: 1px solid var(--border); padding: 40px 24px; margin-top: 40
         <p>NM, SP, MP, Played. IT, EN, JP. Note e quantità per ogni copia.</p>
       </div>
 
-      <div class="bento-card b-2x1 reveal reveal-delay-5">
+      <div class="bento-card b-full reveal reveal-delay-5">
         <h3>Statistiche & top carte</h3>
-        <p>Top 5 più preziose, distribuzione per lingua, valore totale per gioco.</p>
+        <p>Top 5 più preziose, distribuzione per lingua, valore totale per gioco. Tutto in un colpo d'occhio.</p>
+        <div class="pills" style="margin-top:12px;">
+          <span class="pill">🏆 Top 5 per valore</span>
+          <span class="pill">🌍 Distrib. per lingua</span>
+          <span class="pill">⚡ Valore totale Pokémon</span>
+          <span class="pill">☠️ Valore totale One Piece</span>
+          <span class="pill">📊 Grafico patrimonio</span>
+        </div>
       </div>
     </div>
   </div>
@@ -1165,16 +1164,8 @@ if (saved) root.setAttribute('data-theme', saved);
 else if (matchMedia('(prefers-color-scheme: dark)').matches) root.setAttribute('data-theme', 'dark');
 document.getElementById('theme-toggle').addEventListener('click', () => {
   const n = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-  const overlay = document.getElementById('theme-overlay');
-  overlay.classList.remove('switching');
-  void overlay.offsetWidth; /* reflow restart */
-  overlay.classList.add('switching');
-  /* change theme at blur peak (38% of 520ms ≈ 200ms) */
-  setTimeout(() => {
-    root.setAttribute('data-theme', n);
-    localStorage.setItem('cx-theme', n);
-  }, 200);
-  setTimeout(() => overlay.classList.remove('switching'), 540);
+  root.setAttribute('data-theme', n);
+  localStorage.setItem('cx-theme', n);
 });
 
 /* ── Mobile menu ── */
