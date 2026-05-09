@@ -24,12 +24,8 @@
   --accent-soft: rgba(0,0,0,0.03);
   --shadow:      0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.05);
   --shadow-h:    0 2px 4px rgba(0,0,0,0.06), 0 20px 48px rgba(0,0,0,0.10);
-  /* blobs — steel blue, teal, Italian green */
-  --blob1: rgba(59,122,158,0.09);
-  --blob2: rgba(75,158,149,0.07);
-  --blob3: rgba(62,154,90,0.05);
   /* dot grid */
-  --dot:   rgba(0,0,0,0.10);
+  --dot:   rgba(0,0,0,0.07);
   /* easing */
   --ease-out:    cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
@@ -46,11 +42,7 @@
   --accent-soft: rgba(255,255,255,0.04);
   --shadow:      0 1px 3px rgba(0,0,0,0.5), 0 8px 32px rgba(0,0,0,0.4);
   --shadow-h:    0 2px 4px rgba(0,0,0,0.6), 0 20px 64px rgba(0,0,0,0.55);
-  /* blobs — same hue family, deeper */
-  --blob1: rgba(59,122,158,0.18);
-  --blob2: rgba(75,158,149,0.12);
-  --blob3: rgba(62,154,90,0.07);
-  --dot:   rgba(255,255,255,0.06);
+  --dot:   rgba(255,255,255,0.05);
 }
 
 /* ─── RESET ─── */
@@ -78,45 +70,6 @@ body::before {
   background-size: 28px 28px;
   pointer-events: none;
 }
-/* Gradient blobs */
-.bg-blobs {
-  position: fixed; inset: 0; z-index: -1;
-  pointer-events: none;
-  overflow: hidden;
-}
-.bg-blob {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(60px);
-  opacity: 0.9;
-  animation: blobDrift 24s ease-in-out infinite alternate;
-  will-change: transform;
-}
-.bg-blob:nth-child(1) {
-  width: 700px; height: 700px;
-  top: -200px; right: -150px;
-  background: radial-gradient(circle, var(--blob1), transparent 65%);
-  animation-duration: 28s;
-}
-.bg-blob:nth-child(2) {
-  width: 500px; height: 500px;
-  bottom: 5%; left: -100px;
-  background: radial-gradient(circle, var(--blob2), transparent 65%);
-  animation-duration: 22s; animation-delay: -8s;
-}
-.bg-blob:nth-child(3) {
-  width: 400px; height: 400px;
-  top: 45%; right: 15%;
-  background: radial-gradient(circle, var(--blob3), transparent 65%);
-  animation-duration: 34s; animation-delay: -14s;
-}
-@keyframes blobDrift {
-  0%   { transform: translate(0, 0) scale(1); }
-  33%  { transform: translate(-3%, 4%) scale(1.04); }
-  66%  { transform: translate(2%, -3%) scale(0.97); }
-  100% { transform: translate(-2%, 2%) scale(1.02); }
-}
-
 /* ─── LAYOUT ─── */
 .container { max-width: 1160px; margin: 0 auto; padding: 0 24px; }
 .section { padding: 100px 0; }
@@ -270,8 +223,8 @@ body::before {
   animation: holoSide 4.5s ease-in-out infinite;
   mix-blend-mode: screen;
 }
-@keyframes floatHeroR { 0%,100%{transform:translateY(0)}  50%{transform:translateY(-11px)} }
-@keyframes floatHeroL { 0%,100%{transform:translateY(0)}  50%{transform:translateY(-8px)} }
+@keyframes floatHeroR { 0%,100%{transform:translateY(0)}  50%{transform:translateY(-6px)} }
+@keyframes floatHeroL { 0%,100%{transform:translateY(0)}  50%{transform:translateY(-4px)} }
 @keyframes holoSide   { 0%{background-position:200% 0%} 50%{background-position:-100% 100%} 100%{background-position:200% 0%} }
 
 .hero h1 {
@@ -626,18 +579,6 @@ body::before {
   border-radius: 24px; padding: 64px 32px; max-width: 780px; margin: 0 auto;
   position: relative; overflow: hidden;
 }
-.final-cta::before {
-  content: ''; position: absolute; top: -80px; right: -80px;
-  width: 300px; height: 300px; border-radius: 50%;
-  background: radial-gradient(circle, var(--blob1), transparent 65%);
-  pointer-events: none; filter: blur(40px);
-}
-.final-cta::after {
-  content: ''; position: absolute; bottom: -80px; left: -80px;
-  width: 260px; height: 260px; border-radius: 50%;
-  background: radial-gradient(circle, var(--blob2), transparent 65%);
-  pointer-events: none; filter: blur(40px);
-}
 .final-cta h2 { font-size: clamp(26px, 4.5vw, 46px); font-weight: 700; letter-spacing: -0.03em; line-height: 1.15; margin-bottom: 12px; position: relative; }
 .final-cta p { color: var(--text-soft); margin-bottom: 26px; position: relative; }
 .final-cta a { position: relative; }
@@ -654,8 +595,8 @@ footer { border-top: 1px solid var(--border); padding: 40px 24px; margin-top: 40
 /* ─── 3D SCROLL REVEAL ─── */
 .reveal {
   opacity: 0;
-  transform: perspective(900px) rotateX(6deg) translateY(24px);
-  transition: opacity 0.65s var(--ease-out), transform 0.65s var(--ease-out);
+  transform: perspective(900px) rotateX(3deg) translateY(12px);
+  transition: opacity 0.55s var(--ease-out), transform 0.55s var(--ease-out);
 }
 
 .reveal.in {
@@ -665,10 +606,10 @@ footer { border-top: 1px solid var(--border); padding: 40px 24px; margin-top: 40
 
 /* Step cards: alternating left/right on mobile */
 .step-card.reveal-left {
-  transform: perspective(900px) rotateX(4deg) translateX(-32px);
+  transform: perspective(900px) rotateX(2deg) translateX(-16px);
 }
 .step-card.reveal-right {
-  transform: perspective(900px) rotateX(4deg) translateX(32px);
+  transform: perspective(900px) rotateX(2deg) translateX(16px);
 }
 
 .step-card.reveal-left.in,
@@ -686,12 +627,12 @@ footer { border-top: 1px solid var(--border); padding: 40px 24px; margin-top: 40
 /* Desktop: all use translateY */
 @media (min-width: 768px) {
   .reveal {
-    transform: perspective(900px) rotateX(8deg) translateY(24px);
+    transform: perspective(900px) rotateX(4deg) translateY(12px);
   }
 
   .step-card.reveal-left,
   .step-card.reveal-right {
-    transform: perspective(900px) rotateX(8deg) translateY(24px);
+    transform: perspective(900px) rotateX(4deg) translateY(12px);
   }
 
   .reveal.in {
@@ -730,7 +671,6 @@ footer { border-top: 1px solid var(--border); padding: 40px 24px; margin-top: 40
 
 /* ─── REDUCED MOTION ─── */
 @media (prefers-reduced-motion: reduce) {
-  .bg-blob { animation: none; }
   .dot-live { animation: none; }
   .reveal, .reveal.in,
   .step-card.reveal-left, .step-card.reveal-right,
@@ -747,13 +687,6 @@ footer { border-top: 1px solid var(--border); padding: 40px 24px; margin-top: 40
 <body>
 
 <a href="#top" class="skip-link">Vai al contenuto principale</a>
-
-<!-- Background blobs -->
-<div class="bg-blobs">
-  <div class="bg-blob"></div>
-  <div class="bg-blob"></div>
-  <div class="bg-blob"></div>
-</div>
 
 <!-- ─── NAVBAR ─── -->
 <nav class="topbar">
@@ -829,10 +762,7 @@ footer { border-top: 1px solid var(--border); padding: 40px 24px; margin-top: 40
         <div class="btn-glow-spin"></div>
         <a href="index.html" class="btn-glow-inner btn-glow-primary">Inizia gratis →</a>
       </div>
-      <div class="btn-glow-wrap">
-        <div class="btn-glow-spin"></div>
-        <a href="#funzionalita" class="btn-glow-inner btn-glow-ghost">Scopri di più</a>
-      </div>
+      <a href="#funzionalita" class="btn btn-ghost btn-lg">Scopri di più</a>
     </div>
 
     <!-- 3D APP MOCKUP -->
@@ -1278,8 +1208,8 @@ if (!prefersReducedMotion && scene && stage) {
       const r = scene.getBoundingClientRect();
       const x = (e.clientX - r.left) / r.width - 0.5;
       const y = (e.clientY - r.top) / r.height - 0.5;
-      targetRX = 14 + y * -10;
-      targetRY = x * 12;
+      targetRX = 14 + y * -5;
+      targetRY = x * 7;
     });
     scene.addEventListener('mouseleave', () => { targetRX = 14; targetRY = 0; });
   }
@@ -1336,7 +1266,7 @@ if (!prefersReducedMotion && canHover) {
       const r = card.getBoundingClientRect();
       const x = (e.clientX - r.left) / r.width - 0.5;
       const y = (e.clientY - r.top) / r.height - 0.5;
-      card.style.transform = `perspective(600px) rotateX(${(-y*5).toFixed(1)}deg) rotateY(${(x*5).toFixed(1)}deg) translateZ(3px)`;
+      card.style.transform = `perspective(600px) rotateX(${(-y*2).toFixed(1)}deg) rotateY(${(x*2).toFixed(1)}deg) translateZ(2px)`;
     });
     card.addEventListener('mouseleave', () => {
       card.style.transform = '';
