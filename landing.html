@@ -74,6 +74,12 @@ body::before {
 .container { max-width: 1160px; margin: 0 auto; padding: 0 24px; }
 .section { padding: 100px 0; }
 @media (min-width: 768px) { .section { padding: 140px 0; } }
+/* Rhythm: stats strip above bento provides visual punctuation — less top padding needed */
+#funzionalita { padding-top: 72px; }
+@media (min-width: 768px) { #funzionalita { padding-top: 96px; } }
+/* FAQ ends tight — final CTA section provides breathing room below */
+#faq { padding-bottom: 72px; }
+@media (min-width: 768px) { #faq { padding-bottom: 96px; } }
 
 /* ─── NAVBAR ─── */
 .topbar {
@@ -513,7 +519,6 @@ body::before {
 
 /* ─── STATS STRIP ─── */
 .stats-strip {
-  border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
   background: var(--bg-card);
 }
@@ -954,6 +959,24 @@ footer { border-top: 1px solid var(--border); padding: 40px 24px; margin-top: 40
   </div>
 </div>
 
+<!-- ─── STATS ─── -->
+<div class="stats-strip" aria-label="Numeri CardEx">
+  <div class="stats-strip-inner">
+    <div class="stat-cell reveal">
+      <div class="stat-num accent" data-count="12847">0</div>
+      <div class="stat-lbl">Carte monitorate nel database, aggiornate ogni giorno</div>
+    </div>
+    <div class="stat-cell reveal">
+      <div class="stat-num" data-count="2400000" data-format="currency">0</div>
+      <div class="stat-lbl">Valore totale tracciato nelle collezioni degli utenti</div>
+    </div>
+    <div class="stat-cell reveal">
+      <div class="stat-num" data-count="800" data-suffix="+">0</div>
+      <div class="stat-lbl">Venditori italiani attivi su CardTrader nel database prezzi</div>
+    </div>
+  </div>
+</div>
+
 <!-- ─── BENTO ─── -->
 <section id="funzionalita" class="section">
   <div class="container">
@@ -1051,24 +1074,6 @@ footer { border-top: 1px solid var(--border); padding: 40px 24px; margin-top: 40
     </div>
   </div>
 </section>
-
-<!-- ─── STATS ─── -->
-<div class="stats-strip" aria-label="Numeri CardEx">
-  <div class="stats-strip-inner">
-    <div class="stat-cell reveal">
-      <div class="stat-num accent" data-count="12847">0</div>
-      <div class="stat-lbl">Carte monitorate nel database, aggiornate ogni giorno</div>
-    </div>
-    <div class="stat-cell reveal">
-      <div class="stat-num" data-count="2400000" data-format="currency">0</div>
-      <div class="stat-lbl">Valore totale tracciato nelle collezioni degli utenti</div>
-    </div>
-    <div class="stat-cell reveal">
-      <div class="stat-num" data-count="800" data-suffix="+">0</div>
-      <div class="stat-lbl">Venditori italiani attivi su CardTrader nel database prezzi</div>
-    </div>
-  </div>
-</div>
 
 <!-- ─── FAQ ─── -->
 <section id="faq" class="section">
