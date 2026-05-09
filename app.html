@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNyIgZmlsbD0iIzBjMGMwYyIvPgogIDx0ZXh0IHg9IjIiIHk9IjI0IiBmb250LWZhbWlseT0iJ0hlbHZldGljYSBOZXVlJyxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iMjAwIiBmb250LXNpemU9IjIwIiBsZXR0ZXItc3BhY2luZz0iLTEiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4zOCkiPkM8L3RleHQ+CiAgPHRleHQgeD0iMTUiIHk9IjI0IiBmb250LWZhbWlseT0iJ0hlbHZldGljYSBOZXVlJyxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iOTAwIiBmb250LXNpemU9IjIwIiBsZXR0ZXItc3BhY2luZz0iLTEiIGZpbGw9IiNmZmZmZmYiPlg8L3RleHQ+Cjwvc3ZnPg==">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>CARDEX — La tua collezione</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Syne:wght@300;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- SVG ICON SYMBOLS -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+  <symbol id="i-zap" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></symbol>
+  <symbol id="i-skull" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><path d="M8 20v2h8v-2"/><path d="m12.5 17-.5-1-.5 1h1z"/><path d="M16 20a2 2 0 0 0 1.56-3.25 8 8 0 1 0-11.12 0A2 2 0 0 0 8 20"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></symbol>
+  <symbol id="i-bar-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol>
+  <symbol id="i-calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></symbol>
+  <symbol id="i-package" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></symbol>
+</svg>
+
+<!-- LOADING -->
+<div id="loading-overlay">
+  <div class="loading-logo brand-logo"><span class="bl-card" style="font-size:44px;">CARD</span><span class="bl-ex" style="font-size:44px;">EX</span></div>
+  <div><div class="loading-bar-wrap"><div class="loading-bar" id="loading-bar"></div></div></div>
+  <div class="loading-text" id="loading-text">Connessione...</div>
+</div>
+
+<!-- LOGIN -->
+<div id="screen-login" class="screen active">
+  <div class="login-box">
+    <span class="login-logo brand-logo"><span class="bl-card" style="font-size:46px;">CARD</span><span class="bl-ex" style="font-size:46px;">EX</span></span>
+    <span class="brand-tag">La tua collezione · IT</span>
+    <p class="login-sub" id="auth-subtitle">Pokémon &amp; One Piece · Prezzi reali CardTrader 🇮🇹</p>
+    <div class="form-group">
+      <label class="form-label">Email</label>
+      <input class="form-input" id="input-email" type="email" placeholder="la tua email"/>
+    </div>
+    <div class="form-group" id="group-username" style="display:none">
+      <label class="form-label">Username</label>
+      <input class="form-input" id="input-username" type="text" placeholder="nome visibile nell'app"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <div class="pw-wrap">
+        <input class="form-input" id="input-password" type="password" placeholder="almeno 6 caratteri"/>
+        <button type="button" class="pw-toggle" onclick="togglePw('input-password',this)" tabindex="-1"><svg width="16" height="16"><use href="#i-eye"/></svg></button>
+      </div>
+    </div>
+    <div class="auth-error" id="auth-error"></div>
+    <button class="btn-primary" id="btn-auth" onclick="doAuth()">Accedi →</button>
+    <div class="auth-toggle">
+      <span id="toggle-text">Non hai un account?</span>
+      <a onclick="toggleAuthMode()"> Registrati</a>
+    </div>
+    <div id="forgot-pw-row" style="margin-top:12px;text-align:center;">
+      <a onclick="showForgotPassword()" style="font-size:12px;color:var(--muted);cursor:pointer;transition:color .2s;" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--muted)'">Password dimenticata?</a>
+    </div>
+    <div id="forgot-success" style="background:rgba(61,154,95,.10);border:1px solid rgba(61,154,95,.28);color:#5BC97D;display:none;margin-top:12px;border-radius:10px;padding:11px 14px;font-size:13px;"></div>
+  </div>
+</div>
+
+<!-- HOME -->
+<div id="screen-home" class="screen">
+  <header>
+    <div class="header-logo" onclick="showScreen('screen-home')"><span class="bl-card">CARD</span><span class="bl-ex">EX</span></div>
+    <div class="header-right">
+      <div class="avatar" id="avatar-h" onclick="showProfile()" title="Il tuo profilo">U</div>
+      <span id="header-username" style="font-size:13px;color:var(--muted)"></span>
+      <button class="btn-ghost" onclick="doLogout()">Esci</button>
+    </div>
+  </header>
+  <div class="main-wrap">
+    <div class="value-banner">
+      <div>
+        <div class="value-label">Valore totale collezione</div>
+        <div class="value-amount">€ <span id="total-value">0,00</span></div>
+        <div class="game-pills">
+          <span class="game-pill pill-pokemon">● Pokémon</span>
+          <span class="game-pill pill-onepiece">● One Piece</span>
+        </div>
+      </div>
+      <div class="value-stats">
+        <div class="stat-item"><span class="stat-num" id="stat-total">0</span><span class="stat-label">Carte totali</span></div>
+        <div class="stat-item"><span class="stat-num" id="stat-pok" style="color:var(--pokemon)">0</span><span class="stat-label">Pokémon</span></div>
+        <div class="stat-item"><span class="stat-num" id="stat-op" style="color:var(--onepiece)">0</span><span class="stat-label">One Piece</span></div>
+      </div>
+    </div>
+    <div class="search-panel">
+      <div class="panel-title"><svg width="18" height="18" style="vertical-align:middle;margin-right:8px"><use href="#i-search"/></svg>Cerca una carta</div>
+      <div class="game-tabs">
+        <button class="tab active-pokemon" id="tab-pokemon" onclick="selectGame('pokemon')"><svg width="14" height="14" style="vertical-align:middle;margin-right:4px"><use href="#i-zap"/></svg>Pokémon</button>
+        <button class="tab" id="tab-onepiece" onclick="selectGame('onepiece')"><svg width="14" height="14" style="vertical-align:middle;margin-right:4px"><use href="#i-skull"/></svg>One Piece</button>
+      </div>
+      <div class="search-box">
+        <input class="search-input" id="search-input" type="text" placeholder="Es: Charizard, Pikachu, EB04-007..." oninput="onSearchInput()" onkeydown="onSearchKey(event)" autocomplete="off"/>
+        <div id="autocomplete"></div>
+      </div>
+      <div class="search-hint">💡 Puoi cercare per nome o codice carta (es: SV03-100, EB04-007)</div>
+      <div id="results-grid" style="margin-top:14px;">
+        <div class="empty-state"><span class="empty-icon" id="search-empty-icon"></span>Inizia a scrivere per cercare.<br>Clicca su una carta per i dettagli.</div>
+      </div>
+    </div>
+    <div class="collection-panel">
+      <div class="panel-title"><svg width="18" height="18" style="vertical-align:middle;margin-right:8px"><use href="#i-package"/></svg>Ultime aggiunte</div>
+      <div class="filter-row">
+        <button class="filter-btn active" id="filter-all" onclick="setFilter('all')">Tutte</button>
+        <button class="filter-btn" id="filter-pokemon" onclick="setFilter('pokemon')">Pokémon</button>
+        <button class="filter-btn" id="filter-onepiece" onclick="setFilter('onepiece')">One Piece</button>
+      </div>
+      <div class="collection-list" id="collection-list">
+        <div class="empty-state"><span class="empty-icon">✨</span>Collezione vuota.<br>Cerca e aggiungi la prima carta!</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL -->
+<div id="screen-detail" class="screen">
+  <header>
+    <button class="back-btn" onclick="goBack()">← Indietro</button>
+    <div class="header-right">
+      <div class="avatar" id="avatar-d" onclick="showProfile()" title="Il tuo profilo">U</div>
+      <button class="btn-ghost" onclick="doLogout()">Esci</button>
+    </div>
+  </header>
+  <div class="detail-wrap">
+    <div class="detail-img-wrap" id="detail-img-container"></div>
+    <div>
+      <div id="detail-game-badge" class="game-pill" style="margin-bottom:14px;"></div>
+      <div id="detail-name" class="detail-name"></div>
+      <div id="detail-exp" class="detail-exp"></div>
+      <div id="detail-rarity"></div>
+      <div class="lang-section-title">Disponibilità per lingua · 🇮🇹 Priorità venditori italiani</div>
+      <div id="detail-langs"></div>
+      <div id="alt-versions-container"></div>
+    </div>
+  </div>
+</div>
+
+<!-- COLLECTION POKEMON -->
+<div id="screen-collection-pokemon" class="screen">
+  <header>
+    <div class="header-logo" onclick="showScreen('screen-home')"><span class="bl-card">CARD</span><span class="bl-ex">EX</span></div>
+    <div class="header-right">
+      <div class="avatar" id="avatar-cp" onclick="showProfile()" title="Il tuo profilo">U</div>
+      <button class="btn-ghost" onclick="doLogout()">Esci</button>
+    </div>
+  </header>
+  <div class="coll-page">
+    <div class="coll-page-header">
+      <div>
+        <div class="coll-page-title"><svg width="28" height="28" style="vertical-align:middle;margin-right:8px"><use href="#i-zap"/></svg>Collezione Pokémon</div>
+        <div style="color:var(--muted);font-size:13px;margin-top:4px;" id="coll-summary-pokemon">0 carte · € 0,00</div>
+      </div>
+      <div class="coll-actions">
+        <button class="btn-action" id="btn-refresh-pokemon" onclick="refreshPrices('pokemon')"><svg width="14" height="14"><use href="#i-refresh"/></svg> Aggiorna prezzi</button>
+        <button class="btn-action" onclick="showScreen('screen-stats-pokemon')"><svg width="14" height="14"><use href="#i-bar-chart"/></svg> Stats Pokémon</button>
+      </div>
+    </div>
+    <div class="coll-toolbar">
+      <input type="text" class="coll-search" id="coll-search-pokemon" placeholder="Cerca nella collezione..." oninput="renderCollectionGrid('pokemon')"/>
+      <select class="coll-sort" id="coll-sort-pokemon" onchange="renderCollectionGrid('pokemon')">
+        <option value="recent">Più recenti</option>
+        <option value="price-desc">Prezzo: alto → basso</option>
+        <option value="price-asc">Prezzo: basso → alto</option>
+        <option value="name">Nome A-Z</option>
+      </select>
+    </div>
+    <div class="coll-grid" id="coll-grid-pokemon">
+      <div class="empty-state"><span class="empty-icon">✨</span>Nessuna carta Pokémon.<br>Vai alla ricerca per aggiungere!</div>
+    </div>
+  </div>
+</div>
+
+<!-- COLLECTION ONE PIECE -->
+<div id="screen-collection-onepiece" class="screen">
+  <header>
+    <div class="header-logo" onclick="showScreen('screen-home')"><span class="bl-card">CARD</span><span class="bl-ex">EX</span></div>
+    <div class="header-right">
+      <div class="avatar" id="avatar-co" onclick="showProfile()" title="Il tuo profilo">U</div>
+      <button class="btn-ghost" onclick="doLogout()">Esci</button>
+    </div>
+  </header>
+  <div class="coll-page">
+    <div class="coll-page-header">
+      <div>
+        <div class="coll-page-title"><svg width="28" height="28" style="vertical-align:middle;margin-right:8px"><use href="#i-skull"/></svg>Collezione One Piece</div>
+        <div style="color:var(--muted);font-size:13px;margin-top:4px;" id="coll-summary-onepiece">0 carte · € 0,00</div>
+      </div>
+      <div class="coll-actions">
+        <button class="btn-action" id="btn-refresh-onepiece" onclick="refreshPrices('onepiece')"><svg width="14" height="14"><use href="#i-refresh"/></svg> Aggiorna prezzi</button>
+        <button class="btn-action" onclick="showScreen('screen-stats-onepiece')"><svg width="14" height="14"><use href="#i-bar-chart"/></svg> Stats One Piece</button>
+      </div>
+    </div>
+    <div class="coll-toolbar">
+      <input type="text" class="coll-search" id="coll-search-onepiece" placeholder="Cerca nella collezione..." oninput="renderCollectionGrid('onepiece')"/>
+      <select class="coll-sort" id="coll-sort-onepiece" onchange="renderCollectionGrid('onepiece')">
+        <option value="recent">Più recenti</option>
+        <option value="price-desc">Prezzo: alto → basso</option>
+        <option value="price-asc">Prezzo: basso → alto</option>
+        <option value="name">Nome A-Z</option>
+      </select>
+    </div>
+    <div class="coll-grid" id="coll-grid-onepiece">
+      <div class="empty-state"><span class="empty-icon">✨</span>Nessuna carta One Piece.<br>Vai alla ricerca per aggiungere!</div>
+    </div>
+  </div>
+</div>
+
+<!-- STATS SELEZIONE -->
+<div id="screen-stats-select" class="screen">
+  <header>
+    <div class="header-logo" onclick="showScreen('screen-home')"><span class="bl-card">CARD</span><span class="bl-ex">EX</span></div>
+    <div class="header-right">
+      <div class="avatar" id="avatar-ss" onclick="showProfile()" title="Il tuo profilo">U</div>
+      <button class="btn-ghost" onclick="doLogout()">Esci</button>
+    </div>
+  </header>
+  <div class="coll-page">
+    <div class="coll-page-title" style="margin-bottom:24px;"><svg width="28" height="28" style="vertical-align:middle;margin-right:8px"><use href="#i-bar-chart"/></svg>Statistiche</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:500px;">
+      <div class="stat-card" style="cursor:pointer;text-align:center;" onclick="showScreen('screen-stats-pokemon')">
+        <div style="display:flex;justify-content:center;margin-bottom:12px;"><svg width="40" height="40"><use href="#i-zap"/></svg></div>
+        <div class="stat-card-label">Pokémon</div>
+        <div class="stat-card-value" id="ss-pok-val" style="font-size:28px;">€ 0,00</div>
+        <div class="stat-card-sub" id="ss-pok-count">0 carte</div>
+      </div>
+      <div class="stat-card" style="cursor:pointer;text-align:center;" onclick="showScreen('screen-stats-onepiece')">
+        <div style="display:flex;justify-content:center;margin-bottom:12px;"><svg width="40" height="40"><use href="#i-skull"/></svg></div>
+        <div class="stat-card-label">One Piece</div>
+        <div class="stat-card-value" id="ss-op-val" style="font-size:28px;">€ 0,00</div>
+        <div class="stat-card-sub" id="ss-op-count">0 carte</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STATS POKEMON -->
+<div id="screen-stats-pokemon" class="screen">
+  <header>
+    <button class="back-btn" onclick="showScreen('screen-stats-select')">← Stats</button>
+    <div class="header-right">
+      <div class="avatar" id="avatar-sp" onclick="showProfile()" title="Il tuo profilo">U</div>
+      <button class="btn-ghost" onclick="doLogout()">Esci</button>
+    </div>
+  </header>
+  <div class="coll-page">
+    <div class="coll-page-header">
+      <div class="coll-page-title"><svg width="28" height="28" style="vertical-align:middle;margin-right:8px"><use href="#i-zap"/></svg>Stats Pokémon</div>
+    </div>
+    <div id="stats-content-pokemon"></div>
+  </div>
+</div>
+
+<!-- STATS ONE PIECE -->
+<div id="screen-stats-onepiece" class="screen">
+  <header>
+    <button class="back-btn" onclick="showScreen('screen-stats-select')">← Stats</button>
+    <div class="header-right">
+      <div class="avatar" id="avatar-so" onclick="showProfile()" title="Il tuo profilo">U</div>
+      <button class="btn-ghost" onclick="doLogout()">Esci</button>
+    </div>
+  </header>
+  <div class="coll-page">
+    <div class="coll-page-header">
+      <div class="coll-page-title"><svg width="28" height="28" style="vertical-align:middle;margin-right:8px"><use href="#i-skull"/></svg>Stats One Piece</div>
+    </div>
+    <div id="stats-content-onepiece"></div>
+  </div>
+</div>
+
+<!-- PROFILE -->
+<div id="screen-profile" class="screen">
+  <header>
+    <button class="back-btn" onclick="goBack()">← Indietro</button>
+    <div class="header-right">
+      <div class="avatar" id="avatar-pf">U</div>
+      <button class="btn-ghost" onclick="doLogout()">Esci</button>
+    </div>
+  </header>
+  <div class="profile-page">
+    <div class="profile-hero" id="profile-hero">
+      <div class="profile-avatar-large" id="profile-avatar-large">U</div>
+      <div>
+        <div class="profile-username" id="profile-username-display">Username</div>
+        <div class="profile-email-row">
+          <span id="profile-email-display" style="font-size:13px;color:var(--muted)"></span>
+          <span class="email-badge" id="profile-email-badge">✅ Confermata</span>
+        </div>
+        <div class="profile-since" id="profile-since"><svg width="13" height="13" style="vertical-align:middle;margin-right:4px"><use href="#i-calendar"/></svg>Membro dal —</div>
+      </div>
+    </div>
+    <div class="profile-section">
+      <div class="profile-section-title"><svg width="14" height="14" style="vertical-align:middle;margin-right:6px"><use href="#i-lock"/></svg>Cambio password</div>
+      <div class="profile-field">
+        <label class="form-label">Nuova password</label>
+        <div class="pw-wrap">
+          <input class="form-input" id="prof-new-pw" type="password" placeholder="Almeno 6 caratteri"/>
+          <button type="button" class="pw-toggle" onclick="togglePw('prof-new-pw',this)" tabindex="-1"><svg width="16" height="16"><use href="#i-eye"/></svg></button>
+        </div>
+      </div>
+      <div class="profile-field">
+        <label class="form-label">Conferma nuova password</label>
+        <div class="pw-wrap">
+          <input class="form-input" id="prof-confirm-pw" type="password" placeholder="Ripeti la password"/>
+          <button type="button" class="pw-toggle" onclick="togglePw('prof-confirm-pw',this)" tabindex="-1"><svg width="16" height="16"><use href="#i-eye"/></svg></button>
+        </div>
+      </div>
+      <button class="btn-primary" style="margin-top:4px;" onclick="changePassword()">Aggiorna password</button>
+      <div class="profile-msg" id="msg-pw"></div>
+    </div>
+    <div class="profile-section">
+      <div class="profile-section-title"><svg width="14" height="14" style="vertical-align:middle;margin-right:6px"><use href="#i-mail"/></svg>Reset password via email</div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.6;">Ricevi un link di reset all'indirizzo email associato al tuo account. Utile se hai dimenticato la password attuale.</p>
+      <button class="btn-action" style="width:100%;justify-content:center;" onclick="sendResetEmail()">Invia link di reset</button>
+      <div class="profile-msg" id="msg-reset"></div>
+    </div>
+    <div class="danger-zone">
+      <div class="profile-section-title"><svg width="14" height="14" style="vertical-align:middle;margin-right:6px"><use href="#i-alert"/></svg>Zona pericolosa</div>
+      <div class="danger-desc">L'eliminazione dell'account è <strong style="color:var(--red)">permanente e irreversibile</strong>. Tutti i tuoi dati — collezione, snapshot storici, impostazioni — verranno cancellati definitivamente e non potranno essere recuperati.</div>
+      <button class="btn-danger" onclick="showDeleteConfirm()"><svg width="14" height="14" style="vertical-align:middle;margin-right:6px"><use href="#i-trash"/></svg>Elimina account</button>
+      <div class="danger-confirm-box" id="delete-confirm-box">
+        <p>Per confermare, digita il tuo indirizzo email: <strong id="delete-email-hint"></strong></p>
+        <input class="form-input" id="delete-email-input" type="email" placeholder="la tua email" style="margin-bottom:4px;"/>
+        <div class="profile-msg" id="msg-delete"></div>
+        <button class="btn-danger-confirm" id="btn-delete-confirm" onclick="deleteAccount()">Sì, elimina tutto per sempre</button>
+        <button class="btn-cancel" onclick="hideDeleteConfirm()">Annulla</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD CARD MODAL -->
+<div id="add-modal" class="modal-overlay" onclick="if(event.target===this)closeAddModal()">
+  <div class="modal-content">
+    <button class="modal-close" onclick="closeAddModal()" aria-label="Chiudi">×</button>
+    <div class="modal-header">
+      <img id="add-modal-img" src="" alt="">
+      <div style="flex:1;min-width:0;">
+        <div id="add-modal-name" class="modal-card-name"></div>
+        <div id="add-modal-meta" class="modal-card-meta"></div>
+        <div id="add-modal-lang" class="modal-card-lang-row"></div>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Condizione</label>
+        <select id="add-condition" class="form-input" onchange="onConditionChange()"></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Prezzo pagato (€)</label>
+        <input id="add-price" type="number" step="0.01" min="0" class="form-input" oninput="onPaidPriceChange()">
+        <div id="add-price-hint" class="price-hint"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group" style="flex:1;">
+          <label class="form-label">Data acquisto</label>
+          <input id="add-date" type="date" class="form-input">
+        </div>
+        <div class="form-group" style="width:110px;">
+          <label class="form-label">Quantità</label>
+          <input id="add-qty" type="number" min="1" value="1" class="form-input">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Note (opzionale)</label>
+        <textarea id="add-notes" class="form-input" rows="2" placeholder="Es: comprata da Marco, fiera Milano..."></textarea>
+      </div>
+      <div id="add-error" class="auth-error"></div>
+      <button class="btn-primary" id="btn-confirm-add" onclick="confirmAddCard()">Aggiungi alla collezione</button>
+    </div>
+  </div>
+</div>
+
+<!-- CARD DETAIL MODAL -->
+<div id="card-detail-modal" class="modal-overlay" onclick="if(event.target===this)closeCardDetailModal()">
+  <div class="modal-content modal-content-lg">
+    <button class="modal-close" onclick="closeCardDetailModal()">×</button>
+    <div id="cdm-header" class="modal-header"></div>
+    <div id="cdm-body"></div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav" id="bottom-nav" style="display:none;">
+  <button class="nav-item active" id="nav-home" onclick="showScreen('screen-home')">
+    <span class="nav-icon"><svg width="20" height="20"><use href="#i-home"/></svg></span><span class="nav-label">Home</span>
+  </button>
+  <button class="nav-item" id="nav-collection-pokemon" onclick="showScreen('screen-collection-pokemon')">
+    <span class="nav-icon"><svg width="20" height="20"><use href="#i-zap"/></svg></span><span class="nav-label">Pokémon</span>
+  </button>
+  <button class="nav-item" id="nav-collection-onepiece" onclick="showScreen('screen-collection-onepiece')">
+    <span class="nav-icon"><svg width="20" height="20"><use href="#i-skull"/></svg></span><span class="nav-label">One Piece</span>
+  </button>
+  <button class="nav-item" id="nav-stats" onclick="showScreen('screen-stats-select')">
+    <span class="nav-icon"><svg width="20" height="20"><use href="#i-bar-chart"/></svg></span><span class="nav-label">Stats</span>
+  </button>
+</nav>
+
+<script src="app.js"></script>
+</body>
+</html>

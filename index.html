@@ -1,414 +1,1316 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="it" data-theme="light">
 <head>
 <meta charset="UTF-8">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNyIgZmlsbD0iIzBjMGMwYyIvPgogIDx0ZXh0IHg9IjIiIHk9IjI0IiBmb250LWZhbWlseT0iJ0hlbHZldGljYSBOZXVlJyxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iMjAwIiBmb250LXNpemU9IjIwIiBsZXR0ZXItc3BhY2luZz0iLTEiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4zOCkiPkM8L3RleHQ+CiAgPHRleHQgeD0iMTUiIHk9IjI0IiBmb250LWZhbWlseT0iJ0hlbHZldGljYSBOZXVlJyxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iOTAwIiBmb250LXNpemU9IjIwIiBsZXR0ZXItc3BhY2luZz0iLTEiIGZpbGw9IiNmZmZmZmYiPlg8L3RleHQ+Cjwvc3ZnPg==">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>CARDEX — La tua collezione</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CARDEX — La tua collezione TCG, prezzi reali italiani</title>
+<meta name="description" content="Pokémon e One Piece. Tracking del valore in tempo reale da CardTrader. Prezzi reali da venditori italiani.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNyIgZmlsbD0iIzBFMEUxMCIvPjx0ZXh0IHg9IjIiIHk9IjI0IiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtd2VpZ2h0PSIzMDAiIGZvbnQtc2l6ZT0iMjAiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4zOCkiPkM8L3RleHQ+PHRleHQgeD0iMTUiIHk9IjI0IiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtd2VpZ2h0PSI5MDAiIGZvbnQtc2l6ZT0iMjAiIGZpbGw9IiNmZmZmZmYiPlg8L3RleHQ+PC9zdmc+">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Syne:wght@300;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+
+<style>
+/* ─── THEME VARIABLES ─── */
+:root {
+  --bg:          oklch(99.5% 0.006 262);
+  --bg-soft:     oklch(96.5% 0.006 262);
+  --bg-card:     oklch(99.5% 0.006 262);
+  --text:        oklch(11% 0.010 262);
+  --text-soft:   oklch(38% 0.010 262);
+  --text-mute:   oklch(46% 0.008 262);
+  --border:      rgba(0,0,0,0.07);
+  --border-h:    rgba(0,0,0,0.16);
+  --accent-soft: rgba(0,0,0,0.03);
+  --shadow:      0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.05);
+  --shadow-h:    0 2px 4px rgba(0,0,0,0.06), 0 20px 48px rgba(0,0,0,0.10);
+  /* dot grid */
+  --dot:   rgba(0,0,0,0.07);
+  /* easing */
+  --ease-out:    cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+}
+[data-theme="dark"] {
+  --bg:          oklch(11% 0.008 262);
+  --bg-soft:     oklch(15% 0.008 262);
+  --bg-card:     oklch(13% 0.008 262);
+  --text:        oklch(97% 0.006 262);
+  --text-soft:   oklch(67% 0.010 262);
+  --text-mute:   oklch(59% 0.008 262);
+  --border:      rgba(255,255,255,0.06);
+  --border-h:    rgba(255,255,255,0.16);
+  --accent-soft: rgba(255,255,255,0.04);
+  --shadow:      0 1px 3px rgba(0,0,0,0.5), 0 8px 32px rgba(0,0,0,0.4);
+  --shadow-h:    0 2px 4px rgba(0,0,0,0.6), 0 20px 64px rgba(0,0,0,0.55);
+  --dot:   rgba(255,255,255,0.05);
+}
+
+/* ─── RESET ─── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 16px; line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: -0.01em;
+  overflow-x: hidden;
+  font-optical-sizing: auto;
+  font-kerning: normal;
+  transition: background .35s, color .35s;
+}
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; border: none; }
+
+/* ─── BACKGROUND SYSTEM ─── */
+/* Dot grid */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: -2;
+  background-image: radial-gradient(circle, var(--dot) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none;
+}
+/* ─── LAYOUT ─── */
+.container { max-width: 1160px; margin: 0 auto; padding: 0 24px; }
+.section { padding: 100px 0; }
+@media (min-width: 768px) { .section { padding: 140px 0; } }
+/* Rhythm: stats strip above bento provides visual punctuation — less top padding needed */
+#funzionalita { padding-top: 72px; }
+@media (min-width: 768px) { #funzionalita { padding-top: 96px; } }
+/* FAQ ends tight — final CTA section provides breathing room below */
+#faq { padding-bottom: 72px; }
+@media (min-width: 768px) { #faq { padding-bottom: 96px; } }
+
+/* ─── NAVBAR ─── */
+.topbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: color-mix(in srgb, var(--bg) 80%, transparent);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  border-bottom: 1px solid var(--border);
+  transition: background .35s, border-color .35s;
+}
+.topbar-inner {
+  max-width: 1160px; margin: 0 auto;
+  padding: 14px 24px;
+  display: flex; align-items: center; justify-content: space-between; gap: 24px;
+}
+.brand-logo {
+  font-family: 'Syne', sans-serif;
+  font-size: 19px; font-weight: 700; letter-spacing: -0.05em;
+  display: inline-flex; align-items: baseline;
+}
+.brand-logo .lite { font-weight: 400; opacity: 0.45; }
+.nav-links {
+  display: none; gap: 28px; font-size: 14px; color: var(--text-soft);
+}
+@media (min-width: 768px) { .nav-links { display: flex; } }
+.nav-cta, .nav-accedi { display: none; }
+@media (min-width: 768px) { .nav-cta, .nav-accedi { display: inline-flex; } }
+.nav-links a { transition: color 150ms var(--ease-out); }
+@media (hover: hover) and (pointer: fine) {
+  .nav-links a:hover { color: var(--text); }
+}
+.nav-actions { display: flex; align-items: center; gap: 8px; }
+
+.icon-btn {
+  width: 44px; height: 44px; border-radius: 11px;
+  border: 1px solid var(--border); background: transparent; color: var(--text-soft);
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: border-color 150ms var(--ease-out), color 150ms var(--ease-out), transform 120ms var(--ease-out);
+}
+@media (hover: hover) and (pointer: fine) {
+  .icon-btn:hover { border-color: var(--border-h); color: var(--text); }
+}
+.icon-btn:active { transform: scale(0.93); }
+.icon-sun { display: block; } .icon-moon { display: none; }
+[data-theme="dark"] .icon-sun { display: none; }
+[data-theme="dark"] .icon-moon { display: block; }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 10px 18px; border-radius: 9px;
+  font-size: 14px; font-weight: 500; font-family: inherit;
+  border: 1px solid transparent;
+  transition: transform 150ms var(--ease-out), box-shadow 200ms var(--ease-out), border-color 150ms var(--ease-out);
+  white-space: nowrap; cursor: pointer;
+}
+@media (hover: hover) and (pointer: fine) {
+  .btn-ghost:hover { border-color: var(--border-h); }
+}
+.btn-ghost { background: transparent; color: var(--text); border-color: var(--border); }
+.btn-ghost:active { transform: scale(0.97); }
+.btn-lg { padding: 13px 24px; font-size: 15px; border-radius: 11px; }
+
+.hamburger {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 44px; height: 44px; border-radius: 11px;
+  border: 1px solid var(--border); background: transparent; color: var(--text);
+  transition: border-color 150ms var(--ease-out), background 150ms var(--ease-out), transform 120ms var(--ease-out);
+}
+@media (hover: hover) and (pointer: fine) {
+  .hamburger:hover { border-color: var(--border-h); background: var(--accent-soft); }
+}
+.hamburger:active { transform: scale(0.93); }
+@media (min-width: 768px) { .hamburger { display: none; } }
+.mobile-menu {
+  display: none; flex-direction: column; gap: 4px;
+  padding: 0 24px 16px; border-top: 1px solid var(--border);
+}
+.mobile-menu.open { display: flex; }
+.mobile-menu a { padding: 10px 0; color: var(--text-soft); font-size: 15px; }
+
+/* ─── HERO ─── */
+.hero {
+  padding: 148px 0 80px;
+  text-align: center;
+  position: relative;
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 5px 14px; border-radius: 100px;
+  background: oklch(97.5% 0.03 145); border: 1px solid oklch(86% 0.08 145);
+  font-size: 12px; color: var(--text-soft); margin-bottom: 26px;
+  letter-spacing: 0.01em;
+}
+[data-theme="dark"] .hero-badge {
+  background: oklch(18% 0.06 145);
+  border-color: oklch(36% 0.12 145);
+}
+.dot-live {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: oklch(42% 0.17 145); box-shadow: 0 0 8px rgba(22,163,74,0.6);
+  animation: dotPulse 2s ease-in-out infinite;
+}
+[data-theme="dark"] .dot-live { background: oklch(72% 0.18 145); box-shadow: 0 0 8px rgba(91,201,125,0.6); }
+@keyframes dotPulse { 0%,100%{opacity:1} 50%{opacity:0.45} }
+
+/* ─── HERO DECORATIVE CARDS ─── */
+.hero-deco-card {
+  position: absolute; top: 44%;
+  display: none;
+  opacity: 0;
+  transition: opacity 1s var(--ease-out);
+  pointer-events: none; z-index: 0;
+}
+@media (min-width: 1200px) { .hero-deco-card { display: block; } }
+.hero-deco-card.show { opacity: 1; }
+.hero-deco-right {
+  right: 3%;
+  transform: translateY(-50%) perspective(900px) rotateY(-18deg) rotateX(5deg) rotateZ(1deg);
+}
+.hero-deco-left {
+  left: 3%;
+  transform: translateY(-50%) perspective(900px) rotateY(18deg) rotateX(5deg) rotateZ(-1deg);
+}
+.hero-side-card {
+  width: clamp(150px, 14vw, 218px);
+  height: auto; border-radius: 4.5%;
+  overflow: hidden; isolation: isolate;
+  box-shadow: var(--shadow-h), 0 0 40px rgba(0,0,0,0.08);
+  position: relative;
+}
+.hero-deco-right .hero-side-card { animation: floatHeroR 6.5s ease-in-out infinite; }
+.hero-deco-left  .hero-side-card { animation: floatHeroL 7.5s ease-in-out 0.8s infinite; }
+.hero-side-card img {
+  width: 100%; height: auto; display: block;
+  user-select: none; -webkit-user-drag: none;
+}
+.hero-card-holo {
+  position: absolute; inset: 0; border-radius: inherit;
+  background: linear-gradient(115deg,
+    transparent 22%,
+    rgba(232,197,71,0.09) 36%,
+    rgba(255,219,77,0.06) 50%,
+    transparent 66%
+  );
+  background-size: 300% 300%;
+  animation: holoSide 4.5s ease-in-out infinite;
+  mix-blend-mode: screen;
+}
+@keyframes floatHeroR { 0%,100%{transform:translateY(0)}  50%{transform:translateY(-6px)} }
+@keyframes floatHeroL { 0%,100%{transform:translateY(0)}  50%{transform:translateY(-4px)} }
+@keyframes holoSide   { 0%{background-position:200% 0%} 50%{background-position:-100% 100%} 100%{background-position:200% 0%} }
+
+.hero h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(74px, 15vw, 158px);
+  font-weight: 800; letter-spacing: -0.062em; line-height: 0.9;
+  margin-bottom: 28px;
+  margin-left: auto; margin-right: auto;
+  text-wrap: balance;
+}
+.hero h1 .h1-solid   { display: block; color: var(--text); }
+.hero h1 .h1-outline {
+  display: block;
+  color: transparent;
+  -webkit-text-stroke: 2px var(--text);
+  opacity: 0.82;
+}
+@media (max-width: 480px) {
+  .hero h1 .h1-outline { -webkit-text-stroke-width: 1.5px; }
+}
+.hero p.lead {
+  font-size: clamp(15px, 1.9vw, 18px); color: var(--text-soft);
+  max-width: 480px; margin: 0 auto 34px; line-height: 1.65;
+}
+.hero-ctas {
+  display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 72px;
+}
+
+/* ─── SPINNING BORDER BUTTONS ─── */
+.btn-glow-wrap {
+  position: relative; display: inline-flex; border-radius: 12px; overflow: hidden;
+}
+.btn-glow-spin {
+  position: absolute; inset: -200%; border-radius: 50%;
+  background: conic-gradient(
+    from 0deg at 50% 50%,
+    var(--bg) 70deg,
+    oklch(42% 0.17 145) 130deg,
+    oklch(59% 0.12 200) 185deg,
+    var(--bg) 255deg
+  );
+  animation: spinBorderL 3.5s linear infinite;
+}
+[data-theme="dark"] .btn-glow-spin {
+  background: conic-gradient(
+    from 0deg at 50% 50%,
+    var(--bg) 70deg,
+    oklch(72% 0.18 145) 130deg,
+    oklch(68% 0.14 200) 185deg,
+    var(--bg) 255deg
+  );
+}
+.btn-glow-inner {
+  position: relative; z-index: 1; margin: 1.5px; border-radius: 11px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  padding: 12px 24px; font-size: 15px; font-weight: 500; font-family: inherit;
+  white-space: nowrap; cursor: pointer; text-decoration: none;
+  transition: opacity 150ms var(--ease-out);
+}
+.btn-glow-inner {
+  transition: transform 150ms var(--ease-out), background 150ms var(--ease-out), letter-spacing 200ms var(--ease-out);
+}
+.btn-glow-inner:active { opacity: 0.75; transform: scale(0.97) !important; }
+.btn-glow-primary { background: var(--text); color: var(--bg); }
+.btn-glow-ghost   { background: var(--bg);   color: var(--text); }
+
+@media (hover: hover) and (pointer: fine) {
+  .btn-glow-wrap:hover {
+    box-shadow: 0 0 0 2px rgba(34,197,94,0.35), 0 8px 32px rgba(34,197,94,0.14);
+  }
+  .btn-glow-wrap:hover .btn-glow-inner { transform: translateY(-2px); letter-spacing: 0.01em; }
+  .btn-glow-wrap:hover .btn-glow-inner.btn-glow-ghost { background: var(--accent-soft); }
+  .btn-glow-wrap:hover .btn-glow-spin  { animation-duration: 1.2s; }
+}
+.btn-glow-wrap { transition: box-shadow 200ms var(--ease-out); }
+
+@keyframes spinBorderL { to { transform: rotate(360deg); } }
+
+
+/* ─── 3D HERO MOCKUP ─── */
+.mockup-scene {
+  perspective: 1200px;
+  perspective-origin: 50% 20%;
+  max-width: 100%; margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+}
+.mockup-stage {
+  transform: rotateX(8deg);
+  transform-style: preserve-3d;
+  display: flex; align-items: flex-start; justify-content: center;
+  gap: 12px; padding: 0 8px;
+  transition: transform .6s cubic-bezier(0.22,.61,.36,1);
+}
+.mock-panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow-h);
+  flex-shrink: 0;
+  transition: transform .6s cubic-bezier(0.22,.61,.36,1);
+}
+.mock-panel.main {
+  width: clamp(200px, 80vw, 320px);
+  transform: translateZ(20px);
+}
+.mock-panel.side {
+  width: 100px;
+  opacity: 0.70;
+  transform: translateZ(-10px) translateY(12px);
+  display: none;
+}
+.mock-panel.far {
+  width: 70px;
+  opacity: 0.45;
+  transform: translateZ(-40px) translateY(24px);
+  display: none;
+}
+@media (min-width: 640px) {
+  .mockup-stage { gap: 14px; padding: 0 10px; }
+  .mock-panel.main { width: 240px; transform: translateZ(30px); }
+  .mock-panel.side { width: 170px; opacity: 0.75; transform: translateZ(-5px) translateY(18px); display: block; }
+  .mock-panel.far { display: none; }
+}
+@media (min-width: 768px) {
+  .mockup-scene { perspective: 1800px; }
+  .mockup-stage { gap: 16px; padding: 0 12px; transform: rotateX(14deg); }
+  .mock-panel.main { width: 320px; transform: translateZ(40px); }
+  .mock-panel.side { width: 240px; opacity: 0.80; transform: translateZ(0px) translateY(24px); }
+  .mock-panel.far { width: 160px; opacity: 0.55; transform: translateZ(-30px) translateY(48px); display: block; }
+}
+
+/* Mock panel chrome bar */
+.mock-bar {
+  height: 36px;
+  background: var(--bg-soft);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; padding: 0 12px; gap: 6px;
+}
+.mock-dot { width: 8px; height: 8px; border-radius: 50%; }
+.mock-body { padding: 14px; }
+
+/* Mock search result card (inside panel) */
+.mock-card-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 10px;
+  border-radius: 10px; border: 1px solid var(--border);
+  margin-bottom: 8px;
+  font-size: 11px;
+}
+.mock-card-img {
+  width: 28px; height: 38px; border-radius: 4px; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--bg-soft) 0%, var(--border-h) 100%);
+}
+.mock-card-info { flex: 1; min-width: 0; }
+.mock-card-name { font-size: 11px; font-weight: 600; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mock-card-sub { font-size: 10px; color: var(--text-mute); }
+.mock-card-price { font-size: 12px; font-weight: 600; color: var(--text); white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+/* Delta badge */
+.mock-delta-pos { color: oklch(34% 0.14 145); font-size: 10px; font-weight: 600; }
+.mock-delta-neg { color: oklch(44% 0.18 25); font-size: 10px; font-weight: 600; }
+[data-theme="dark"] .mock-delta-pos { color: oklch(72% 0.18 145); }
+[data-theme="dark"] .mock-delta-neg { color: oklch(73% 0.16 25); }
+
+/* Flag badge */
+
+/* Mini stat row inside panel */
+.mock-stat-row {
+  display: flex; gap: 8px; margin-bottom: 8px;
+}
+.mock-stat {
+  flex: 1; padding: 8px 10px; border-radius: 8px;
+  background: var(--bg-soft); border: 1px solid var(--border); font-size: 10px;
+}
+.mock-stat-val { font-size: 15px; font-weight: 700; letter-spacing: -0.03em; margin-top: 2px; }
+.mock-stat-lbl { color: var(--text-mute); font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; }
+
+/* Mini sparkline */
+
+/* Gradient reflection below mockup */
+.mockup-reflection {
+  height: 80px;
+  background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 0%, transparent), var(--bg) 100%);
+  position: absolute; bottom: -1px; left: 0; right: 0; pointer-events: none;
+}
+
+/* ─── SECTION HEADERS ─── */
+.section-head { text-align: center; margin-bottom: 64px; }
+.section-tag {
+  display: inline-block; font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--text-mute); padding: 4px 12px; border: 1px solid var(--border);
+  border-radius: 100px; margin-bottom: 16px;
+}
+.section-head h2 {
+  font-size: clamp(26px, 4.5vw, 50px); font-weight: 700;
+  letter-spacing: -0.03em; line-height: 1.15; margin-bottom: 14px;
+  text-wrap: balance;
+}
+.section-head p { color: var(--text-soft); font-size: 16px; max-width: 500px; margin: 0 auto; text-wrap: pretty; }
+
+/* ─── BENTO GRID ─── */
+.bento { display: grid; grid-template-columns: 1fr; gap: 14px; }
+@media (min-width: 768px) { .bento { grid-template-columns: repeat(4,1fr); grid-auto-rows: 196px; } }
+
+.bento-card {
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px;
+  padding: 24px; position: relative; overflow: hidden;
+  display: flex; flex-direction: column;
+  transition: border-color 200ms var(--ease-out), box-shadow 200ms var(--ease-out), transform 200ms var(--ease-out);
+  transform-style: preserve-3d;
+}
+@media (hover: hover) and (pointer: fine) {
+  .bento-card:hover { border-color: var(--border-h); box-shadow: var(--shadow-h); }
+}
+@media (min-width: 768px) {
+  .b-2x2 { grid-column: span 2; grid-row: span 2; }
+  .b-2x1 { grid-column: span 2; }
+  .b-1x2 { grid-row: span 2; }
+  .b-full { grid-column: 1 / -1; }
+}
+.bento-card h3 { font-size: 18px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.25; margin-bottom: 8px; text-wrap: balance; }
+.bento-card.b-2x2 h3 { font-size: 24px; }
+.bento-card p { color: var(--text-soft); font-size: 14px; line-height: 1.55; text-wrap: pretty; }
+
+.mini-chart { margin-top: auto; padding-top: 18px; }
+.chart-meta { display: flex; justify-content: space-between; margin-top: 8px; font-size: 11px; }
+.chart-meta .pos { color: oklch(34% 0.14 145); font-weight: 600; }
+[data-theme="dark"] .chart-meta .pos { color: oklch(72% 0.18 145); }
+
+.pills { display: flex; gap: 6px; margin-top: 12px; flex-wrap: wrap; }
+.pill { font-size: 11px; padding: 4px 10px; border-radius: 100px; border: 1px solid var(--border); font-weight: 500; color: var(--text-soft); }
+.pill-pok { color: #92761A; border-color: rgba(232,197,71,.3); background: rgba(232,197,71,.06); }
+.pill-op  { color: #C94A3A; border-color: rgba(201,74,58,.3);  background: rgba(201,74,58,.06); }
+[data-theme="dark"] .pill-pok { color: #E8C547; }
+[data-theme="dark"] .pill-op  { color: #E88080; }
+
+/* ─── PRICE TICKER ─── */
+.price-ticker {
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-soft);
+  overflow: hidden;
+  position: relative;
+}
+.price-ticker::before,
+.price-ticker::after {
+  content: '';
+  position: absolute; top: 0; bottom: 0; width: 64px; z-index: 1;
+  pointer-events: none;
+}
+.price-ticker::before { left: 0;  background: linear-gradient(to right, var(--bg-soft), transparent); }
+.price-ticker::after  { right: 0; background: linear-gradient(to left,  var(--bg-soft), transparent); }
+.ticker-scroll {
+  display: flex;
+  animation: tickerMove 38s linear infinite;
+  will-change: transform;
+  white-space: nowrap;
+  padding: 13px 0;
+}
+.ticker-scroll:hover { animation-play-state: paused; }
+.ticker-item {
+  display: inline-flex; align-items: center; gap: 9px;
+  padding: 0 22px;
+  font-size: 12.5px; font-weight: 500;
+  border-right: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.ticker-item:last-child { border-right: none; }
+.ticker-game {
+  font-size: 9px; font-weight: 600; letter-spacing: 0.10em; text-transform: uppercase;
+  padding: 2px 7px; border-radius: 100px; flex-shrink: 0;
+}
+.ticker-game.pok { color: #92761A; border: 1px solid rgba(232,197,71,.3); background: rgba(232,197,71,.06); }
+.ticker-game.op  { color: #C94A3A; border: 1px solid rgba(201,74,58,.3);  background: rgba(201,74,58,.06); }
+[data-theme="dark"] .ticker-game.pok { color: #E8C547; }
+[data-theme="dark"] .ticker-game.op  { color: #E88080; }
+.ticker-name  { color: var(--text-soft); }
+.ticker-price { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
+.ticker-delta-up   { color: oklch(34% 0.14 145); font-size: 11px; font-weight: 600; }
+.ticker-delta-down { color: oklch(44% 0.18 25);  font-size: 11px; font-weight: 600; }
+[data-theme="dark"] .ticker-delta-up   { color: oklch(72% 0.18 145); }
+[data-theme="dark"] .ticker-delta-down { color: oklch(73% 0.16 25); }
+@keyframes tickerMove { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+/* ─── STATS STRIP ─── */
+.stats-strip {
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-card);
+}
+.stats-strip-inner {
+  max-width: 1160px; margin: 0 auto;
+  display: grid; grid-template-columns: 1fr;
+  padding: 0 24px;
+}
+@media (min-width: 640px) { .stats-strip-inner { grid-template-columns: repeat(3,1fr); } }
+.stat-cell {
+  padding: 52px 28px; text-align: center;
+  transition: background 200ms var(--ease-out);
+}
+@media (hover: hover) and (pointer: fine) { .stat-cell:hover { background: var(--bg-soft); } }
+@media (min-width: 640px) {
+  .stat-cell { border-right: 1px solid var(--border); }
+  .stat-cell:last-child { border-right: none; }
+}
+@media (max-width: 639px) {
+  .stat-cell { border-bottom: 1px solid var(--border); }
+  .stat-cell:last-child { border-bottom: none; }
+}
+.stat-num {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(40px, 5.5vw, 68px);
+  font-weight: 700; letter-spacing: -0.055em; line-height: 1;
+  margin-bottom: 10px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+.stat-num.accent { color: oklch(42% 0.17 145); }
+[data-theme="dark"] .stat-num.accent { color: oklch(72% 0.18 145); }
+.stat-lbl { font-size: 14px; color: var(--text-soft); line-height: 1.5; max-width: 200px; margin: 0 auto; }
+
+/* ─── STEPS ─── */
+.steps { display: grid; grid-template-columns: 1fr; gap: 14px; }
+@media (min-width: 768px) { .steps { grid-template-columns: repeat(3,1fr); } }
+.step-card {
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px;
+  padding: 28px;
+  transition: border-color 200ms var(--ease-out), transform 150ms var(--ease-out);
+}
+@media (hover: hover) and (pointer: fine) {
+  .step-card:hover { border-color: var(--border-h); }
+}
+.step-num { margin-bottom: 0; }
+.step-n {
+  display: block;
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(56px, 8vw, 96px);
+  font-weight: 800;
+  letter-spacing: -0.055em;
+  line-height: 0.9;
+  color: var(--text);
+  opacity: 0.08;
+  margin-bottom: 6px;
+  font-variant-numeric: tabular-nums;
+}
+.step-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-mute);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.step-card h3 { font-size: 19px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 8px; text-wrap: balance; }
+.step-card p { color: var(--text-soft); font-size: 14px; line-height: 1.6; text-wrap: pretty; }
+
+.steps .step-card:first-child {
+  background: oklch(97.5% 0.025 145);
+  border-color: oklch(87% 0.065 145);
+}
+[data-theme="dark"] .steps .step-card:first-child {
+  background: oklch(14.5% 0.03 145);
+  border-color: oklch(27% 0.07 145);
+}
+
+/* ─── FAQ ─── */
+.faq-list { display: flex; flex-direction: column; gap: 8px; max-width: 700px; margin: 0 auto; }
+.faq-item { border: 1px solid var(--border); border-radius: 12px; background: var(--bg-card); transition: border-color 150ms var(--ease-out); }
+@media (hover: hover) and (pointer: fine) {
+  .faq-item:hover { border-color: var(--border-h); }
+}
+.faq-item summary { list-style: none; padding: 18px 22px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; font-weight: 500; font-size: 15px; }
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item summary::after { content: '+'; font-size: 22px; font-weight: 300; color: var(--text-mute); transition: transform .25s; flex-shrink: 0; }
+.faq-item[open] summary::after { transform: rotate(45deg); }
+.faq-answer { padding: 0 22px 20px; color: var(--text-soft); font-size: 15px; line-height: 1.65; text-wrap: pretty; }
+
+/* ─── FINAL CTA ─── */
+.final-cta {
+  text-align: center; background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 24px; padding: 64px 32px; max-width: 780px; margin: 0 auto;
+  position: relative; overflow: hidden;
+}
+.final-cta h2 { font-size: clamp(30px, 5vw, 56px); font-weight: 700; letter-spacing: -0.035em; line-height: 1.15; margin-bottom: 12px; position: relative; text-wrap: balance; }
+.final-cta p { color: var(--text-soft); margin-bottom: 26px; position: relative; }
+.final-cta a { position: relative; }
+
+/* ─── FOOTER ─── */
+footer { border-top: 1px solid var(--border); padding: 40px 24px; margin-top: 40px; }
+.foot-inner { max-width: 1160px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; align-items: center; }
+@media (min-width: 768px) { .foot-inner { flex-direction: row; justify-content: space-between; } }
+.foot-links { display: flex; gap: 22px; font-size: 13px; color: var(--text-mute); align-items: center; }
+.foot-links a { padding: 8px 0; }
+.foot-links a:hover { color: var(--text-soft); }
+.foot-copy { font-size: 12px; color: var(--text-mute); }
+
+/* ─── 3D SCROLL REVEAL ─── */
+.reveal {
+  opacity: 0;
+  transform: perspective(900px) rotateX(3deg) translateY(12px);
+  transition: opacity 0.55s var(--ease-out), transform 0.55s var(--ease-out);
+}
+
+.reveal.in {
+  opacity: 1;
+  transform: perspective(900px) rotateX(0deg) translateY(0);
+}
+
+/* Step cards: alternating left/right on mobile */
+.step-card.reveal-left {
+  transform: perspective(900px) rotateX(2deg) translateX(-16px);
+}
+.step-card.reveal-right {
+  transform: perspective(900px) rotateX(2deg) translateX(16px);
+}
+
+.step-card.reveal-left.in,
+.step-card.reveal-right.in {
+  transform: perspective(900px) rotateX(0deg) translateX(0);
+}
+
+.reveal-delay-1 { transition-delay: .08s; }
+.reveal-delay-2 { transition-delay: .16s; }
+.reveal-delay-3 { transition-delay: .24s; }
+.reveal-delay-4 { transition-delay: .32s; }
+.reveal-delay-5 { transition-delay: .40s; }
+.reveal-delay-6 { transition-delay: .48s; }
+
+/* Desktop: all use translateY */
+@media (min-width: 768px) {
+  .reveal {
+    transform: perspective(900px) rotateX(4deg) translateY(12px);
+  }
+
+  .step-card.reveal-left,
+  .step-card.reveal-right {
+    transform: perspective(900px) rotateX(4deg) translateY(12px);
+  }
+
+  .reveal.in {
+    transform: perspective(900px) rotateX(0deg) translateY(0);
+  }
+
+  .step-card.reveal-left.in,
+  .step-card.reveal-right.in {
+    transform: perspective(900px) rotateX(0deg) translateY(0);
+  }
+}
+
+/* section bg-soft */
+.bg-soft-section { background: var(--bg-soft); }
+
+/* ─── LEAD EMPHASIS ─── */
+.lead-em { font-weight: 600; color: var(--text); }
+
+/* ─── SKIP LINK ─── */
+.skip-link {
+  position: absolute;
+  top: -48px; left: 16px;
+  background: var(--text); color: var(--bg);
+  padding: 8px 16px; border-radius: 0 0 8px 8px;
+  font-size: 14px; font-weight: 500; z-index: 9999;
+  transition: top .2s;
+}
+.skip-link:focus { top: 0; }
+
+/* ─── FOCUS ─── */
+:focus-visible {
+  outline: 2px solid oklch(42% 0.17 145);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+[data-theme="dark"] :focus-visible {
+  outline-color: oklch(72% 0.18 145);
+}
+
+/* ─── REDUCED MOTION ─── */
+@media (prefers-reduced-motion: reduce) {
+  .dot-live { animation: none; }
+  .reveal, .reveal.in,
+  .step-card.reveal-left, .step-card.reveal-right,
+  .step-card.reveal-left.in, .step-card.reveal-right.in {
+    opacity: 1;
+    transform: none !important;
+    transition: opacity 200ms !important;
+  }
+  .mockup-stage, .mock-panel { transition: none !important; }
+  .btn, .btn-ghost, .icon-btn, .hamburger { transition: none !important; }
+}
+</style>
 </head>
 <body>
 
-<!-- SVG ICON SYMBOLS -->
-<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
-  <symbol id="i-zap" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></symbol>
-  <symbol id="i-skull" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><path d="M8 20v2h8v-2"/><path d="m12.5 17-.5-1-.5 1h1z"/><path d="M16 20a2 2 0 0 0 1.56-3.25 8 8 0 1 0-11.12 0A2 2 0 0 0 8 20"/></symbol>
-  <symbol id="i-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></symbol>
-  <symbol id="i-bar-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></symbol>
-  <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></symbol>
-  <symbol id="i-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></symbol>
-  <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></symbol>
-  <symbol id="i-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></symbol>
-  <symbol id="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
-  <symbol id="i-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></symbol>
-  <symbol id="i-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol>
-  <symbol id="i-calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></symbol>
-  <symbol id="i-package" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></symbol>
-</svg>
+<a href="#top" class="skip-link">Vai al contenuto principale</a>
 
-<!-- LOADING -->
-<div id="loading-overlay">
-  <div class="loading-logo brand-logo"><span class="bl-card" style="font-size:44px;">CARD</span><span class="bl-ex" style="font-size:44px;">EX</span></div>
-  <div><div class="loading-bar-wrap"><div class="loading-bar" id="loading-bar"></div></div></div>
-  <div class="loading-text" id="loading-text">Connessione...</div>
-</div>
-
-<!-- LOGIN -->
-<div id="screen-login" class="screen active">
-  <div class="login-box">
-    <span class="login-logo brand-logo"><span class="bl-card" style="font-size:46px;">CARD</span><span class="bl-ex" style="font-size:46px;">EX</span></span>
-    <span class="brand-tag">La tua collezione · IT</span>
-    <p class="login-sub" id="auth-subtitle">Pokémon &amp; One Piece · Prezzi reali CardTrader 🇮🇹</p>
-    <div class="form-group">
-      <label class="form-label">Email</label>
-      <input class="form-input" id="input-email" type="email" placeholder="la tua email"/>
+<!-- ─── NAVBAR ─── -->
+<nav class="topbar">
+  <div class="topbar-inner">
+    <a href="#top" class="brand-logo"><span class="lite">CARD</span><span>EX</span></a>
+    <div class="nav-links">
+      <a href="#funzionalita">Funzionalità</a>
+      <a href="#come-funziona">Come funziona</a>
+      <a href="#faq">FAQ</a>
     </div>
-    <div class="form-group" id="group-username" style="display:none">
-      <label class="form-label">Username</label>
-      <input class="form-input" id="input-username" type="text" placeholder="nome visibile nell'app"/>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Password</label>
-      <div class="pw-wrap">
-        <input class="form-input" id="input-password" type="password" placeholder="almeno 6 caratteri"/>
-        <button type="button" class="pw-toggle" onclick="togglePw('input-password',this)" tabindex="-1"><svg width="16" height="16"><use href="#i-eye"/></svg></button>
+    <div class="nav-actions">
+      <button class="icon-btn" id="theme-toggle" aria-label="Cambia tema">
+        <svg class="icon-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+        <svg class="icon-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+      <a href="app.html" class="btn btn-ghost nav-accedi">Accedi</a>
+      <div class="btn-glow-wrap nav-cta">
+        <div class="btn-glow-spin"></div>
+        <a href="app.html" class="btn-glow-inner btn-glow-primary">Inizia gratis</a>
       </div>
-    </div>
-    <div class="auth-error" id="auth-error"></div>
-    <button class="btn-primary" id="btn-auth" onclick="doAuth()">Accedi →</button>
-    <div class="auth-toggle">
-      <span id="toggle-text">Non hai un account?</span>
-      <a onclick="toggleAuthMode()"> Registrati</a>
-    </div>
-    <div id="forgot-pw-row" style="margin-top:12px;text-align:center;">
-      <a onclick="showForgotPassword()" style="font-size:12px;color:var(--muted);cursor:pointer;transition:color .2s;" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--muted)'">Password dimenticata?</a>
-    </div>
-    <div id="forgot-success" style="background:rgba(61,154,95,.10);border:1px solid rgba(61,154,95,.28);color:#5BC97D;display:none;margin-top:12px;border-radius:10px;padding:11px 14px;font-size:13px;"></div>
-  </div>
-</div>
-
-<!-- HOME -->
-<div id="screen-home" class="screen">
-  <header>
-    <div class="header-logo" onclick="showScreen('screen-home')"><span class="bl-card">CARD</span><span class="bl-ex">EX</span></div>
-    <div class="header-right">
-      <div class="avatar" id="avatar-h" onclick="showProfile()" title="Il tuo profilo">U</div>
-      <span id="header-username" style="font-size:13px;color:var(--muted)"></span>
-      <button class="btn-ghost" onclick="doLogout()">Esci</button>
-    </div>
-  </header>
-  <div class="main-wrap">
-    <div class="value-banner">
-      <div>
-        <div class="value-label">Valore totale collezione</div>
-        <div class="value-amount">€ <span id="total-value">0,00</span></div>
-        <div class="game-pills">
-          <span class="game-pill pill-pokemon">● Pokémon</span>
-          <span class="game-pill pill-onepiece">● One Piece</span>
-        </div>
-      </div>
-      <div class="value-stats">
-        <div class="stat-item"><span class="stat-num" id="stat-total">0</span><span class="stat-label">Carte totali</span></div>
-        <div class="stat-item"><span class="stat-num" id="stat-pok" style="color:var(--pokemon)">0</span><span class="stat-label">Pokémon</span></div>
-        <div class="stat-item"><span class="stat-num" id="stat-op" style="color:var(--onepiece)">0</span><span class="stat-label">One Piece</span></div>
-      </div>
-    </div>
-    <div class="search-panel">
-      <div class="panel-title"><svg width="18" height="18" style="vertical-align:middle;margin-right:8px"><use href="#i-search"/></svg>Cerca una carta</div>
-      <div class="game-tabs">
-        <button class="tab active-pokemon" id="tab-pokemon" onclick="selectGame('pokemon')"><svg width="14" height="14" style="vertical-align:middle;margin-right:4px"><use href="#i-zap"/></svg>Pokémon</button>
-        <button class="tab" id="tab-onepiece" onclick="selectGame('onepiece')"><svg width="14" height="14" style="vertical-align:middle;margin-right:4px"><use href="#i-skull"/></svg>One Piece</button>
-      </div>
-      <div class="search-box">
-        <input class="search-input" id="search-input" type="text" placeholder="Es: Charizard, Pikachu, EB04-007..." oninput="onSearchInput()" onkeydown="onSearchKey(event)" autocomplete="off"/>
-        <div id="autocomplete"></div>
-      </div>
-      <div class="search-hint">💡 Puoi cercare per nome o codice carta (es: SV03-100, EB04-007)</div>
-      <div id="results-grid" style="margin-top:14px;">
-        <div class="empty-state"><span class="empty-icon" id="search-empty-icon"></span>Inizia a scrivere per cercare.<br>Clicca su una carta per i dettagli.</div>
-      </div>
-    </div>
-    <div class="collection-panel">
-      <div class="panel-title"><svg width="18" height="18" style="vertical-align:middle;margin-right:8px"><use href="#i-package"/></svg>Ultime aggiunte</div>
-      <div class="filter-row">
-        <button class="filter-btn active" id="filter-all" onclick="setFilter('all')">Tutte</button>
-        <button class="filter-btn" id="filter-pokemon" onclick="setFilter('pokemon')">Pokémon</button>
-        <button class="filter-btn" id="filter-onepiece" onclick="setFilter('onepiece')">One Piece</button>
-      </div>
-      <div class="collection-list" id="collection-list">
-        <div class="empty-state"><span class="empty-icon">✨</span>Collezione vuota.<br>Cerca e aggiungi la prima carta!</div>
-      </div>
+      <button class="hamburger" id="menu-btn" aria-label="Apri menu" aria-expanded="false" aria-controls="mobile-menu">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
     </div>
   </div>
-</div>
-
-<!-- DETAIL -->
-<div id="screen-detail" class="screen">
-  <header>
-    <button class="back-btn" onclick="goBack()">← Indietro</button>
-    <div class="header-right">
-      <div class="avatar" id="avatar-d" onclick="showProfile()" title="Il tuo profilo">U</div>
-      <button class="btn-ghost" onclick="doLogout()">Esci</button>
-    </div>
-  </header>
-  <div class="detail-wrap">
-    <div class="detail-img-wrap" id="detail-img-container"></div>
-    <div>
-      <div id="detail-game-badge" class="game-pill" style="margin-bottom:14px;"></div>
-      <div id="detail-name" class="detail-name"></div>
-      <div id="detail-exp" class="detail-exp"></div>
-      <div id="detail-rarity"></div>
-      <div class="lang-section-title">Disponibilità per lingua · 🇮🇹 Priorità venditori italiani</div>
-      <div id="detail-langs"></div>
-      <div id="alt-versions-container"></div>
+  <div class="mobile-menu" id="mobile-menu" aria-hidden="true">
+    <a href="app.html">Accedi</a>
+    <a href="#funzionalita">Funzionalità</a>
+    <a href="#come-funziona">Come funziona</a>
+    <a href="#faq">FAQ</a>
+    <div class="btn-glow-wrap" style="margin-top:8px; width:100%;">
+      <div class="btn-glow-spin"></div>
+      <a href="app.html" class="btn-glow-inner btn-glow-primary" style="width:100%; justify-content:center;">Inizia gratis →</a>
     </div>
   </div>
-</div>
-
-<!-- COLLECTION POKEMON -->
-<div id="screen-collection-pokemon" class="screen">
-  <header>
-    <div class="header-logo" onclick="showScreen('screen-home')"><span class="bl-card">CARD</span><span class="bl-ex">EX</span></div>
-    <div class="header-right">
-      <div class="avatar" id="avatar-cp" onclick="showProfile()" title="Il tuo profilo">U</div>
-      <button class="btn-ghost" onclick="doLogout()">Esci</button>
-    </div>
-  </header>
-  <div class="coll-page">
-    <div class="coll-page-header">
-      <div>
-        <div class="coll-page-title"><svg width="28" height="28" style="vertical-align:middle;margin-right:8px"><use href="#i-zap"/></svg>Collezione Pokémon</div>
-        <div style="color:var(--muted);font-size:13px;margin-top:4px;" id="coll-summary-pokemon">0 carte · € 0,00</div>
-      </div>
-      <div class="coll-actions">
-        <button class="btn-action" id="btn-refresh-pokemon" onclick="refreshPrices('pokemon')"><svg width="14" height="14"><use href="#i-refresh"/></svg> Aggiorna prezzi</button>
-        <button class="btn-action" onclick="showScreen('screen-stats-pokemon')"><svg width="14" height="14"><use href="#i-bar-chart"/></svg> Stats Pokémon</button>
-      </div>
-    </div>
-    <div class="coll-toolbar">
-      <input type="text" class="coll-search" id="coll-search-pokemon" placeholder="Cerca nella collezione..." oninput="renderCollectionGrid('pokemon')"/>
-      <select class="coll-sort" id="coll-sort-pokemon" onchange="renderCollectionGrid('pokemon')">
-        <option value="recent">Più recenti</option>
-        <option value="price-desc">Prezzo: alto → basso</option>
-        <option value="price-asc">Prezzo: basso → alto</option>
-        <option value="name">Nome A-Z</option>
-      </select>
-    </div>
-    <div class="coll-grid" id="coll-grid-pokemon">
-      <div class="empty-state"><span class="empty-icon">✨</span>Nessuna carta Pokémon.<br>Vai alla ricerca per aggiungere!</div>
-    </div>
-  </div>
-</div>
-
-<!-- COLLECTION ONE PIECE -->
-<div id="screen-collection-onepiece" class="screen">
-  <header>
-    <div class="header-logo" onclick="showScreen('screen-home')"><span class="bl-card">CARD</span><span class="bl-ex">EX</span></div>
-    <div class="header-right">
-      <div class="avatar" id="avatar-co" onclick="showProfile()" title="Il tuo profilo">U</div>
-      <button class="btn-ghost" onclick="doLogout()">Esci</button>
-    </div>
-  </header>
-  <div class="coll-page">
-    <div class="coll-page-header">
-      <div>
-        <div class="coll-page-title"><svg width="28" height="28" style="vertical-align:middle;margin-right:8px"><use href="#i-skull"/></svg>Collezione One Piece</div>
-        <div style="color:var(--muted);font-size:13px;margin-top:4px;" id="coll-summary-onepiece">0 carte · € 0,00</div>
-      </div>
-      <div class="coll-actions">
-        <button class="btn-action" id="btn-refresh-onepiece" onclick="refreshPrices('onepiece')"><svg width="14" height="14"><use href="#i-refresh"/></svg> Aggiorna prezzi</button>
-        <button class="btn-action" onclick="showScreen('screen-stats-onepiece')"><svg width="14" height="14"><use href="#i-bar-chart"/></svg> Stats One Piece</button>
-      </div>
-    </div>
-    <div class="coll-toolbar">
-      <input type="text" class="coll-search" id="coll-search-onepiece" placeholder="Cerca nella collezione..." oninput="renderCollectionGrid('onepiece')"/>
-      <select class="coll-sort" id="coll-sort-onepiece" onchange="renderCollectionGrid('onepiece')">
-        <option value="recent">Più recenti</option>
-        <option value="price-desc">Prezzo: alto → basso</option>
-        <option value="price-asc">Prezzo: basso → alto</option>
-        <option value="name">Nome A-Z</option>
-      </select>
-    </div>
-    <div class="coll-grid" id="coll-grid-onepiece">
-      <div class="empty-state"><span class="empty-icon">✨</span>Nessuna carta One Piece.<br>Vai alla ricerca per aggiungere!</div>
-    </div>
-  </div>
-</div>
-
-<!-- STATS SELEZIONE -->
-<div id="screen-stats-select" class="screen">
-  <header>
-    <div class="header-logo" onclick="showScreen('screen-home')"><span class="bl-card">CARD</span><span class="bl-ex">EX</span></div>
-    <div class="header-right">
-      <div class="avatar" id="avatar-ss" onclick="showProfile()" title="Il tuo profilo">U</div>
-      <button class="btn-ghost" onclick="doLogout()">Esci</button>
-    </div>
-  </header>
-  <div class="coll-page">
-    <div class="coll-page-title" style="margin-bottom:24px;"><svg width="28" height="28" style="vertical-align:middle;margin-right:8px"><use href="#i-bar-chart"/></svg>Statistiche</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:500px;">
-      <div class="stat-card" style="cursor:pointer;text-align:center;" onclick="showScreen('screen-stats-pokemon')">
-        <div style="display:flex;justify-content:center;margin-bottom:12px;"><svg width="40" height="40"><use href="#i-zap"/></svg></div>
-        <div class="stat-card-label">Pokémon</div>
-        <div class="stat-card-value" id="ss-pok-val" style="font-size:28px;">€ 0,00</div>
-        <div class="stat-card-sub" id="ss-pok-count">0 carte</div>
-      </div>
-      <div class="stat-card" style="cursor:pointer;text-align:center;" onclick="showScreen('screen-stats-onepiece')">
-        <div style="display:flex;justify-content:center;margin-bottom:12px;"><svg width="40" height="40"><use href="#i-skull"/></svg></div>
-        <div class="stat-card-label">One Piece</div>
-        <div class="stat-card-value" id="ss-op-val" style="font-size:28px;">€ 0,00</div>
-        <div class="stat-card-sub" id="ss-op-count">0 carte</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- STATS POKEMON -->
-<div id="screen-stats-pokemon" class="screen">
-  <header>
-    <button class="back-btn" onclick="showScreen('screen-stats-select')">← Stats</button>
-    <div class="header-right">
-      <div class="avatar" id="avatar-sp" onclick="showProfile()" title="Il tuo profilo">U</div>
-      <button class="btn-ghost" onclick="doLogout()">Esci</button>
-    </div>
-  </header>
-  <div class="coll-page">
-    <div class="coll-page-header">
-      <div class="coll-page-title"><svg width="28" height="28" style="vertical-align:middle;margin-right:8px"><use href="#i-zap"/></svg>Stats Pokémon</div>
-    </div>
-    <div id="stats-content-pokemon"></div>
-  </div>
-</div>
-
-<!-- STATS ONE PIECE -->
-<div id="screen-stats-onepiece" class="screen">
-  <header>
-    <button class="back-btn" onclick="showScreen('screen-stats-select')">← Stats</button>
-    <div class="header-right">
-      <div class="avatar" id="avatar-so" onclick="showProfile()" title="Il tuo profilo">U</div>
-      <button class="btn-ghost" onclick="doLogout()">Esci</button>
-    </div>
-  </header>
-  <div class="coll-page">
-    <div class="coll-page-header">
-      <div class="coll-page-title"><svg width="28" height="28" style="vertical-align:middle;margin-right:8px"><use href="#i-skull"/></svg>Stats One Piece</div>
-    </div>
-    <div id="stats-content-onepiece"></div>
-  </div>
-</div>
-
-<!-- PROFILE -->
-<div id="screen-profile" class="screen">
-  <header>
-    <button class="back-btn" onclick="goBack()">← Indietro</button>
-    <div class="header-right">
-      <div class="avatar" id="avatar-pf">U</div>
-      <button class="btn-ghost" onclick="doLogout()">Esci</button>
-    </div>
-  </header>
-  <div class="profile-page">
-    <div class="profile-hero" id="profile-hero">
-      <div class="profile-avatar-large" id="profile-avatar-large">U</div>
-      <div>
-        <div class="profile-username" id="profile-username-display">Username</div>
-        <div class="profile-email-row">
-          <span id="profile-email-display" style="font-size:13px;color:var(--muted)"></span>
-          <span class="email-badge" id="profile-email-badge">✅ Confermata</span>
-        </div>
-        <div class="profile-since" id="profile-since"><svg width="13" height="13" style="vertical-align:middle;margin-right:4px"><use href="#i-calendar"/></svg>Membro dal —</div>
-      </div>
-    </div>
-    <div class="profile-section">
-      <div class="profile-section-title"><svg width="14" height="14" style="vertical-align:middle;margin-right:6px"><use href="#i-lock"/></svg>Cambio password</div>
-      <div class="profile-field">
-        <label class="form-label">Nuova password</label>
-        <div class="pw-wrap">
-          <input class="form-input" id="prof-new-pw" type="password" placeholder="Almeno 6 caratteri"/>
-          <button type="button" class="pw-toggle" onclick="togglePw('prof-new-pw',this)" tabindex="-1"><svg width="16" height="16"><use href="#i-eye"/></svg></button>
-        </div>
-      </div>
-      <div class="profile-field">
-        <label class="form-label">Conferma nuova password</label>
-        <div class="pw-wrap">
-          <input class="form-input" id="prof-confirm-pw" type="password" placeholder="Ripeti la password"/>
-          <button type="button" class="pw-toggle" onclick="togglePw('prof-confirm-pw',this)" tabindex="-1"><svg width="16" height="16"><use href="#i-eye"/></svg></button>
-        </div>
-      </div>
-      <button class="btn-primary" style="margin-top:4px;" onclick="changePassword()">Aggiorna password</button>
-      <div class="profile-msg" id="msg-pw"></div>
-    </div>
-    <div class="profile-section">
-      <div class="profile-section-title"><svg width="14" height="14" style="vertical-align:middle;margin-right:6px"><use href="#i-mail"/></svg>Reset password via email</div>
-      <p style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.6;">Ricevi un link di reset all'indirizzo email associato al tuo account. Utile se hai dimenticato la password attuale.</p>
-      <button class="btn-action" style="width:100%;justify-content:center;" onclick="sendResetEmail()">Invia link di reset</button>
-      <div class="profile-msg" id="msg-reset"></div>
-    </div>
-    <div class="danger-zone">
-      <div class="profile-section-title"><svg width="14" height="14" style="vertical-align:middle;margin-right:6px"><use href="#i-alert"/></svg>Zona pericolosa</div>
-      <div class="danger-desc">L'eliminazione dell'account è <strong style="color:var(--red)">permanente e irreversibile</strong>. Tutti i tuoi dati — collezione, snapshot storici, impostazioni — verranno cancellati definitivamente e non potranno essere recuperati.</div>
-      <button class="btn-danger" onclick="showDeleteConfirm()"><svg width="14" height="14" style="vertical-align:middle;margin-right:6px"><use href="#i-trash"/></svg>Elimina account</button>
-      <div class="danger-confirm-box" id="delete-confirm-box">
-        <p>Per confermare, digita il tuo indirizzo email: <strong id="delete-email-hint"></strong></p>
-        <input class="form-input" id="delete-email-input" type="email" placeholder="la tua email" style="margin-bottom:4px;"/>
-        <div class="profile-msg" id="msg-delete"></div>
-        <button class="btn-danger-confirm" id="btn-delete-confirm" onclick="deleteAccount()">Sì, elimina tutto per sempre</button>
-        <button class="btn-cancel" onclick="hideDeleteConfirm()">Annulla</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ADD CARD MODAL -->
-<div id="add-modal" class="modal-overlay" onclick="if(event.target===this)closeAddModal()">
-  <div class="modal-content">
-    <button class="modal-close" onclick="closeAddModal()" aria-label="Chiudi">×</button>
-    <div class="modal-header">
-      <img id="add-modal-img" src="" alt="">
-      <div style="flex:1;min-width:0;">
-        <div id="add-modal-name" class="modal-card-name"></div>
-        <div id="add-modal-meta" class="modal-card-meta"></div>
-        <div id="add-modal-lang" class="modal-card-lang-row"></div>
-      </div>
-    </div>
-    <div class="modal-body">
-      <div class="form-group">
-        <label class="form-label">Condizione</label>
-        <select id="add-condition" class="form-input" onchange="onConditionChange()"></select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Prezzo pagato (€)</label>
-        <input id="add-price" type="number" step="0.01" min="0" class="form-input" oninput="onPaidPriceChange()">
-        <div id="add-price-hint" class="price-hint"></div>
-      </div>
-      <div class="form-row">
-        <div class="form-group" style="flex:1;">
-          <label class="form-label">Data acquisto</label>
-          <input id="add-date" type="date" class="form-input">
-        </div>
-        <div class="form-group" style="width:110px;">
-          <label class="form-label">Quantità</label>
-          <input id="add-qty" type="number" min="1" value="1" class="form-input">
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Note (opzionale)</label>
-        <textarea id="add-notes" class="form-input" rows="2" placeholder="Es: comprata da Marco, fiera Milano..."></textarea>
-      </div>
-      <div id="add-error" class="auth-error"></div>
-      <button class="btn-primary" id="btn-confirm-add" onclick="confirmAddCard()">Aggiungi alla collezione</button>
-    </div>
-  </div>
-</div>
-
-<!-- CARD DETAIL MODAL -->
-<div id="card-detail-modal" class="modal-overlay" onclick="if(event.target===this)closeCardDetailModal()">
-  <div class="modal-content modal-content-lg">
-    <button class="modal-close" onclick="closeCardDetailModal()">×</button>
-    <div id="cdm-header" class="modal-header"></div>
-    <div id="cdm-body"></div>
-  </div>
-</div>
-
-<!-- BOTTOM NAV -->
-<nav class="bottom-nav" id="bottom-nav" style="display:none;">
-  <button class="nav-item active" id="nav-home" onclick="showScreen('screen-home')">
-    <span class="nav-icon"><svg width="20" height="20"><use href="#i-home"/></svg></span><span class="nav-label">Home</span>
-  </button>
-  <button class="nav-item" id="nav-collection-pokemon" onclick="showScreen('screen-collection-pokemon')">
-    <span class="nav-icon"><svg width="20" height="20"><use href="#i-zap"/></svg></span><span class="nav-label">Pokémon</span>
-  </button>
-  <button class="nav-item" id="nav-collection-onepiece" onclick="showScreen('screen-collection-onepiece')">
-    <span class="nav-icon"><svg width="20" height="20"><use href="#i-skull"/></svg></span><span class="nav-label">One Piece</span>
-  </button>
-  <button class="nav-item" id="nav-stats" onclick="showScreen('screen-stats-select')">
-    <span class="nav-icon"><svg width="20" height="20"><use href="#i-bar-chart"/></svg></span><span class="nav-label">Stats</span>
-  </button>
 </nav>
 
-<script src="app.js"></script>
+<!-- ─── HERO ─── -->
+<section id="top" class="hero">
+
+  <!-- Decorative TCG cards — visible only on wide screens -->
+  <div class="hero-deco-card hero-deco-right" id="heroCardRight" aria-hidden="true">
+    <div class="hero-side-card">
+      <img src="https://images.pokemontcg.io/base1/4_hires.png"
+           alt="Charizard — Base Set #4/102"
+           loading="eager" fetchpriority="high" draggable="false">
+      <div class="hero-card-holo"></div>
+    </div>
+  </div>
+
+  <div class="hero-deco-card hero-deco-left" id="heroCardLeft" aria-hidden="true">
+    <div class="hero-side-card">
+      <img src="https://limitlesstcg.nyc3.digitaloceanspaces.com/one-piece/OP05/OP05-119_EN.webp"
+           alt="Monkey D. Luffy Gear 5 — OP05-119 SEC"
+           loading="eager" fetchpriority="high" draggable="false">
+      <div class="hero-card-holo"></div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="hero-badge reveal">
+      <span class="dot-live"></span>
+      Accesso anticipato
+    </div>
+    <h1 class="reveal reveal-delay-1">
+      <span class="h1-solid">CARD</span>
+      <span class="h1-outline">EX</span>
+    </h1>
+    <p class="lead reveal reveal-delay-2">
+      Ogni carta ha un <strong class="lead-em">prezzo reale</strong>.<br>
+      Noi lo troviamo: da venditori italiani, ogni giorno.
+    </p>
+    <div class="hero-ctas reveal reveal-delay-3">
+      <div class="btn-glow-wrap">
+        <div class="btn-glow-spin"></div>
+        <a href="app.html" class="btn-glow-inner btn-glow-primary">Inizia gratis →</a>
+      </div>
+      <a href="#funzionalita" class="btn btn-ghost btn-lg">Scopri di più</a>
+    </div>
+
+    <!-- 3D APP MOCKUP -->
+    <div class="mockup-scene reveal reveal-delay-4" id="mockup-scene">
+      <div class="mockup-stage" id="mockup-stage">
+
+        <!-- Panel sinistra (lontano) -->
+        <div class="mock-panel far">
+          <div class="mock-bar">
+            <div class="mock-dot" style="background:var(--border-h)"></div>
+            <div class="mock-dot" style="background:var(--border-h)"></div>
+            <div class="mock-dot" style="background:var(--border-h)"></div>
+          </div>
+          <div class="mock-body">
+            <div style="font-size:10px;font-weight:600;color:var(--text-mute);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;">⚡ Pokémon</div>
+            <div class="mock-stat-row">
+              <div class="mock-stat"><div class="mock-stat-lbl">Carte</div><div class="mock-stat-val">48</div></div>
+              <div class="mock-stat"><div class="mock-stat-lbl">Valore</div><div class="mock-stat-val" style="font-size:11px;">€ 892</div></div>
+            </div>
+            <div class="mock-card-row">
+              <div class="mock-card-img" style="background:linear-gradient(135deg,#E8C54744,#E8C54722)"></div>
+              <div class="mock-card-info"><div class="mock-card-name">Charizard ex</div><div class="mock-card-sub">🇮🇹 Near Mint</div></div>
+              <div>
+                <div class="mock-card-price">€ 142</div>
+                <div class="mock-delta-pos">+18% ▲</div>
+              </div>
+            </div>
+            <div class="mock-card-row">
+              <div class="mock-card-img" style="background:linear-gradient(135deg,#7C3AED44,#7C3AED22)"></div>
+              <div class="mock-card-info"><div class="mock-card-name">Mewtwo VSTAR</div><div class="mock-card-sub">🇬🇧 Near Mint</div></div>
+              <div>
+                <div class="mock-card-price">€ 38</div>
+                <div class="mock-delta-neg">-4% ▼</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel centrale (principale) -->
+        <div class="mock-panel main">
+          <div class="mock-bar">
+            <div class="mock-dot" style="background:var(--border-h)"></div>
+            <div class="mock-dot" style="background:var(--border-h)"></div>
+            <div class="mock-dot" style="background:var(--border-h)"></div>
+          </div>
+          <div class="mock-body">
+            <div style="display:flex;align-items:center;gap:7px;background:var(--bg-soft);border:1px solid var(--border);border-radius:8px;padding:7px 10px;margin-bottom:12px;">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <span style="font-size:11px;">Charizard ex</span>
+              <span style="font-size:10px;color:var(--text-mute);margin-left:auto;">SV01</span>
+            </div>
+            <div class="mock-card-row" style="background:rgba(22,163,74,0.04);border-color:rgba(22,163,74,0.2);">
+              <div class="mock-card-img" style="background:linear-gradient(135deg,#E8C54744,#E8C54722)"></div>
+              <div class="mock-card-info">
+                <div class="mock-card-name">Charizard ex 006/165</div>
+                <div class="mock-card-sub">🇮🇹 Near Mint</div>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-size:13px;font-weight:700;color:oklch(34% 0.14 145);font-variant-numeric:tabular-nums;">€ 142</div>
+                <div style="font-size:9px;color:var(--text-mute);">venditori IT</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;margin:8px 0;">
+              <div style="flex:1;height:1px;background:var(--border);"></div>
+              <span style="font-size:9px;color:var(--text-mute);letter-spacing:.1em;text-transform:uppercase;">vs Europa</span>
+              <div style="flex:1;height:1px;background:var(--border);"></div>
+            </div>
+            <div class="mock-card-row">
+              <div class="mock-card-img" style="background:linear-gradient(135deg,var(--bg-soft),var(--border-h))"></div>
+              <div class="mock-card-info">
+                <div class="mock-card-name">Charizard ex 006/165</div>
+                <div class="mock-card-sub">🌍 Near Mint</div>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-size:12px;font-weight:600;color:var(--text-mute);text-decoration:line-through;font-variant-numeric:tabular-nums;">€ 168</div>
+                <div style="font-size:9px;color:var(--text-mute);">mercato gen.</div>
+              </div>
+            </div>
+            <div style="margin-top:10px;padding:8px 10px;background:rgba(22,163,74,0.06);border:1px solid rgba(22,163,74,0.18);border-radius:8px;display:flex;align-items:center;justify-content:space-between;">
+              <span style="font-size:10px;color:var(--text-soft);">🇮🇹 Prezzo reale italiano</span>
+              <span style="font-size:12px;font-weight:700;color:oklch(34% 0.14 145);">− € 26</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel destra -->
+        <div class="mock-panel side">
+          <div class="mock-bar">
+            <div class="mock-dot" style="background:var(--border-h)"></div>
+            <div class="mock-dot" style="background:var(--border-h)"></div>
+            <div class="mock-dot" style="background:var(--border-h)"></div>
+          </div>
+          <div class="mock-body">
+            <div style="font-size:10px;font-weight:600;color:var(--text-mute);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;">☠️ One Piece</div>
+            <div class="mock-card-row">
+              <div class="mock-card-img" style="background:linear-gradient(135deg,#C94A3A44,#C94A3A22)"></div>
+              <div class="mock-card-info"><div class="mock-card-name">Luffy Secret</div><div class="mock-card-sub">🇯🇵 NM</div></div>
+              <div>
+                <div class="mock-card-price">€ 320</div>
+                <div class="mock-delta-pos">+31% ▲</div>
+              </div>
+            </div>
+            <div class="mock-card-row">
+              <div class="mock-card-img" style="background:linear-gradient(135deg,#3B82F644,#3B82F622)"></div>
+              <div class="mock-card-info"><div class="mock-card-name">Zoro Alt Art</div><div class="mock-card-sub">🇬🇧 NM</div></div>
+              <div>
+                <div class="mock-card-price">€ 89</div>
+                <div class="mock-delta-pos">+7% ▲</div>
+              </div>
+            </div>
+            <div class="mock-card-row">
+              <div class="mock-card-img" style="background:linear-gradient(135deg,#F59E0B44,#F59E0B22)"></div>
+              <div class="mock-card-info"><div class="mock-card-name">Shanks SP</div><div class="mock-card-sub">🇮🇹 NM</div></div>
+              <div>
+                <div class="mock-card-price">€ 145</div>
+                <div class="mock-delta-neg">-2% ▼</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="mockup-reflection"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── PRICE TICKER ─── -->
+<div class="price-ticker" aria-hidden="true">
+  <div class="ticker-scroll">
+    <div class="ticker-item"><span class="ticker-game pok">POK</span><span class="ticker-name">Charizard ex · Obsidian Flames</span><span class="ticker-price">€ 347,00</span><span class="ticker-delta-up">▲ +12.3%</span></div>
+    <div class="ticker-item"><span class="ticker-game op">OP</span><span class="ticker-name">Monkey D. Luffy · OP01-001</span><span class="ticker-price">€ 89,50</span><span class="ticker-delta-up">▲ +5.8%</span></div>
+    <div class="ticker-item"><span class="ticker-game pok">POK</span><span class="ticker-name">Umbreon VMAX · Evolving Skies</span><span class="ticker-price">€ 112,00</span><span class="ticker-delta-down">▼ -2.1%</span></div>
+    <div class="ticker-item"><span class="ticker-game op">OP</span><span class="ticker-name">Rob Lucci · OP06-118</span><span class="ticker-price">€ 38,00</span><span class="ticker-delta-up">▲ +18.4%</span></div>
+    <div class="ticker-item"><span class="ticker-game pok">POK</span><span class="ticker-name">Pikachu VMAX · Vivid Voltage</span><span class="ticker-price">€ 78,00</span><span class="ticker-delta-down">▼ -1.5%</span></div>
+    <div class="ticker-item"><span class="ticker-game op">OP</span><span class="ticker-name">Yamato · OP02-121</span><span class="ticker-price">€ 54,00</span><span class="ticker-delta-up">▲ +7.2%</span></div>
+    <div class="ticker-item"><span class="ticker-game pok">POK</span><span class="ticker-name">Rayquaza VMAX · Evolving Skies</span><span class="ticker-price">€ 95,00</span><span class="ticker-delta-up">▲ +3.6%</span></div>
+    <div class="ticker-item"><span class="ticker-game op">OP</span><span class="ticker-name">Shanks · OP01-120</span><span class="ticker-price">€ 210,00</span><span class="ticker-delta-up">▲ +22.0%</span></div>
+    <div class="ticker-item"><span class="ticker-game pok">POK</span><span class="ticker-name">Mewtwo V-UNION · SWSH Promos</span><span class="ticker-price">€ 42,00</span><span class="ticker-delta-down">▼ -4.3%</span></div>
+    <div class="ticker-item"><span class="ticker-game op">OP</span><span class="ticker-name">Nami · OP01-016</span><span class="ticker-price">€ 22,00</span><span class="ticker-delta-up">▲ +8.1%</span></div>
+    <!-- duplicate per loop seamless -->
+    <div class="ticker-item"><span class="ticker-game pok">POK</span><span class="ticker-name">Charizard ex · Obsidian Flames</span><span class="ticker-price">€ 347,00</span><span class="ticker-delta-up">▲ +12.3%</span></div>
+    <div class="ticker-item"><span class="ticker-game op">OP</span><span class="ticker-name">Monkey D. Luffy · OP01-001</span><span class="ticker-price">€ 89,50</span><span class="ticker-delta-up">▲ +5.8%</span></div>
+    <div class="ticker-item"><span class="ticker-game pok">POK</span><span class="ticker-name">Umbreon VMAX · Evolving Skies</span><span class="ticker-price">€ 112,00</span><span class="ticker-delta-down">▼ -2.1%</span></div>
+    <div class="ticker-item"><span class="ticker-game op">OP</span><span class="ticker-name">Rob Lucci · OP06-118</span><span class="ticker-price">€ 38,00</span><span class="ticker-delta-up">▲ +18.4%</span></div>
+    <div class="ticker-item"><span class="ticker-game pok">POK</span><span class="ticker-name">Pikachu VMAX · Vivid Voltage</span><span class="ticker-price">€ 78,00</span><span class="ticker-delta-down">▼ -1.5%</span></div>
+    <div class="ticker-item"><span class="ticker-game op">OP</span><span class="ticker-name">Yamato · OP02-121</span><span class="ticker-price">€ 54,00</span><span class="ticker-delta-up">▲ +7.2%</span></div>
+    <div class="ticker-item"><span class="ticker-game pok">POK</span><span class="ticker-name">Rayquaza VMAX · Evolving Skies</span><span class="ticker-price">€ 95,00</span><span class="ticker-delta-up">▲ +3.6%</span></div>
+    <div class="ticker-item"><span class="ticker-game op">OP</span><span class="ticker-name">Shanks · OP01-120</span><span class="ticker-price">€ 210,00</span><span class="ticker-delta-up">▲ +22.0%</span></div>
+    <div class="ticker-item"><span class="ticker-game pok">POK</span><span class="ticker-name">Mewtwo V-UNION · SWSH Promos</span><span class="ticker-price">€ 42,00</span><span class="ticker-delta-down">▼ -4.3%</span></div>
+    <div class="ticker-item"><span class="ticker-game op">OP</span><span class="ticker-name">Nami · OP01-016</span><span class="ticker-price">€ 22,00</span><span class="ticker-delta-up">▲ +8.1%</span></div>
+  </div>
+</div>
+
+<!-- ─── STATS ─── -->
+<div class="stats-strip" aria-label="Numeri CardEx">
+  <div class="stats-strip-inner">
+    <div class="stat-cell reveal">
+      <div class="stat-num accent" data-count="12847">0</div>
+      <div class="stat-lbl">Carte monitorate nel database, aggiornate ogni giorno</div>
+    </div>
+    <div class="stat-cell reveal">
+      <div class="stat-num" data-count="2400000" data-format="currency">0</div>
+      <div class="stat-lbl">Valore totale tracciato nelle collezioni degli utenti</div>
+    </div>
+    <div class="stat-cell reveal">
+      <div class="stat-num" data-count="800" data-suffix="+">0</div>
+      <div class="stat-lbl">Venditori italiani attivi su CardTrader nel database prezzi</div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── BENTO ─── -->
+<section id="funzionalita" class="section">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="section-tag">Funzionalità</span>
+      <h2>Tutto ciò che serve.</h2>
+      <p>Dalla ricerca al tracking ROI, ogni strumento per gestire la tua collezione come un professionista.</p>
+    </div>
+    <div class="bento">
+      <div class="bento-card b-2x2 reveal">
+        <h3>Prezzi reali italiani.<br>Direttamente da CardTrader.</h3>
+        <p style="margin-top:10px;">Nessun'altra app mostra i prezzi reali dei venditori italiani. CARDEX li recupera in tempo reale, filtrando per lingua e condizione.</p>
+        <div class="pills" style="margin-top:auto;padding-top:20px;">
+          <span class="pill">🇮🇹 Priorità venditori IT</span>
+          <span class="pill">200+ store verificati</span>
+        </div>
+      </div>
+
+      <div class="bento-card b-2x2 reveal reveal-delay-1">
+        <h3>Tracking ROI</h3>
+        <p>Confronta quanto hai pagato vs il valore attuale. Grafico storico e delta percentuale per ogni carta.</p>
+        <div class="mini-chart" style="margin-top:auto;">
+          <svg viewBox="0 0 320 60" xmlns="http://www.w3.org/2000/svg" width="100%" height="60">
+            <defs><linearGradient id="g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#16a34a" stop-opacity=".3"/><stop offset="100%" stop-color="#16a34a" stop-opacity="0"/></linearGradient></defs>
+            <path d="M0 50 L32 46 L64 48 L96 36 L128 38 L160 26 L192 30 L224 18 L256 22 L288 10 L320 5 L320 60 L0 60Z" fill="url(#g2)"/>
+            <path d="M0 50 L32 46 L64 48 L96 36 L128 38 L160 26 L192 30 L224 18 L256 22 L288 10 L320 5" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <div class="chart-meta">
+            <span style="color:var(--text-mute)">Pagato totale € 892</span>
+            <span class="pos">+34.2% ▲</span>
+          </div>
+        </div>
+        <div class="pills" style="margin-top:14px;">
+          <span class="pill">📈 Storico giornaliero</span>
+          <span class="pill">🎯 Delta percentuale</span>
+          <span class="pill">💰 Guadagno/perdita</span>
+        </div>
+      </div>
+
+      <div class="bento-card b-2x1 reveal reveal-delay-2">
+        <h3>Multi-TCG nativo</h3>
+        <p>Pokémon e One Piece in un'unica app. Espansioni italiane, inglesi, giapponesi.</p>
+        <div class="pills"><span class="pill pill-pok">⚡ Pokémon</span><span class="pill pill-op">☠️ One Piece</span></div>
+      </div>
+
+      <div class="bento-card reveal reveal-delay-3">
+        <h3>Ricerca smart</h3>
+        <p>Per nome o codice carta: SV03-100, EB04-007, 201/165.</p>
+      </div>
+
+      <div class="bento-card reveal reveal-delay-4">
+        <h3>Condizioni & lingue</h3>
+        <p>NM, SP, MP, Played. IT, EN, JP. Note e quantità per ogni copia.</p>
+      </div>
+
+      <div class="bento-card b-full reveal reveal-delay-5">
+        <h3>Statistiche & top carte</h3>
+        <p>Top 5 più preziose, distribuzione per lingua, valore totale per gioco. Tutto in un colpo d'occhio.</p>
+        <div class="pills" style="margin-top:12px;">
+          <span class="pill">🏆 Top 5 per valore</span>
+          <span class="pill">🌍 Distrib. per lingua</span>
+          <span class="pill">⚡ Valore totale Pokémon</span>
+          <span class="pill">☠️ Valore totale One Piece</span>
+          <span class="pill">📊 Grafico patrimonio</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── COME FUNZIONA ─── -->
+<section id="come-funziona" class="section bg-soft-section">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="section-tag">Come funziona</span>
+      <h2>Tre step. Niente più.</h2>
+      <p>Dall'app al portfolio tracciato in meno di 60 secondi.</p>
+    </div>
+    <div class="steps">
+      <div class="step-card reveal reveal-delay-1">
+        <div class="step-num"><span class="step-n">01</span><span class="step-label">CERCA</span></div>
+        <h3>Trova la tua carta</h3>
+        <p>Digita nome o codice. Vedi tutte le versioni: promo, alternate, reprint, con immagine e prezzo italiano.</p>
+      </div>
+      <div class="step-card reveal reveal-delay-2">
+        <div class="step-num"><span class="step-n">02</span><span class="step-label">AGGIUNGI</span></div>
+        <h3>Salva i dettagli</h3>
+        <p>Condizione, lingua, prezzo che hai pagato, data di acquisto, note. Personalizzabile copia per copia.</p>
+      </div>
+      <div class="step-card reveal reveal-delay-3">
+        <div class="step-num"><span class="step-n">03</span><span class="step-label">MONITORA</span></div>
+        <h3>Vedi guadagno o perdita</h3>
+        <p>Grafico storico, delta percentuale, top carte. Lo storico cresce ad ogni refresh prezzi.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── FAQ ─── -->
+<section id="faq" class="section">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="section-tag">FAQ</span>
+      <h2>Domande frequenti.</h2>
+    </div>
+    <div class="faq-list">
+      <details class="faq-item reveal">
+        <summary>È davvero gratis?</summary>
+        <div class="faq-answer">Sì. Beta privata aperta a chiunque si iscriva. Nessuna carta di credito richiesta. Pianifichiamo un piano premium opzionale in futuro per funzionalità avanzate.</div>
+      </details>
+      <details class="faq-item reveal reveal-delay-1">
+        <summary>I prezzi sono affidabili?</summary>
+        <div class="faq-answer">I prezzi vengono direttamente da CardTrader, la più grande piattaforma marketplace TCG europea. Filtriamo per priorità venditori italiani, lingua e condizione della carta.</div>
+      </details>
+      <details class="faq-item reveal reveal-delay-2">
+        <summary>Quali TCG sono supportati?</summary>
+        <div class="faq-answer">Pokémon e One Piece. Stiamo valutando Dragon Ball Super, Lorcana e Digimon per le prossime release.</div>
+      </details>
+      <details class="faq-item reveal reveal-delay-3">
+        <summary>Posso aggiungere carte non su CardTrader?</summary>
+        <div class="faq-answer">Al momento la collezione è alimentata dal database CardTrader (oltre 250.000 carte). L'aggiunta manuale è in roadmap.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ─── FINAL CTA ─── -->
+<section class="section">
+  <div class="container">
+    <div class="final-cta reveal">
+      <h2>Pronto a tracciare<br>la tua collezione?</h2>
+      <p>Gratis. Nessuna carta di credito. Inizia in 30 secondi.</p>
+      <div class="btn-glow-wrap">
+        <div class="btn-glow-spin"></div>
+        <a href="app.html" class="btn-glow-inner btn-glow-primary" style="padding:14px 30px; font-size:15px;">Inizia gratis →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── FOOTER ─── -->
+<footer>
+  <div class="foot-inner">
+    <a href="#top" class="brand-logo"><span class="lite">CARD</span><span>EX</span></a>
+    <div class="foot-links">
+      <a href="/privacy">Privacy</a><a href="/termini">Termini</a><a href="mailto:hello@cardex.app">Contatti</a>
+    </div>
+    <div class="foot-copy">© 2026 CARDEX</div>
+  </div>
+</footer>
+
+<script>
+/* ── Theme ── */
+const root = document.documentElement;
+const saved = localStorage.getItem('cx-theme');
+if (saved) root.setAttribute('data-theme', saved);
+else if (matchMedia('(prefers-color-scheme: dark)').matches) root.setAttribute('data-theme', 'dark');
+document.getElementById('theme-toggle').addEventListener('click', () => {
+  const n = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  root.setAttribute('data-theme', n);
+  localStorage.setItem('cx-theme', n);
+});
+
+/* ── Mobile menu ── */
+const mm = document.getElementById('mobile-menu');
+const menuBtn = document.getElementById('menu-btn');
+menuBtn.addEventListener('click', () => {
+  const open = mm.classList.toggle('open');
+  menuBtn.setAttribute('aria-expanded', open);
+  menuBtn.setAttribute('aria-label', open ? 'Chiudi menu' : 'Apri menu');
+  mm.setAttribute('aria-hidden', !open);
+});
+mm.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+  mm.classList.remove('open');
+  menuBtn.setAttribute('aria-expanded', 'false');
+  menuBtn.setAttribute('aria-label', 'Apri menu');
+  mm.setAttribute('aria-hidden', 'true');
+}));
+
+/* ── 3D Scroll Reveal ── */
+const prefersReducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+const stepCards = document.querySelectorAll('.step-card.reveal');
+stepCards.forEach((el, i) => {
+  if (i % 2 === 0) {
+    el.classList.add('reveal-left');
+  } else {
+    el.classList.add('reveal-right');
+  }
+});
+
+const reveals = document.querySelectorAll('.reveal');
+if (prefersReducedMotion) {
+  reveals.forEach(el => el.classList.add('in'));
+} else {
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: 0.10, rootMargin: '0px 0px -30px 0px' });
+  reveals.forEach(el => io.observe(el));
+}
+
+/* ── Hero deco cards fade in ── */
+setTimeout(() => {
+  document.getElementById('heroCardRight')?.classList.add('show');
+  document.getElementById('heroCardLeft')?.classList.add('show');
+}, 750);
+
+/* ── Stats counter ── */
+const statNums = document.querySelectorAll('.stat-num[data-count]');
+const cntTriggered = new Set();
+function animateStat(el) {
+  const target = parseInt(el.dataset.count, 10);
+  const isCurr = el.dataset.format === 'currency';
+  const suffix = el.dataset.suffix || '';
+  const dur = 1800, t0 = performance.now();
+  const ease = t => 1 - Math.pow(1 - t, 3);
+  const tick = now => {
+    const p = Math.min((now - t0) / dur, 1);
+    const v = Math.round(target * ease(p));
+    if (isCurr) {
+      el.textContent = v >= 1000000 ? '€ ' + (v/1000000).toFixed(1) + 'M'
+                     : v >= 1000   ? '€ ' + Math.round(v/1000) + 'k'
+                     : '€ ' + v;
+    } else {
+      el.textContent = v.toLocaleString('it-IT') + suffix;
+    }
+    if (p < 1) requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+if (!prefersReducedMotion) {
+  const statObs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting && !cntTriggered.has(e.target)) {
+        cntTriggered.add(e.target);
+        animateStat(e.target);
+        statObs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.3 });
+  statNums.forEach(el => statObs.observe(el));
+} else {
+  statNums.forEach(el => {
+    const target = parseInt(el.dataset.count, 10);
+    const isCurr = el.dataset.format === 'currency';
+    const suffix = el.dataset.suffix || '';
+    if (isCurr) {
+      el.textContent = target >= 1000000 ? '€ ' + (target/1000000).toFixed(1) + 'M' : '€ ' + target;
+    } else {
+      el.textContent = target.toLocaleString('it-IT') + suffix;
+    }
+  });
+}
+
+/* ── 3D Mockup — mouse parallax + scroll tilt ── */
+const scene = document.getElementById('mockup-scene');
+const stage = document.getElementById('mockup-stage');
+const isMobile = innerWidth < 768;
+if (!prefersReducedMotion && scene && stage) {
+  let targetRX = isMobile ? 8 : 14, targetRY = 0, curRX = isMobile ? 8 : 14, curRY = 0;
+  let raf;
+
+  // Desktop mouse parallax only
+  if (!isMobile) {
+    scene.addEventListener('mousemove', e => {
+      const r = scene.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width - 0.5;
+      const y = (e.clientY - r.top) / r.height - 0.5;
+      targetRX = 14 + y * -5;
+      targetRY = x * 7;
+    });
+    scene.addEventListener('mouseleave', () => { targetRX = 14; targetRY = 0; });
+  }
+
+  // Scroll: subtle effect on mobile, reduces tilt on desktop
+  addEventListener('scroll', () => {
+    const rect = scene.getBoundingClientRect();
+    const vy = rect.top / innerHeight;
+    if (isMobile) {
+      // Mobile: very subtle, stays close to 8deg
+      targetRX = Math.max(4, Math.min(8, 8 * vy));
+    } else {
+      // Desktop: original behavior
+      targetRX = Math.max(0, Math.min(18, 14 * vy));
+    }
+  }, { passive: true });
+
+  function tickMockup() {
+    curRX += (targetRX - curRX) * 0.07;
+    curRY += (targetRY - curRY) * 0.07;
+    stage.style.transform = `rotateX(${curRX.toFixed(2)}deg) rotateY(${curRY.toFixed(2)}deg)`;
+    raf = requestAnimationFrame(tickMockup);
+  }
+
+  const mockupIO = new IntersectionObserver(([entry]) => {
+    if (entry.isIntersecting) {
+      if (!raf) tickMockup();
+    } else {
+      cancelAnimationFrame(raf);
+      raf = null;
+    }
+  }, { threshold: 0 });
+  mockupIO.observe(scene);
+
+  // Touch support (mobile only)
+  if (isMobile) {
+    scene.addEventListener('touchmove', e => {
+      if (!e.touches[0]) return;
+      const r = scene.getBoundingClientRect();
+      const x = (e.touches[0].clientX - r.left) / r.width - 0.5;
+      const y = (e.touches[0].clientY - r.top) / r.height - 0.5;
+      targetRX = 8 + y * -4;
+      targetRY = x * 4;
+    }, { passive: true });
+    scene.addEventListener('touchend', () => { targetRX = 8; targetRY = 0; });
+  }
+}
+
+/* ── Bento card 3D hover tilt ── */
+const canHover = matchMedia('(hover: hover) and (pointer: fine)').matches;
+if (!prefersReducedMotion && canHover) {
+  document.querySelectorAll('.bento-card').forEach(card => {
+    card.addEventListener('mousemove', e => {
+      const r = card.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width - 0.5;
+      const y = (e.clientY - r.top) / r.height - 0.5;
+      card.style.transform = `perspective(600px) rotateX(${(-y*2).toFixed(1)}deg) rotateY(${(x*2).toFixed(1)}deg) translateZ(2px)`;
+    });
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = '';
+    });
+  });
+}
+</script>
 </body>
 </html>
