@@ -1,0 +1,6 @@
+.DS_Store
+.agents/
+.claude/
+impeccable-style-universal/
+skills-lock.json
+node_modules/
