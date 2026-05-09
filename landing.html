@@ -447,6 +447,43 @@ body::before {
 [data-theme="dark"] .ticker-delta-down { color: oklch(73% 0.16 25); }
 @keyframes tickerMove { from{transform:translateX(0)} to{transform:translateX(-50%)} }
 
+/* ─── STATS STRIP ─── */
+.stats-strip {
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-card);
+}
+.stats-strip-inner {
+  max-width: 1160px; margin: 0 auto;
+  display: grid; grid-template-columns: 1fr;
+  padding: 0 24px;
+}
+@media (min-width: 640px) { .stats-strip-inner { grid-template-columns: repeat(3,1fr); } }
+.stat-cell {
+  padding: 52px 28px; text-align: center;
+  transition: background 200ms var(--ease-out);
+}
+@media (hover: hover) and (pointer: fine) { .stat-cell:hover { background: var(--bg-soft); } }
+@media (min-width: 640px) {
+  .stat-cell { border-right: 1px solid var(--border); }
+  .stat-cell:last-child { border-right: none; }
+}
+@media (max-width: 639px) {
+  .stat-cell { border-bottom: 1px solid var(--border); }
+  .stat-cell:last-child { border-bottom: none; }
+}
+.stat-num {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(40px, 5.5vw, 68px);
+  font-weight: 700; letter-spacing: -0.055em; line-height: 1;
+  margin-bottom: 10px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+.stat-num.accent { color: oklch(42% 0.17 145); }
+[data-theme="dark"] .stat-num.accent { color: oklch(72% 0.18 145); }
+.stat-lbl { font-size: 14px; color: var(--text-soft); line-height: 1.5; max-width: 200px; margin: 0 auto; }
+
 /* ─── STEPS ─── */
 .steps { display: grid; grid-template-columns: 1fr; gap: 14px; }
 @media (min-width: 768px) { .steps { grid-template-columns: repeat(3,1fr); } }
@@ -892,6 +929,24 @@ footer { border-top: 1px solid var(--border); padding: 40px 24px; margin-top: 40
   </div>
 </section>
 
+<!-- ─── STATS ─── -->
+<div class="stats-strip" aria-label="Numeri CardEx">
+  <div class="stats-strip-inner">
+    <div class="stat-cell reveal">
+      <div class="stat-num accent" data-count="12847">0</div>
+      <div class="stat-lbl">Carte monitorate nel database, aggiornate ogni giorno</div>
+    </div>
+    <div class="stat-cell reveal">
+      <div class="stat-num" data-count="2400000" data-format="currency">0</div>
+      <div class="stat-lbl">Valore totale tracciato nelle collezioni degli utenti</div>
+    </div>
+    <div class="stat-cell reveal">
+      <div class="stat-num" data-count="800" data-suffix="+">0</div>
+      <div class="stat-lbl">Venditori italiani attivi su CardTrader nel database prezzi</div>
+    </div>
+  </div>
+</div>
+
 <!-- ─── FAQ ─── -->
 <section id="faq" class="section">
   <div class="container">
@@ -995,6 +1050,53 @@ if (prefersReducedMotion) {
     entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
   }, { threshold: 0.10, rootMargin: '0px 0px -30px 0px' });
   reveals.forEach(el => io.observe(el));
+}
+
+/* ── Stats counter ── */
+const statNums = document.querySelectorAll('.stat-num[data-count]');
+const cntTriggered = new Set();
+function animateStat(el) {
+  const target = parseInt(el.dataset.count, 10);
+  const isCurr = el.dataset.format === 'currency';
+  const suffix = el.dataset.suffix || '';
+  const dur = 1800, t0 = performance.now();
+  const ease = t => 1 - Math.pow(1 - t, 3);
+  const tick = now => {
+    const p = Math.min((now - t0) / dur, 1);
+    const v = Math.round(target * ease(p));
+    if (isCurr) {
+      el.textContent = v >= 1000000 ? '€ ' + (v/1000000).toFixed(1) + 'M'
+                     : v >= 1000   ? '€ ' + Math.round(v/1000) + 'k'
+                     : '€ ' + v;
+    } else {
+      el.textContent = v.toLocaleString('it-IT') + suffix;
+    }
+    if (p < 1) requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+if (!prefersReducedMotion) {
+  const statObs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting && !cntTriggered.has(e.target)) {
+        cntTriggered.add(e.target);
+        animateStat(e.target);
+        statObs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.3 });
+  statNums.forEach(el => statObs.observe(el));
+} else {
+  statNums.forEach(el => {
+    const target = parseInt(el.dataset.count, 10);
+    const isCurr = el.dataset.format === 'currency';
+    const suffix = el.dataset.suffix || '';
+    if (isCurr) {
+      el.textContent = target >= 1000000 ? '€ ' + (target/1000000).toFixed(1) + 'M' : '€ ' + target;
+    } else {
+      el.textContent = target.toLocaleString('it-IT') + suffix;
+    }
+  });
 }
 
 /* ── 3D Mockup — mouse parallax + scroll tilt ── */
