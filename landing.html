@@ -30,6 +30,9 @@
   --blob3: rgba(62,154,90,0.05);
   /* dot grid */
   --dot:   rgba(0,0,0,0.10);
+  /* easing */
+  --ease-out:    cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
 }
 [data-theme="dark"] {
   --bg:          oklch(11% 0.008 262);
@@ -143,17 +146,22 @@ body::before {
   display: none; gap: 28px; font-size: 14px; color: var(--text-soft);
 }
 @media (min-width: 768px) { .nav-links { display: flex; } }
-.nav-links a { transition: color .2s; }
-.nav-links a:hover { color: var(--text); }
+.nav-links a { transition: color 150ms var(--ease-out); }
+@media (hover: hover) and (pointer: fine) {
+  .nav-links a:hover { color: var(--text); }
+}
 .nav-actions { display: flex; align-items: center; gap: 8px; }
 
 .icon-btn {
   width: 44px; height: 44px; border-radius: 11px;
   border: 1px solid var(--border); background: transparent; color: var(--text-soft);
   display: inline-flex; align-items: center; justify-content: center;
-  transition: all .2s;
+  transition: border-color 150ms var(--ease-out), color 150ms var(--ease-out), transform 120ms var(--ease-out);
 }
-.icon-btn:hover { border-color: var(--border-h); color: var(--text); }
+@media (hover: hover) and (pointer: fine) {
+  .icon-btn:hover { border-color: var(--border-h); color: var(--text); }
+}
+.icon-btn:active { transform: scale(0.93); }
 .icon-sun { display: block; } .icon-moon { display: none; }
 [data-theme="dark"] .icon-sun { display: none; }
 [data-theme="dark"] .icon-moon { display: block; }
@@ -162,21 +170,30 @@ body::before {
   display: inline-flex; align-items: center; justify-content: center; gap: 6px;
   padding: 10px 18px; border-radius: 9px;
   font-size: 14px; font-weight: 500; font-family: inherit;
-  border: 1px solid transparent; transition: all .2s; white-space: nowrap; cursor: pointer;
+  border: 1px solid transparent;
+  transition: transform 150ms var(--ease-out), box-shadow 200ms var(--ease-out), border-color 150ms var(--ease-out);
+  white-space: nowrap; cursor: pointer;
 }
 .btn-primary { background: var(--text); color: var(--bg); }
-.btn-primary:hover { transform: translateY(-1px); box-shadow: var(--shadow-h); }
+@media (hover: hover) and (pointer: fine) {
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: var(--shadow-h); }
+  .btn-ghost:hover { border-color: var(--border-h); }
+}
+.btn-primary:active { transform: scale(0.97); box-shadow: none; }
 .btn-ghost { background: transparent; color: var(--text); border-color: var(--border); }
-.btn-ghost:hover { border-color: var(--border-h); }
+.btn-ghost:active { transform: scale(0.97); }
 .btn-lg { padding: 13px 24px; font-size: 15px; border-radius: 11px; }
 
 .hamburger {
   display: inline-flex; align-items: center; justify-content: center;
   width: 44px; height: 44px; border-radius: 11px;
   border: 1px solid var(--border); background: transparent; color: var(--text);
-  transition: border-color .2s, background .2s;
+  transition: border-color 150ms var(--ease-out), background 150ms var(--ease-out), transform 120ms var(--ease-out);
 }
-.hamburger:hover { border-color: var(--border-h); background: var(--accent-soft); }
+@media (hover: hover) and (pointer: fine) {
+  .hamburger:hover { border-color: var(--border-h); background: var(--accent-soft); }
+}
+.hamburger:active { transform: scale(0.93); }
 @media (min-width: 768px) { .hamburger { display: none; } }
 .mobile-menu {
   display: none; flex-direction: column; gap: 4px;
@@ -355,10 +372,12 @@ body::before {
   background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px;
   padding: 24px; position: relative; overflow: hidden;
   display: flex; flex-direction: column;
-  transition: border-color .3s, box-shadow .3s, transform .4s cubic-bezier(0.22,.61,.36,1);
+  transition: border-color 200ms var(--ease-out), box-shadow 200ms var(--ease-out), transform 200ms var(--ease-out);
   transform-style: preserve-3d;
 }
-.bento-card:hover { border-color: var(--border-h); box-shadow: var(--shadow-h); }
+@media (hover: hover) and (pointer: fine) {
+  .bento-card:hover { border-color: var(--border-h); box-shadow: var(--shadow-h); }
+}
 @media (min-width: 768px) {
   .b-2x2 { grid-column: span 2; grid-row: span 2; }
   .b-2x1 { grid-column: span 2; }
@@ -380,22 +399,75 @@ body::before {
 [data-theme="dark"] .pill-pok { color: #E8C547; }
 [data-theme="dark"] .pill-op  { color: #E88080; }
 
+/* ─── PRICE TICKER ─── */
+.price-ticker {
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-soft);
+  overflow: hidden;
+  position: relative;
+}
+.price-ticker::before,
+.price-ticker::after {
+  content: '';
+  position: absolute; top: 0; bottom: 0; width: 64px; z-index: 1;
+  pointer-events: none;
+}
+.price-ticker::before { left: 0;  background: linear-gradient(to right, var(--bg-soft), transparent); }
+.price-ticker::after  { right: 0; background: linear-gradient(to left,  var(--bg-soft), transparent); }
+.ticker-scroll {
+  display: flex;
+  animation: tickerMove 38s linear infinite;
+  will-change: transform;
+  white-space: nowrap;
+  padding: 13px 0;
+}
+.ticker-scroll:hover { animation-play-state: paused; }
+.ticker-item {
+  display: inline-flex; align-items: center; gap: 9px;
+  padding: 0 22px;
+  font-size: 12.5px; font-weight: 500;
+  border-right: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.ticker-item:last-child { border-right: none; }
+.ticker-game {
+  font-size: 9px; font-weight: 600; letter-spacing: 0.10em; text-transform: uppercase;
+  padding: 2px 7px; border-radius: 100px; flex-shrink: 0;
+}
+.ticker-game.pok { color: #92761A; border: 1px solid rgba(232,197,71,.3); background: rgba(232,197,71,.06); }
+.ticker-game.op  { color: #C94A3A; border: 1px solid rgba(201,74,58,.3);  background: rgba(201,74,58,.06); }
+[data-theme="dark"] .ticker-game.pok { color: #E8C547; }
+[data-theme="dark"] .ticker-game.op  { color: #E88080; }
+.ticker-name  { color: var(--text-soft); }
+.ticker-price { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
+.ticker-delta-up   { color: oklch(42% 0.17 145); font-size: 11px; font-weight: 600; }
+.ticker-delta-down { color: oklch(44% 0.18 25);  font-size: 11px; font-weight: 600; }
+[data-theme="dark"] .ticker-delta-up   { color: oklch(72% 0.18 145); }
+[data-theme="dark"] .ticker-delta-down { color: oklch(73% 0.16 25); }
+@keyframes tickerMove { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
 /* ─── STEPS ─── */
 .steps { display: grid; grid-template-columns: 1fr; gap: 14px; }
 @media (min-width: 768px) { .steps { grid-template-columns: repeat(3,1fr); } }
 .step-card {
   background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px;
-  padding: 28px; transition: all .3s;
+  padding: 28px;
+  transition: border-color 200ms var(--ease-out), transform 150ms var(--ease-out);
 }
-.step-card:hover { border-color: var(--border-h); }
+@media (hover: hover) and (pointer: fine) {
+  .step-card:hover { border-color: var(--border-h); }
+}
 .step-num { font-size: 12px; font-weight: 600; color: var(--text-mute); margin-bottom: 16px; letter-spacing: 0.08em; }
 .step-card h3 { font-size: 19px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 8px; }
 .step-card p { color: var(--text-soft); font-size: 14px; line-height: 1.6; }
 
 /* ─── FAQ ─── */
 .faq-list { display: flex; flex-direction: column; gap: 8px; max-width: 700px; margin: 0 auto; }
-.faq-item { border: 1px solid var(--border); border-radius: 12px; background: var(--bg-card); transition: border-color .2s; }
-.faq-item:hover { border-color: var(--border-h); }
+.faq-item { border: 1px solid var(--border); border-radius: 12px; background: var(--bg-card); transition: border-color 150ms var(--ease-out); }
+@media (hover: hover) and (pointer: fine) {
+  .faq-item:hover { border-color: var(--border-h); }
+}
 .faq-item summary { list-style: none; padding: 18px 22px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; font-weight: 500; font-size: 15px; }
 .faq-item summary::-webkit-details-marker { display: none; }
 .faq-item summary::after { content: '+'; font-size: 22px; font-weight: 300; color: var(--text-mute); transition: transform .25s; flex-shrink: 0; }
@@ -436,9 +508,8 @@ footer { border-top: 1px solid var(--border); padding: 40px 24px; margin-top: 40
 /* ─── 3D SCROLL REVEAL ─── */
 .reveal {
   opacity: 0;
-  transform: perspective(900px) rotateX(6deg) translateY(28px);
-  transition: opacity 1.2s cubic-bezier(0.22,.61,.36,1),
-              transform 1.2s cubic-bezier(0.22,.61,.36,1);
+  transform: perspective(900px) rotateX(6deg) translateY(24px);
+  transition: opacity 0.65s var(--ease-out), transform 0.65s var(--ease-out);
 }
 
 .reveal.in {
@@ -448,10 +519,10 @@ footer { border-top: 1px solid var(--border); padding: 40px 24px; margin-top: 40
 
 /* Step cards: alternating left/right on mobile */
 .step-card.reveal-left {
-  transform: perspective(900px) rotateX(6deg) translateX(-40px);
+  transform: perspective(900px) rotateX(4deg) translateX(-32px);
 }
 .step-card.reveal-right {
-  transform: perspective(900px) rotateX(6deg) translateX(40px);
+  transform: perspective(900px) rotateX(4deg) translateX(32px);
 }
 
 .step-card.reveal-left.in,
@@ -459,22 +530,22 @@ footer { border-top: 1px solid var(--border); padding: 40px 24px; margin-top: 40
   transform: perspective(900px) rotateX(0deg) translateX(0);
 }
 
-.reveal-delay-1 { transition-delay: .12s; }
-.reveal-delay-2 { transition-delay: .24s; }
-.reveal-delay-3 { transition-delay: .36s; }
-.reveal-delay-4 { transition-delay: .48s; }
-.reveal-delay-5 { transition-delay: .60s; }
-.reveal-delay-6 { transition-delay: .72s; }
+.reveal-delay-1 { transition-delay: .08s; }
+.reveal-delay-2 { transition-delay: .16s; }
+.reveal-delay-3 { transition-delay: .24s; }
+.reveal-delay-4 { transition-delay: .32s; }
+.reveal-delay-5 { transition-delay: .40s; }
+.reveal-delay-6 { transition-delay: .48s; }
 
 /* Desktop: all use translateY */
 @media (min-width: 768px) {
   .reveal {
-    transform: perspective(900px) rotateX(8deg) translateY(28px);
+    transform: perspective(900px) rotateX(8deg) translateY(24px);
   }
 
   .step-card.reveal-left,
   .step-card.reveal-right {
-    transform: perspective(900px) rotateX(8deg) translateY(28px);
+    transform: perspective(900px) rotateX(8deg) translateY(24px);
   }
 
   .reveal.in {
@@ -515,17 +586,15 @@ footer { border-top: 1px solid var(--border); padding: 40px 24px; margin-top: 40
 @media (prefers-reduced-motion: reduce) {
   .bg-blob { animation: none; }
   .dot-live { animation: none; }
-  .reveal {
+  .reveal, .reveal.in,
+  .step-card.reveal-left, .step-card.reveal-right,
+  .step-card.reveal-left.in, .step-card.reveal-right.in {
     opacity: 1;
     transform: none !important;
-    transition: none !important;
+    transition: opacity 200ms !important;
   }
-  .reveal.in { opacity: 1; transform: none !important; }
-  .step-card.reveal-left,
-  .step-card.reveal-right { transform: none !important; }
-  .step-card.reveal-left.in,
-  .step-card.reveal-right.in { transform: none !important; }
   .mockup-stage, .mock-panel { transition: none !important; }
+  .btn, .btn-primary, .btn-ghost, .icon-btn, .hamburger { transition: none !important; }
 }
 </style>
 </head>
@@ -712,6 +781,33 @@ footer { border-top: 1px solid var(--border); padding: 40px 24px; margin-top: 40
     </div>
   </div>
 </section>
+
+<!-- ─── PRICE TICKER ─── -->
+<div class="price-ticker" aria-hidden="true">
+  <div class="ticker-scroll">
+    <div class="ticker-item"><span class="ticker-game pok">POK</span><span class="ticker-name">Charizard ex · Obsidian Flames</span><span class="ticker-price">€ 347,00</span><span class="ticker-delta-up">▲ +12.3%</span></div>
+    <div class="ticker-item"><span class="ticker-game op">OP</span><span class="ticker-name">Monkey D. Luffy · OP01-001</span><span class="ticker-price">€ 89,50</span><span class="ticker-delta-up">▲ +5.8%</span></div>
+    <div class="ticker-item"><span class="ticker-game pok">POK</span><span class="ticker-name">Umbreon VMAX · Evolving Skies</span><span class="ticker-price">€ 112,00</span><span class="ticker-delta-down">▼ -2.1%</span></div>
+    <div class="ticker-item"><span class="ticker-game op">OP</span><span class="ticker-name">Rob Lucci · OP06-118</span><span class="ticker-price">€ 38,00</span><span class="ticker-delta-up">▲ +18.4%</span></div>
+    <div class="ticker-item"><span class="ticker-game pok">POK</span><span class="ticker-name">Pikachu VMAX · Vivid Voltage</span><span class="ticker-price">€ 78,00</span><span class="ticker-delta-down">▼ -1.5%</span></div>
+    <div class="ticker-item"><span class="ticker-game op">OP</span><span class="ticker-name">Yamato · OP02-121</span><span class="ticker-price">€ 54,00</span><span class="ticker-delta-up">▲ +7.2%</span></div>
+    <div class="ticker-item"><span class="ticker-game pok">POK</span><span class="ticker-name">Rayquaza VMAX · Evolving Skies</span><span class="ticker-price">€ 95,00</span><span class="ticker-delta-up">▲ +3.6%</span></div>
+    <div class="ticker-item"><span class="ticker-game op">OP</span><span class="ticker-name">Shanks · OP01-120</span><span class="ticker-price">€ 210,00</span><span class="ticker-delta-up">▲ +22.0%</span></div>
+    <div class="ticker-item"><span class="ticker-game pok">POK</span><span class="ticker-name">Mewtwo V-UNION · SWSH Promos</span><span class="ticker-price">€ 42,00</span><span class="ticker-delta-down">▼ -4.3%</span></div>
+    <div class="ticker-item"><span class="ticker-game op">OP</span><span class="ticker-name">Nami · OP01-016</span><span class="ticker-price">€ 22,00</span><span class="ticker-delta-up">▲ +8.1%</span></div>
+    <!-- duplicate per loop seamless -->
+    <div class="ticker-item"><span class="ticker-game pok">POK</span><span class="ticker-name">Charizard ex · Obsidian Flames</span><span class="ticker-price">€ 347,00</span><span class="ticker-delta-up">▲ +12.3%</span></div>
+    <div class="ticker-item"><span class="ticker-game op">OP</span><span class="ticker-name">Monkey D. Luffy · OP01-001</span><span class="ticker-price">€ 89,50</span><span class="ticker-delta-up">▲ +5.8%</span></div>
+    <div class="ticker-item"><span class="ticker-game pok">POK</span><span class="ticker-name">Umbreon VMAX · Evolving Skies</span><span class="ticker-price">€ 112,00</span><span class="ticker-delta-down">▼ -2.1%</span></div>
+    <div class="ticker-item"><span class="ticker-game op">OP</span><span class="ticker-name">Rob Lucci · OP06-118</span><span class="ticker-price">€ 38,00</span><span class="ticker-delta-up">▲ +18.4%</span></div>
+    <div class="ticker-item"><span class="ticker-game pok">POK</span><span class="ticker-name">Pikachu VMAX · Vivid Voltage</span><span class="ticker-price">€ 78,00</span><span class="ticker-delta-down">▼ -1.5%</span></div>
+    <div class="ticker-item"><span class="ticker-game op">OP</span><span class="ticker-name">Yamato · OP02-121</span><span class="ticker-price">€ 54,00</span><span class="ticker-delta-up">▲ +7.2%</span></div>
+    <div class="ticker-item"><span class="ticker-game pok">POK</span><span class="ticker-name">Rayquaza VMAX · Evolving Skies</span><span class="ticker-price">€ 95,00</span><span class="ticker-delta-up">▲ +3.6%</span></div>
+    <div class="ticker-item"><span class="ticker-game op">OP</span><span class="ticker-name">Shanks · OP01-120</span><span class="ticker-price">€ 210,00</span><span class="ticker-delta-up">▲ +22.0%</span></div>
+    <div class="ticker-item"><span class="ticker-game pok">POK</span><span class="ticker-name">Mewtwo V-UNION · SWSH Promos</span><span class="ticker-price">€ 42,00</span><span class="ticker-delta-down">▼ -4.3%</span></div>
+    <div class="ticker-item"><span class="ticker-game op">OP</span><span class="ticker-name">Nami · OP01-016</span><span class="ticker-price">€ 22,00</span><span class="ticker-delta-up">▲ +8.1%</span></div>
+  </div>
+</div>
 
 <!-- ─── BENTO ─── -->
 <section id="funzionalita" class="section">
@@ -966,16 +1062,17 @@ if (!prefersReducedMotion && scene && stage) {
 }
 
 /* ── Bento card 3D hover tilt ── */
-if (!prefersReducedMotion) {
+const canHover = matchMedia('(hover: hover) and (pointer: fine)').matches;
+if (!prefersReducedMotion && canHover) {
   document.querySelectorAll('.bento-card').forEach(card => {
     card.addEventListener('mousemove', e => {
       const r = card.getBoundingClientRect();
       const x = (e.clientX - r.left) / r.width - 0.5;
       const y = (e.clientY - r.top) / r.height - 0.5;
-      card.style.transform = `perspective(600px) rotateX(${(-y*6).toFixed(1)}deg) rotateY(${(x*6).toFixed(1)}deg) translateZ(4px)`;
+      card.style.transform = `perspective(600px) rotateX(${(-y*5).toFixed(1)}deg) rotateY(${(x*5).toFixed(1)}deg) translateZ(3px)`;
     });
     card.addEventListener('mouseleave', () => {
-      card.style.transform = 'perspective(600px) rotateX(0) rotateY(0) translateZ(0)';
+      card.style.transform = '';
     });
   });
 }
