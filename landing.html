@@ -8,7 +8,7 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNyIgZmlsbD0iIzBFMEUxMCIvPjx0ZXh0IHg9IjIiIHk9IjI0IiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtd2VpZ2h0PSIzMDAiIGZvbnQtc2l6ZT0iMjAiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4zOCkiPkM8L3RleHQ+PHRleHQgeD0iMTUiIHk9IjI0IiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtd2VpZ2h0PSI5MDAiIGZvbnQtc2l6ZT0iMjAiIGZpbGw9IiNmZmZmZmYiPlg8L3RleHQ+PC9zdmc+">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@300;400;500;600;700&family=Syne:wght@300;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
 
 <style>
 /* ─── THEME VARIABLES ─── */
@@ -100,7 +100,7 @@ body::before {
   font-size: 19px; font-weight: 700; letter-spacing: -0.05em;
   display: inline-flex; align-items: baseline;
 }
-.brand-logo .lite { font-weight: 300; opacity: 0.45; }
+.brand-logo .lite { font-weight: 400; opacity: 0.45; }
 .nav-links {
   display: none; gap: 28px; font-size: 14px; color: var(--text-soft);
 }
@@ -135,12 +135,9 @@ body::before {
   transition: transform 150ms var(--ease-out), box-shadow 200ms var(--ease-out), border-color 150ms var(--ease-out);
   white-space: nowrap; cursor: pointer;
 }
-.btn-primary { background: var(--text); color: var(--bg); }
 @media (hover: hover) and (pointer: fine) {
-  .btn-primary:hover { transform: translateY(-1px); box-shadow: var(--shadow-h); }
   .btn-ghost:hover { border-color: var(--border-h); }
 }
-.btn-primary:active { transform: scale(0.97); box-shadow: none; }
 .btn-ghost { background: transparent; color: var(--text); border-color: var(--border); }
 .btn-ghost:active { transform: scale(0.97); }
 .btn-lg { padding: 13px 24px; font-size: 15px; border-radius: 11px; }
@@ -223,8 +220,8 @@ body::before {
   position: absolute; inset: 0; border-radius: inherit;
   background: linear-gradient(115deg,
     transparent 22%,
-    rgba(255,219,77,0.07) 36%,
-    rgba(124,92,252,0.07) 50%,
+    rgba(232,197,71,0.09) 36%,
+    rgba(255,219,77,0.06) 50%,
     transparent 66%
   );
   background-size: 300% 300%;
@@ -393,7 +390,7 @@ body::before {
 .mock-card-price { font-size: 12px; font-weight: 600; color: var(--text); white-space: nowrap; font-variant-numeric: tabular-nums; }
 
 /* Delta badge */
-.mock-delta-pos { color: oklch(42% 0.17 145); font-size: 10px; font-weight: 600; }
+.mock-delta-pos { color: oklch(34% 0.14 145); font-size: 10px; font-weight: 600; }
 .mock-delta-neg { color: oklch(44% 0.18 25); font-size: 10px; font-weight: 600; }
 [data-theme="dark"] .mock-delta-pos { color: oklch(72% 0.18 145); }
 [data-theme="dark"] .mock-delta-neg { color: oklch(73% 0.16 25); }
@@ -459,7 +456,7 @@ body::before {
 
 .mini-chart { margin-top: auto; padding-top: 18px; }
 .chart-meta { display: flex; justify-content: space-between; margin-top: 8px; font-size: 11px; }
-.chart-meta .pos { color: oklch(42% 0.17 145); font-weight: 600; }
+.chart-meta .pos { color: oklch(34% 0.14 145); font-weight: 600; }
 [data-theme="dark"] .chart-meta .pos { color: oklch(72% 0.18 145); }
 
 .pills { display: flex; gap: 6px; margin-top: 12px; flex-wrap: wrap; }
@@ -511,7 +508,7 @@ body::before {
 [data-theme="dark"] .ticker-game.op  { color: #E88080; }
 .ticker-name  { color: var(--text-soft); }
 .ticker-price { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
-.ticker-delta-up   { color: oklch(42% 0.17 145); font-size: 11px; font-weight: 600; }
+.ticker-delta-up   { color: oklch(34% 0.14 145); font-size: 11px; font-weight: 600; }
 .ticker-delta-down { color: oklch(44% 0.18 25);  font-size: 11px; font-weight: 600; }
 [data-theme="dark"] .ticker-delta-up   { color: oklch(72% 0.18 145); }
 [data-theme="dark"] .ticker-delta-down { color: oklch(73% 0.16 25); }
@@ -720,7 +717,7 @@ footer { border-top: 1px solid var(--border); padding: 40px 24px; margin-top: 40
     transition: opacity 200ms !important;
   }
   .mockup-stage, .mock-panel { transition: none !important; }
-  .btn, .btn-primary, .btn-ghost, .icon-btn, .hamburger { transition: none !important; }
+  .btn, .btn-ghost, .icon-btn, .hamburger { transition: none !important; }
 }
 </style>
 </head>
@@ -814,9 +811,9 @@ footer { border-top: 1px solid var(--border); padding: 40px 24px; margin-top: 40
         <!-- Panel sinistra (lontano) -->
         <div class="mock-panel far">
           <div class="mock-bar">
-            <div class="mock-dot" style="background:#FF5F57"></div>
-            <div class="mock-dot" style="background:#FFBD2E"></div>
-            <div class="mock-dot" style="background:#27C93F"></div>
+            <div class="mock-dot" style="background:var(--border-h)"></div>
+            <div class="mock-dot" style="background:var(--border-h)"></div>
+            <div class="mock-dot" style="background:var(--border-h)"></div>
           </div>
           <div class="mock-body">
             <div style="font-size:10px;font-weight:600;color:var(--text-mute);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;">⚡ Pokémon</div>
@@ -846,9 +843,9 @@ footer { border-top: 1px solid var(--border); padding: 40px 24px; margin-top: 40
         <!-- Panel centrale (principale) -->
         <div class="mock-panel main">
           <div class="mock-bar">
-            <div class="mock-dot" style="background:#FF5F57"></div>
-            <div class="mock-dot" style="background:#FFBD2E"></div>
-            <div class="mock-dot" style="background:#27C93F"></div>
+            <div class="mock-dot" style="background:var(--border-h)"></div>
+            <div class="mock-dot" style="background:var(--border-h)"></div>
+            <div class="mock-dot" style="background:var(--border-h)"></div>
           </div>
           <div class="mock-body">
             <div style="display:flex;align-items:center;gap:7px;background:var(--bg-soft);border:1px solid var(--border);border-radius:8px;padding:7px 10px;margin-bottom:12px;">
@@ -863,7 +860,7 @@ footer { border-top: 1px solid var(--border); padding: 40px 24px; margin-top: 40
                 <div class="mock-card-sub">🇮🇹 Near Mint</div>
               </div>
               <div style="text-align:right;">
-                <div style="font-size:13px;font-weight:700;color:#16a34a;font-variant-numeric:tabular-nums;">€ 142</div>
+                <div style="font-size:13px;font-weight:700;color:oklch(34% 0.14 145);font-variant-numeric:tabular-nums;">€ 142</div>
                 <div style="font-size:9px;color:var(--text-mute);">venditori IT</div>
               </div>
             </div>
@@ -885,7 +882,7 @@ footer { border-top: 1px solid var(--border); padding: 40px 24px; margin-top: 40
             </div>
             <div style="margin-top:10px;padding:8px 10px;background:rgba(22,163,74,0.06);border:1px solid rgba(22,163,74,0.18);border-radius:8px;display:flex;align-items:center;justify-content:space-between;">
               <span style="font-size:10px;color:var(--text-soft);">🇮🇹 Prezzo reale italiano</span>
-              <span style="font-size:12px;font-weight:700;color:#16a34a;">− € 26</span>
+              <span style="font-size:12px;font-weight:700;color:oklch(34% 0.14 145);">− € 26</span>
             </div>
           </div>
         </div>
@@ -893,9 +890,9 @@ footer { border-top: 1px solid var(--border); padding: 40px 24px; margin-top: 40
         <!-- Panel destra -->
         <div class="mock-panel side">
           <div class="mock-bar">
-            <div class="mock-dot" style="background:#FF5F57"></div>
-            <div class="mock-dot" style="background:#FFBD2E"></div>
-            <div class="mock-dot" style="background:#27C93F"></div>
+            <div class="mock-dot" style="background:var(--border-h)"></div>
+            <div class="mock-dot" style="background:var(--border-h)"></div>
+            <div class="mock-dot" style="background:var(--border-h)"></div>
           </div>
           <div class="mock-body">
             <div style="font-size:10px;font-weight:600;color:var(--text-mute);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;">☠️ One Piece</div>
