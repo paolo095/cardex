@@ -8,7 +8,7 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNyIgZmlsbD0iIzBFMEUxMCIvPjx0ZXh0IHg9IjIiIHk9IjI0IiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtd2VpZ2h0PSIzMDAiIGZvbnQtc2l6ZT0iMjAiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4zOCkiPkM8L3RleHQ+PHRleHQgeD0iMTUiIHk9IjI0IiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtd2VpZ2h0PSI5MDAiIGZvbnQtc2l6ZT0iMjAiIGZpbGw9IiNmZmZmZmYiPlg8L3RleHQ+PC9zdmc+">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
 
 <style>
 /* ─── THEME VARIABLES ─── */
@@ -49,13 +49,15 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 html { scroll-behavior: smooth; }
 body {
-  font-family: 'Albert Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
   background: var(--bg);
   color: var(--text);
   font-size: 16px; line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   letter-spacing: -0.01em;
   overflow-x: hidden;
+  font-optical-sizing: auto;
+  font-kerning: normal;
   transition: background .35s, color .35s;
 }
 a { color: inherit; text-decoration: none; }
@@ -238,6 +240,7 @@ body::before {
   font-weight: 800; letter-spacing: -0.062em; line-height: 0.9;
   margin-bottom: 28px;
   margin-left: auto; margin-right: auto;
+  text-wrap: balance;
 }
 .hero h1 .h1-solid   { display: block; color: var(--text); }
 .hero h1 .h1-outline {
@@ -426,9 +429,10 @@ body::before {
 }
 .section-head h2 {
   font-size: clamp(26px, 4.5vw, 50px); font-weight: 700;
-  letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 14px;
+  letter-spacing: -0.03em; line-height: 1.15; margin-bottom: 14px;
+  text-wrap: balance;
 }
-.section-head p { color: var(--text-soft); font-size: 16px; max-width: 500px; margin: 0 auto; }
+.section-head p { color: var(--text-soft); font-size: 16px; max-width: 500px; margin: 0 auto; text-wrap: pretty; }
 
 /* ─── BENTO GRID ─── */
 .bento { display: grid; grid-template-columns: 1fr; gap: 14px; }
@@ -450,9 +454,9 @@ body::before {
   .b-1x2 { grid-row: span 2; }
   .b-full { grid-column: 1 / -1; }
 }
-.bento-card h3 { font-size: 18px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.25; margin-bottom: 8px; }
+.bento-card h3 { font-size: 18px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.25; margin-bottom: 8px; text-wrap: balance; }
 .bento-card.b-2x2 h3 { font-size: 24px; }
-.bento-card p { color: var(--text-soft); font-size: 14px; line-height: 1.55; }
+.bento-card p { color: var(--text-soft); font-size: 14px; line-height: 1.55; text-wrap: pretty; }
 
 .mini-chart { margin-top: auto; padding-top: 18px; }
 .chart-meta { display: flex; justify-content: space-between; margin-top: 8px; font-size: 11px; }
@@ -583,8 +587,8 @@ body::before {
   text-transform: uppercase;
   margin-bottom: 14px;
 }
-.step-card h3 { font-size: 19px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 8px; }
-.step-card p { color: var(--text-soft); font-size: 14px; line-height: 1.6; }
+.step-card h3 { font-size: 19px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 8px; text-wrap: balance; }
+.step-card p { color: var(--text-soft); font-size: 14px; line-height: 1.6; text-wrap: pretty; }
 
 .steps .step-card:first-child {
   background: oklch(97.5% 0.025 145);
@@ -605,7 +609,7 @@ body::before {
 .faq-item summary::-webkit-details-marker { display: none; }
 .faq-item summary::after { content: '+'; font-size: 22px; font-weight: 300; color: var(--text-mute); transition: transform .25s; flex-shrink: 0; }
 .faq-item[open] summary::after { transform: rotate(45deg); }
-.faq-answer { padding: 0 22px 20px; color: var(--text-soft); font-size: 14px; line-height: 1.65; }
+.faq-answer { padding: 0 22px 20px; color: var(--text-soft); font-size: 15px; line-height: 1.65; text-wrap: pretty; }
 
 /* ─── FINAL CTA ─── */
 .final-cta {
@@ -613,7 +617,7 @@ body::before {
   border-radius: 24px; padding: 64px 32px; max-width: 780px; margin: 0 auto;
   position: relative; overflow: hidden;
 }
-.final-cta h2 { font-size: clamp(30px, 5vw, 56px); font-weight: 700; letter-spacing: -0.035em; line-height: 1.1; margin-bottom: 12px; position: relative; }
+.final-cta h2 { font-size: clamp(30px, 5vw, 56px); font-weight: 700; letter-spacing: -0.035em; line-height: 1.15; margin-bottom: 12px; position: relative; text-wrap: balance; }
 .final-cta p { color: var(--text-soft); margin-bottom: 26px; position: relative; }
 .final-cta a { position: relative; }
 
