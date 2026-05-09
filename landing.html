@@ -227,6 +227,53 @@ body::before {
 [data-theme="dark"] .dot-live { background: oklch(72% 0.18 145); box-shadow: 0 0 8px rgba(91,201,125,0.6); }
 @keyframes dotPulse { 0%,100%{opacity:1} 50%{opacity:0.45} }
 
+/* ─── HERO DECORATIVE CARDS ─── */
+.hero-deco-card {
+  position: absolute; top: 52%;
+  display: none;
+  opacity: 0;
+  transition: opacity 1s var(--ease-out);
+  pointer-events: none; z-index: 0;
+}
+@media (min-width: 1160px) { .hero-deco-card { display: block; } }
+.hero-deco-card.show { opacity: 1; }
+.hero-deco-right {
+  right: 2.5%;
+  transform: translateY(-50%) perspective(900px) rotateY(-20deg) rotateX(6deg) rotateZ(1.5deg);
+}
+.hero-deco-left {
+  left: 2.5%;
+  transform: translateY(-50%) perspective(900px) rotateY(20deg) rotateX(6deg) rotateZ(-1.5deg);
+}
+.hero-side-card {
+  width: clamp(110px, 10vw, 166px);
+  height: auto; border-radius: 4.5%;
+  overflow: hidden; isolation: isolate;
+  box-shadow: var(--shadow-h), 0 0 40px rgba(0,0,0,0.08);
+  position: relative;
+}
+.hero-deco-right .hero-side-card { animation: floatHeroR 6.5s ease-in-out infinite; }
+.hero-deco-left  .hero-side-card { animation: floatHeroL 7.5s ease-in-out 0.8s infinite; }
+.hero-side-card img {
+  width: 100%; height: auto; display: block;
+  user-select: none; -webkit-user-drag: none;
+}
+.hero-card-holo {
+  position: absolute; inset: 0; border-radius: inherit;
+  background: linear-gradient(115deg,
+    transparent 22%,
+    rgba(255,219,77,0.07) 36%,
+    rgba(124,92,252,0.07) 50%,
+    transparent 66%
+  );
+  background-size: 300% 300%;
+  animation: holoSide 4.5s ease-in-out infinite;
+  mix-blend-mode: screen;
+}
+@keyframes floatHeroR { 0%,100%{transform:translateY(0)}  50%{transform:translateY(-11px)} }
+@keyframes floatHeroL { 0%,100%{transform:translateY(0)}  50%{transform:translateY(-8px)} }
+@keyframes holoSide   { 0%{background-position:200% 0%} 50%{background-position:-100% 100%} 100%{background-position:200% 0%} }
+
 .hero h1 {
   font-size: clamp(44px, 7.5vw, 88px);
   font-weight: 700; letter-spacing: -0.055em; line-height: 1.04;
@@ -676,6 +723,26 @@ footer { border-top: 1px solid var(--border); padding: 40px 24px; margin-top: 40
 
 <!-- ─── HERO ─── -->
 <section id="top" class="hero">
+
+  <!-- Decorative TCG cards — visible only on wide screens -->
+  <div class="hero-deco-card hero-deco-right" id="heroCardRight" aria-hidden="true">
+    <div class="hero-side-card">
+      <img src="https://images.pokemontcg.io/base1/4_hires.png"
+           alt="Charizard — Base Set #4/102"
+           loading="eager" fetchpriority="high" draggable="false">
+      <div class="hero-card-holo"></div>
+    </div>
+  </div>
+
+  <div class="hero-deco-card hero-deco-left" id="heroCardLeft" aria-hidden="true">
+    <div class="hero-side-card">
+      <img src="https://limitlesstcg.nyc3.digitaloceanspaces.com/one-piece/OP05/OP05-119_EN.webp"
+           alt="Monkey D. Luffy Gear 5 — OP05-119 SEC"
+           loading="eager" fetchpriority="high" draggable="false">
+      <div class="hero-card-holo"></div>
+    </div>
+  </div>
+
   <div class="container">
     <div class="hero-badge reveal">
       <span class="dot-live"></span>
@@ -1051,6 +1118,12 @@ if (prefersReducedMotion) {
   }, { threshold: 0.10, rootMargin: '0px 0px -30px 0px' });
   reveals.forEach(el => io.observe(el));
 }
+
+/* ── Hero deco cards fade in ── */
+setTimeout(() => {
+  document.getElementById('heroCardRight')?.classList.add('show');
+  document.getElementById('heroCardLeft')?.classList.add('show');
+}, 750);
 
 /* ── Stats counter ── */
 const statNums = document.querySelectorAll('.stat-num[data-count]');
