@@ -7,10 +7,16 @@ const HEADERS = {
 function extractCards(html, game) {
   const tagPattern = /<a[\s\S]*?data-gtm-id[\s\S]*?>/g;
   const tags = html.match(tagPattern) || [];
+
   function attr(tag, name) {
     const m = tag.match(new RegExp(name + '="([^"]*)"'));
     return m ? m[1] : '';
   }
+  function findImg(id) {
+    const m = html.match(new RegExp(`src="(/uploads/blueprints/image/${id}/preview_[^"]+)"`));
+    return m ? 'https://www.cardtrader.com' + m[1] : '';
+  }
+
   const cards = [];
   for (const tag of tags) {
     if (attr(tag, 'data-gtm-listname') !== 'trending') continue;
@@ -19,12 +25,11 @@ function extractCards(html, game) {
     const price = parseFloat(attr(tag, 'data-gtm-price')) || 0;
     const pos   = parseInt(attr(tag, 'data-gtm-position')) || 99;
     const href  = attr(tag, 'href');
-    const slug  = href.split('/').pop() || '';
     if (!id || !name) continue;
     cards.push({
       id: parseInt(id), name, game, price, pos,
       href:  'https://www.cardtrader.com' + href,
-      image: `https://www.cardtrader.com/uploads/blueprints/image/${id}/preview_${slug}.jpg`
+      image: findImg(id)
     });
   }
   return cards.sort((a, b) => a.pos - b.pos);
