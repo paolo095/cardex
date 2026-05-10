@@ -1384,134 +1384,49 @@ function hideDeleteConfirm(){
   hideMsg('msg-delete');
 }
 
-// ── MARKET MOVERS ──
-const MARKET_WATCHLIST = {
-  pokemon: [
-    'Charizard ex','Umbreon VMAX','Mewtwo VSTAR','Pikachu VMAX',
-    'Rayquaza VMAX','Giratina VSTAR','Mew VMAX','Lugia VSTAR',
-    'Miraidon ex','Koraidon ex','Gardevoir ex','Palafin ex'
-  ],
-  onepiece: [
-    'Monkey D. Luffy','Roronoa Zoro','Shanks','Portgas D. Ace',
-    'Yamato','Trafalgar Law','Rob Lucci','Charlotte Linlin',
-    'Nami','Eustass Kid','Sanji','Whitebeard'
-  ]
-};
-const MKT_CACHE_KEY = 'cardex_mkt_v2';
+// ── HIGHLIGHTS (Più vendute CardTrader) ──
+let _highlightsCache = null;
+let _highlightsCacheTime = 0;
 
-async function fetchMarketMovers(){
-  const today = new Date().toISOString().slice(0,10);
-  let stored = {};
-  try { stored = JSON.parse(localStorage.getItem(MKT_CACHE_KEY)||'{}'); } catch {}
-
-  // Se già fetchato oggi usa cache
-  if(stored[today] && Object.keys(stored[today]).length > 0){
-    return _computeMoversFromCache(stored, today);
-  }
-
-  // Cerca blueprint nelle ultime 4 espansioni per gioco
-  const toTrack = [];
-  for(const [game, names] of Object.entries(MARKET_WATCHLIST)){
-    const recentExps = expansionsDB[game].slice(0,4);
-    for(const exp of recentExps){
-      if(!blueprintCache[exp.id]){
-        try{
-          const raw = await apiCall('/blueprints/export?expansion_id='+exp.id);
-          const catId = SINGLE_CAT_IDS[game];
-          blueprintCache[exp.id] = catId ? raw.filter(bp=>bp.category_id===catId) : raw;
-        }catch{ blueprintCache[exp.id]=[]; }
-      }
-      const bps = blueprintCache[exp.id]||[];
-      for(const name of names){
-        const match = bps.find(bp=>bp.name&&bp.name.includes(name));
-        if(match && !toTrack.find(t=>t.id===match.id)){
-          toTrack.push({id:match.id, name:match.name, game, expansion:bp_expansion(match,exp), image:match.image_url||''});
-          if(toTrack.filter(t=>t.game===game).length>=7) break;
-        }
-      }
-      if(toTrack.filter(t=>t.game===game).length>=7) break;
+async function loadHighlights(){
+  const now = Date.now();
+  if(_highlightsCache && now - _highlightsCacheTime < 1800000) return _highlightsCache;
+  try{
+    const res = await fetch('/api/highlights');
+    const data = await res.json();
+    if(Array.isArray(data) && data.length){
+      _highlightsCache = data;
+      _highlightsCacheTime = now;
     }
-  }
-
-  // Fetch prezzi (max 14 calls totali)
-  const todayPrices = {};
-  for(const bp of toTrack.slice(0,14)){
-    try{
-      const data = await apiCall('/marketplace/products?blueprint_id='+bp.id);
-      const all = data[bp.id]||[];
-      if(all.length){
-        const minCents = Math.min(...all.map(p=>p.price?.cents||Infinity));
-        if(isFinite(minCents))
-          todayPrices[bp.id]={price:minCents/100, name:bp.name, game:bp.game, expansion:bp.expansion, image:bp.image};
-      }
-    }catch{}
-    await new Promise(r=>setTimeout(r,120));
-  }
-
-  // Salva in localStorage, mantieni solo ultimi 3 giorni
-  const ns = {...stored, [today]: todayPrices};
-  const keys = Object.keys(ns).sort();
-  while(keys.length>3) delete ns[keys.shift()];
-  try{ localStorage.setItem(MKT_CACHE_KEY, JSON.stringify(ns)); }catch{}
-
-  return _computeMoversFromCache(ns, today);
+    return data;
+  }catch{ return []; }
 }
 
-function bp_expansion(match, exp){ return match.expansion?.name || exp.name || ''; }
-
-function _computeMoversFromCache(stored, today){
-  const curr = stored[today]||{};
-  const prevDate = Object.keys(stored).filter(d=>d<today).sort().pop();
-  const prev = prevDate ? stored[prevDate]||{} : {};
-  const movers = [];
-  for(const [id, c] of Object.entries(curr)){
-    const p = prev[id];
-    if(!p || Math.abs(c.price-p.price)<0.01) continue;
-    const delta = c.price-p.price;
-    const pct = (delta/p.price)*100;
-    if(Math.abs(pct)<1) continue;
-    movers.push({id, ...c, delta, pct, prevPrice:p.price, prevDate});
-  }
-  return movers.sort((a,b)=>Math.abs(b.pct)-Math.abs(a.pct));
-}
-
-async function renderDashMovers(){
-  const el = document.getElementById('dash-movers');
+async function renderDashHighlights(){
+  const el = document.getElementById('dash-highlights');
   if(!el) return;
-  el.innerHTML=`<div style="color:var(--muted);font-size:12px;text-align:center;padding:20px 0;"><span class="spinner"></span> Aggiornamento mercato...</div>`;
-  const movers = await fetchMarketMovers();
-  const dateEl = document.getElementById('dash-movers-date');
-
-  if(!movers.length){
-    el.innerHTML=`<div style="color:var(--muted);font-size:12px;text-align:center;padding:16px 0;">Nessun movimento rilevante oggi. I dati si accumulano nel tempo.</div>`;
-    if(dateEl) dateEl.textContent='';
+  const cards = await loadHighlights();
+  const pok = cards.filter(c=>c.game==='pokemon').slice(0,8);
+  const op  = cards.filter(c=>c.game==='onepiece').slice(0,8);
+  if(!pok.length && !op.length){
+    el.innerHTML=`<div style="color:var(--muted);font-size:12px;text-align:center;padding:16px 0;">Dati non disponibili.</div>`;
     return;
   }
-
-  if(dateEl && movers[0]?.prevDate){
-    const [,m,d]=movers[0].prevDate.split('-');
-    dateEl.textContent=`vs ${d}/${m}`;
-  }
-
-  const gainers = movers.filter(m=>m.delta>0).slice(0,3);
-  const losers  = movers.filter(m=>m.delta<0).slice(0,3);
-
-  const renderRow = m => {
-    const sign=m.delta>0?'+':''; const cls=m.delta>0?'pos':'neg'; const arrow=m.delta>0?'▲':'▼';
-    return `<div class="mover-row">
-      ${m.image?`<img src="${m.image}" alt="${m.name}" loading="lazy">`:`<div class="mover-img-ph">${m.game==='pokemon'?ICONS.zap(13):ICONS.skull(13)}</div>`}
-      <div class="mover-info">
-        <div class="mover-name">${m.name}</div>
-        <div class="mover-prices">${m.expansion} · €${m.prevPrice.toFixed(2)} → €${m.price.toFixed(2)}</div>
-      </div>
-      <div class="mover-delta ${cls}">${arrow} ${sign}${m.pct.toFixed(1)}%</div>
-    </div>`;
+  const renderScroll = (list, game) => {
+    if(!list.length) return '';
+    const label = game==='pokemon'?'Pokémon':'One Piece';
+    const cls   = game==='pokemon'?'pok':'op';
+    return `<div class="hl-game-label ${cls}">${game==='pokemon'?ICONS.zap(13):ICONS.skull(13)} ${label}</div>
+    <div class="highlights-scroll">${list.map(c=>`
+      <a class="highlight-card" href="${c.href}" target="_blank" rel="noopener noreferrer">
+        <img src="${c.image}" alt="${c.name}" loading="lazy" onerror="this.style.opacity='.3'">
+        <div class="highlight-info">
+          <div class="highlight-name">${c.name}</div>
+          <div class="highlight-price">€ ${c.price.toFixed(2)}</div>
+        </div>
+      </a>`).join('')}</div>`;
   };
-
-  let html='';
-  if(gainers.length){ html+=`<div class="movers-label pos">▲ Maggiori aumenti</div>`+gainers.map(renderRow).join(''); }
-  if(losers.length){ html+=`<div class="movers-label neg"${gainers.length?' style="margin-top:14px"':''}>▼ Maggiori cali</div>`+losers.map(renderRow).join(''); }
-  el.innerHTML=html;
+  el.innerHTML = renderScroll(pok,'pokemon') + renderScroll(op,'onepiece');
 }
 
 // ── AUTO REFRESH ──
@@ -1634,7 +1549,7 @@ function renderDashboard(){
 
   renderDashTop3();
   renderDashRecent();
-  renderDashMovers();
+  renderDashHighlights();
 }
 
 function setChartTimeframe(tf){
