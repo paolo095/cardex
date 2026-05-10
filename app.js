@@ -1406,8 +1406,8 @@ async function renderDashHighlights(){
   const el = document.getElementById('dash-highlights');
   if(!el) return;
   const cards = await loadHighlights();
-  const pok = cards.filter(c=>c.game==='pokemon').slice(0,8);
-  const op  = cards.filter(c=>c.game==='onepiece').slice(0,8);
+  const pok = cards.filter(c=>c.game==='pokemon');
+  const op  = cards.filter(c=>c.game==='onepiece');
   if(!pok.length && !op.length){
     el.innerHTML=`<div style="color:var(--muted);font-size:12px;text-align:center;padding:16px 0;">Dati non disponibili.</div>`;
     return;
