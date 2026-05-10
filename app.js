@@ -47,7 +47,7 @@ let searchId = 0;
 let isRegisterMode = false;
 let autocompleteIndex = -1;
 let lastDetailBp = null;
-let previousScreen = 'screen-home';
+let previousScreen = 'screen-search';
 let _searchAllResults = [];
 let _searchPage = 0;
 let _searchFirstRender = false;
@@ -115,8 +115,7 @@ async function onLogin(user){
   const username=user.user_metadata?.username||user.email.split('@')[0];
   const letter=username[0].toUpperCase();
   const color=getAvatarColor(user.email);
-  // Applica avatar colorato a tutti gli elementi
-  ['h','d','cp','co','ss','sp','so','pf'].forEach(s=>{
+  ['h','home','d','cp','co','ss','sp','so','pf'].forEach(s=>{
     const el=document.getElementById('avatar-'+s);
     if(el){el.textContent=letter;el.style.background=color;el.style.boxShadow=`0 0 0 2px ${color}33`;}
   });
@@ -126,9 +125,9 @@ async function onLogin(user){
   showLoading();
   await loadExpansions();
   await loadCollection();
+  await loadDashboardHistory();
   hideLoading();
-  updateBanner();
-  updateCollectionUI();
+  renderDashboard();
 }
 
 async function doLogout(){
@@ -158,12 +157,15 @@ function showScreen(id){
   if(id!=='screen-detail'&&id!=='screen-profile') previousScreen=id;
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  ['nav-home','nav-collection-pokemon','nav-collection-onepiece','nav-stats'].forEach(n=>{
+  ['nav-home','nav-search','nav-collection-pokemon','nav-collection-onepiece','nav-stats'].forEach(n=>{
     const el=document.getElementById(n); if(el) el.classList.remove('active');
   });
   if(id==='screen-home'){
     document.getElementById('nav-home').classList.add('active');
-    // Resetta lo stato iniziale della ricerca con l'icona corretta
+    renderDashboard();
+  }
+  else if(id==='screen-search'){
+    document.getElementById('nav-search').classList.add('active');
     const rg=document.getElementById('results-grid');
     if(rg&&!_searchAllResults.length) rg.innerHTML=`<div class="empty-state"><span class="empty-icon">${ICONS.layers()}</span>Inizia a scrivere per cercare.<br>Clicca su una carta per i dettagli.</div>`;
   }
@@ -190,7 +192,7 @@ function showScreen(id){
   else if(id==='screen-profile'){
     renderProfilePage();
   }
-  window.scrollTo(0,0); 
+  window.scrollTo(0,0);
 }
 function goBack(){ showScreen(previousScreen); }
 function showLoading(){document.getElementById('loading-overlay').classList.add('show');}
@@ -767,7 +769,7 @@ async function confirmAddCard(){
   } catch(e){ console.warn('Snapshot iniziale non salvato', e); }
 
   collection.unshift(data);
-  updateBanner(); updateCollectionUI();
+  renderDashboard();
   closeAddModal();
 
   // Feedback visivo sul bottone della lingua
@@ -793,7 +795,7 @@ async function removeCard(id){
   const{error}=await sb.from('collections').delete().eq('id',id);
   if(!error){
     collection=collection.filter(c=>c.id!==id);
-    updateBanner(); updateCollectionUI();
+    renderDashboard();
     if(document.getElementById('screen-collection-pokemon').classList.contains('active')) renderCollectionGrid('pokemon');
     else if(document.getElementById('screen-collection-onepiece').classList.contains('active')) renderCollectionGrid('onepiece');
   }
@@ -1034,7 +1036,7 @@ async function removeCardFromModal(id){
   const{error}=await sb.from('collections').delete().eq('id',id);
   if(error){ alert('Errore: '+error.message); return; }
   collection=collection.filter(c=>c.id!==id);
-  updateBanner(); updateCollectionUI();
+  renderDashboard();
   // Aggiorna il gruppo corrente
   if(_currentDetailGroup){
     _currentDetailGroup.items=_currentDetailGroup.items.filter(i=>i.id!==id);
@@ -1110,10 +1112,10 @@ async function refreshPrices(game){
     await new Promise(r=>setTimeout(r,150));
   }
   btn.disabled=false;
-  btn.textContent='✅ Aggiornati!';
-  setTimeout(()=>{btn.textContent='🔄 Aggiorna prezzi';},2000);
-  updateBanner();
-  updateCollectionUI();
+  btn.innerHTML='✅ Aggiornati!';
+  setTimeout(()=>{btn.innerHTML=`<svg width="14" height="14"><use href="#i-refresh"/></svg> Aggiorna prezzi`;},2000);
+  await loadDashboardHistory();
+  renderDashboard();
   renderCollectionGrid(game);
 }
 
@@ -1212,8 +1214,7 @@ function getAvatarColor(seed){
 }
 
 function applyAvatarColors(color, letter){
-  // Applica a tutti gli avatar nell'app
-  const ids=['h','d','cp','co','ss','sp','so','pf'];
+  const ids=['h','home','d','cp','co','ss','sp','so','pf'];
   ids.forEach(s=>{
     const el=document.getElementById('avatar-'+s);
     if(el){
@@ -1378,6 +1379,212 @@ function hideDeleteConfirm(){
   const inp=document.getElementById('delete-email-input');
   if(inp) inp.value='';
   hideMsg('msg-delete');
+}
+
+// ── DASHBOARD ──
+let _dashHistory = [];
+let _dashTimeframe = '1M';
+
+async function loadDashboardHistory(){
+  try{
+    const{data}=await sb.from('card_price_history')
+      .select('price,snapshot_date,collection_id')
+      .eq('user_id',currentUser.id)
+      .order('snapshot_date',{ascending:true});
+    _dashHistory=data||[];
+  }catch(e){ _dashHistory=[]; }
+}
+
+function buildChartData(timeframe){
+  const collMap={};
+  collection.forEach(c=>collMap[c.id]=c.game);
+  const byDate={};
+  for(const row of _dashHistory){
+    if(!byDate[row.snapshot_date]) byDate[row.snapshot_date]={total:0,pokemon:0,onepiece:0};
+    byDate[row.snapshot_date].total+=Number(row.price);
+    const g=collMap[row.collection_id];
+    if(g==='pokemon') byDate[row.snapshot_date].pokemon+=Number(row.price);
+    if(g==='onepiece') byDate[row.snapshot_date].onepiece+=Number(row.price);
+  }
+  // Aggiungi punto "oggi" con valori attuali
+  const today=new Date().toISOString().slice(0,10);
+  const todayPok=collection.filter(c=>c.game==='pokemon').reduce((s,c)=>s+Number(c.price||0),0);
+  const todayOP=collection.filter(c=>c.game==='onepiece').reduce((s,c)=>s+Number(c.price||0),0);
+  byDate[today]={total:todayPok+todayOP,pokemon:todayPok,onepiece:todayOP};
+
+  const now=new Date();
+  const daysMap={'1D':1,'1W':7,'1M':30,'1Y':365};
+  const daysBack=daysMap[timeframe]||30;
+  const cutoff=new Date(now.getTime()-daysBack*86400000).toISOString().slice(0,10);
+
+  return Object.entries(byDate)
+    .filter(([date])=>date>=cutoff)
+    .sort(([a],[b])=>a.localeCompare(b))
+    .map(([date,vals])=>({date,...vals}));
+}
+
+function getDashTrend(game){
+  const collMap={};
+  collection.forEach(c=>collMap[c.id]=c.game);
+  const today=new Date().toISOString().slice(0,10);
+  const yesterday=new Date(Date.now()-86400000).toISOString().slice(0,10);
+  const todayVal=collection
+    .filter(c=>!game||c.game===game)
+    .reduce((s,c)=>s+Number(c.price||0),0);
+  const yEntries=_dashHistory.filter(h=>{
+    if(h.snapshot_date!==yesterday) return false;
+    if(!game) return true;
+    return collMap[h.collection_id]===game;
+  });
+  if(!yEntries.length) return null;
+  const yesterdayVal=yEntries.reduce((s,h)=>s+Number(h.price),0);
+  if(yesterdayVal===0) return null;
+  const delta=todayVal-yesterdayVal;
+  return{delta,pct:(delta/yesterdayVal)*100};
+}
+
+function renderTrendBadge(trend){
+  if(!trend) return '<span style="color:var(--muted);font-size:11px;">—</span>';
+  const sign=trend.delta>=0?'+':'';
+  const cls=trend.delta>=0?'pos':'neg';
+  const arrow=trend.delta>=0?'▲':'▼';
+  return `<span class="dash-trend-badge ${cls}">${arrow} ${sign}${trend.pct.toFixed(1)}% vs ieri</span>`;
+}
+
+function renderDashboard(){
+  if(!document.getElementById('dash-total')) return;
+  const totalPok=collection.filter(c=>c.game==='pokemon').reduce((s,c)=>s+Number(c.price||0),0);
+  const totalOP=collection.filter(c=>c.game==='onepiece').reduce((s,c)=>s+Number(c.price||0),0);
+  const totalVal=totalPok+totalOP;
+  const totalPaid=collection.reduce((s,c)=>s+Number(c.paid_price||c.price||0),0);
+
+  document.getElementById('dash-total').textContent=totalVal.toFixed(2).replace('.',',');
+
+  const roi=totalVal-totalPaid;
+  const roiPct=totalPaid>0?(roi/totalPaid)*100:0;
+  const roiEl=document.getElementById('dash-roi');
+  if(roiEl){
+    if(totalPaid>0){
+      const sign=roi>=0?'+':'';
+      const cls=roi>=0?'pos':'neg';
+      roiEl.innerHTML=`<span class="dash-paid">Pagato € ${totalPaid.toFixed(2).replace('.',',')}</span><span class="dash-roi-delta ${cls}">${sign}€ ${Math.abs(roi).toFixed(2)} (${sign}${roiPct.toFixed(1)}%)</span>`;
+    } else {
+      roiEl.innerHTML='';
+    }
+  }
+
+  const countsEl=document.getElementById('dash-counts');
+  if(countsEl) countsEl.innerHTML=`<span>${collection.length} carte totali</span><span class="dc-sep">·</span><span style="color:var(--pokemon)">${collection.filter(c=>c.game==='pokemon').length} POK</span><span class="dc-sep">·</span><span style="color:var(--onepiece)">${collection.filter(c=>c.game==='onepiece').length} OP</span>`;
+
+  renderDashChart();
+
+  document.getElementById('dg-pok-val').textContent='€ '+totalPok.toFixed(2).replace('.',',');
+  document.getElementById('dg-pok-count').textContent=collection.filter(c=>c.game==='pokemon').length+' carte';
+  document.getElementById('dg-pok-trend').innerHTML=renderTrendBadge(getDashTrend('pokemon'));
+  document.getElementById('dg-op-val').textContent='€ '+totalOP.toFixed(2).replace('.',',');
+  document.getElementById('dg-op-count').textContent=collection.filter(c=>c.game==='onepiece').length+' carte';
+  document.getElementById('dg-op-trend').innerHTML=renderTrendBadge(getDashTrend('onepiece'));
+
+  renderDashTop3();
+  renderDashRecent();
+}
+
+function setChartTimeframe(tf){
+  _dashTimeframe=tf;
+  document.querySelectorAll('.tf-btn').forEach(b=>b.classList.toggle('active',b.dataset.tf===tf));
+  renderDashChart();
+}
+
+function renderDashChart(){
+  const container=document.getElementById('dash-chart');
+  if(!container) return;
+  const data=buildChartData(_dashTimeframe);
+  if(data.length<2){
+    container.innerHTML=`<div class="cdm-chart-empty" style="margin:0;">Aggiorna i prezzi per vedere il grafico storico.</div>`;
+    return;
+  }
+  const W=500,H=130,pL=46,pR=14,pT=10,pB=22;
+  const cW=W-pL-pR,cH=H-pT-pB;
+  const prices=data.map(d=>d.total);
+  const minP=Math.min(...prices)*0.97;
+  const maxP=Math.max(...prices)*1.03;
+  const rng=maxP-minP||1;
+  const toX=i=>pL+(i/(data.length-1))*cW;
+  const toY=p=>pT+cH-((p-minP)/rng)*cH;
+  const isPos=prices[prices.length-1]>=prices[0];
+  const lc=isPos?'#5BC97D':'#E88891';
+  const pts=data.map((d,i)=>`${toX(i).toFixed(1)},${toY(d.total).toFixed(1)}`);
+  const linePath='M '+pts.join(' L ');
+  const areaPath=`M ${toX(0).toFixed(1)},${(pT+cH).toFixed(1)} L ${pts.join(' L ')} L ${toX(data.length-1).toFixed(1)},${(pT+cH).toFixed(1)} Z`;
+  const dtFmt=d=>{const[,m,day]=d.split('-');return`${day}/${m}`;};
+  container.innerHTML=`<div class="cdm-chart-wrap" style="margin:0;"><svg viewBox="0 0 ${W} ${H}" width="100%" xmlns="http://www.w3.org/2000/svg">
+    <defs><linearGradient id="dcg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${lc}" stop-opacity=".2"/><stop offset="100%" stop-color="${lc}" stop-opacity="0"/></linearGradient></defs>
+    <path d="${areaPath}" fill="url(#dcg)"/>
+    <path d="${linePath}" fill="none" stroke="${lc}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    ${data.map((d,i)=>`<circle cx="${toX(i).toFixed(1)}" cy="${toY(d.total).toFixed(1)}" r="3" fill="${lc}" stroke="var(--bg2)" stroke-width="1.5"/>`).join('')}
+    <text x="${pL}" y="${H-4}" font-size="9" fill="rgba(255,255,255,0.28)" font-family="Inter,sans-serif">${dtFmt(data[0].date)}</text>
+    <text x="${W-pR}" y="${H-4}" text-anchor="end" font-size="9" fill="rgba(255,255,255,0.28)" font-family="Inter,sans-serif">${dtFmt(data[data.length-1].date)}</text>
+    <text x="${pL-4}" y="${toY(maxP).toFixed(1)}" text-anchor="end" dominant-baseline="middle" font-size="9" fill="rgba(255,255,255,0.28)" font-family="JetBrains Mono,monospace">€${maxP.toFixed(0)}</text>
+    <text x="${pL-4}" y="${toY(minP).toFixed(1)}" text-anchor="end" dominant-baseline="middle" font-size="9" fill="rgba(255,255,255,0.28)" font-family="JetBrains Mono,monospace">€${minP.toFixed(0)}</text>
+  </svg></div>`;
+}
+
+function renderDashTop3(){
+  const el=document.getElementById('dash-top3');
+  if(!el) return;
+  const top3=[...collection].sort((a,b)=>Number(b.price)-Number(a.price)).slice(0,3);
+  if(!top3.length){
+    el.innerHTML=`<div style="color:var(--muted);font-size:13px;text-align:center;padding:16px 0;">Nessuna carta in collezione.</div>`;
+    return;
+  }
+  el.innerHTML=top3.map((c,i)=>{
+    const paid=Number(c.paid_price||c.price||0);
+    const curr=Number(c.price||0);
+    const delta=curr-paid;
+    const pct=paid>0?(delta/paid)*100:0;
+    const sign=delta>=0?'+':'';
+    const cls=delta>=0?'pos':'neg';
+    return `<div class="dash-top-row" onclick="openCardFromCollection('${c.id}')">
+      <div class="dash-top-rank">${i+1}</div>
+      ${c.image?`<img src="${c.image}" alt="${c.name}" loading="lazy">`:`<div class="dash-top-img-ph">${c.game==='pokemon'?ICONS.zap(18):ICONS.skull(18)}</div>`}
+      <div class="dash-top-info">
+        <div class="dash-top-name">${c.name}</div>
+        <div class="dash-top-meta">${c.lang_flag||''} ${c.expansion||''}</div>
+      </div>
+      <div class="dash-top-right">
+        <div class="dash-top-price">€ ${curr.toFixed(2)}</div>
+        ${paid>0?`<div class="dash-delta ${cls}">${sign}${pct.toFixed(1)}%</div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderDashRecent(){
+  const el=document.getElementById('dash-recent');
+  if(!el) return;
+  const recent=collection.slice(0,12);
+  if(!recent.length){
+    el.innerHTML=`<div style="color:var(--muted);font-size:13px;padding:12px 0;">Nessuna carta aggiunta.</div>`;
+    return;
+  }
+  el.innerHTML=recent.map(c=>`
+    <div class="dash-recent-card" onclick="openCardFromCollection('${c.id}')">
+      ${c.image?`<img src="${c.image}" alt="${c.name}" loading="lazy" onerror="this.style.display='none'">`:`<div class="dash-recent-ph">${c.game==='pokemon'?ICONS.zap(18):ICONS.skull(18)}</div>`}
+      <div class="dash-recent-info">
+        <div class="dash-recent-name">${c.name}</div>
+        <div class="dash-recent-price">€ ${Number(c.price).toFixed(2)}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openCardFromCollection(id){
+  const item=collection.find(c=>c.id===id);
+  if(!item) return;
+  const gameItems=collection.filter(i=>i.game===item.game);
+  _collGroupsList=groupCollItems(gameItems);
+  const idx=_collGroupsList.findIndex(g=>g.items.some(i=>i.id===id));
+  if(idx>=0) openCardDetailModal(idx);
 }
 
 async function deleteAccount(){

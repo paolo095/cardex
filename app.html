@@ -73,8 +73,72 @@
   </div>
 </div>
 
-<!-- HOME -->
+<!-- HOME DASHBOARD -->
 <div id="screen-home" class="screen">
+  <header>
+    <div class="header-logo" onclick="showScreen('screen-home')"><span class="bl-card">CARD</span><span class="bl-ex">EX</span></div>
+    <div class="header-right">
+      <div class="avatar" id="avatar-home" onclick="showProfile()" title="Il tuo profilo">U</div>
+      <button class="btn-ghost" onclick="doLogout()">Esci</button>
+    </div>
+  </header>
+  <div class="dashboard-wrap">
+    <!-- Hero valore -->
+    <div class="dash-hero">
+      <div class="dash-hero-label">Valore collezione</div>
+      <div class="dash-hero-value">€ <span id="dash-total">0,00</span></div>
+      <div id="dash-roi" class="dash-roi-row"></div>
+      <div class="dash-counts" id="dash-counts"></div>
+    </div>
+    <!-- Grafico -->
+    <div class="dash-card">
+      <div class="dash-card-header">
+        <span class="dash-card-title">Andamento</span>
+        <div class="dash-tf-group">
+          <button class="tf-btn active" data-tf="1D" onclick="setChartTimeframe('1D')">1G</button>
+          <button class="tf-btn" data-tf="1W" onclick="setChartTimeframe('1W')">1S</button>
+          <button class="tf-btn" data-tf="1M" onclick="setChartTimeframe('1M')">1M</button>
+          <button class="tf-btn" data-tf="1Y" onclick="setChartTimeframe('1Y')">1A</button>
+        </div>
+      </div>
+      <div id="dash-chart"></div>
+    </div>
+    <!-- Game breakdown -->
+    <div class="dash-games-grid">
+      <div class="dash-game-tile pokemon-tile" onclick="showScreen('screen-collection-pokemon')">
+        <div class="dash-game-icon"><svg width="20" height="20"><use href="#i-zap"/></svg></div>
+        <div class="dash-game-label">Pokémon</div>
+        <div class="dash-game-value" id="dg-pok-val">€ 0,00</div>
+        <div class="dash-game-sub" id="dg-pok-count">0 carte</div>
+        <div id="dg-pok-trend"></div>
+      </div>
+      <div class="dash-game-tile onepiece-tile" onclick="showScreen('screen-collection-onepiece')">
+        <div class="dash-game-icon"><svg width="20" height="20"><use href="#i-skull"/></svg></div>
+        <div class="dash-game-label">One Piece</div>
+        <div class="dash-game-value" id="dg-op-val">€ 0,00</div>
+        <div class="dash-game-sub" id="dg-op-count">0 carte</div>
+        <div id="dg-op-trend"></div>
+      </div>
+    </div>
+    <!-- Top 3 -->
+    <div class="dash-card">
+      <div class="dash-card-header">
+        <span class="dash-card-title">Top 3 più preziose</span>
+      </div>
+      <div id="dash-top3"></div>
+    </div>
+    <!-- Ultime aggiunte -->
+    <div class="dash-card">
+      <div class="dash-card-header">
+        <span class="dash-card-title">Ultime aggiunte</span>
+      </div>
+      <div id="dash-recent" class="dash-recent-scroll"></div>
+    </div>
+  </div>
+</div>
+
+<!-- RICERCA -->
+<div id="screen-search" class="screen">
   <header>
     <div class="header-logo" onclick="showScreen('screen-home')"><span class="bl-card">CARD</span><span class="bl-ex">EX</span></div>
     <div class="header-right">
@@ -83,22 +147,7 @@
       <button class="btn-ghost" onclick="doLogout()">Esci</button>
     </div>
   </header>
-  <div class="main-wrap">
-    <div class="value-banner">
-      <div>
-        <div class="value-label">Valore totale collezione</div>
-        <div class="value-amount">€ <span id="total-value">0,00</span></div>
-        <div class="game-pills">
-          <span class="game-pill pill-pokemon">● Pokémon</span>
-          <span class="game-pill pill-onepiece">● One Piece</span>
-        </div>
-      </div>
-      <div class="value-stats">
-        <div class="stat-item"><span class="stat-num" id="stat-total">0</span><span class="stat-label">Carte totali</span></div>
-        <div class="stat-item"><span class="stat-num" id="stat-pok" style="color:var(--pokemon)">0</span><span class="stat-label">Pokémon</span></div>
-        <div class="stat-item"><span class="stat-num" id="stat-op" style="color:var(--onepiece)">0</span><span class="stat-label">One Piece</span></div>
-      </div>
-    </div>
+  <div class="search-only-wrap">
     <div class="search-panel">
       <div class="panel-title"><svg width="18" height="18" style="vertical-align:middle;margin-right:8px"><use href="#i-search"/></svg>Cerca una carta</div>
       <div class="game-tabs">
@@ -112,17 +161,6 @@
       <div class="search-hint">💡 Puoi cercare per nome o codice carta (es: SV03-100, EB04-007)</div>
       <div id="results-grid" style="margin-top:14px;">
         <div class="empty-state"><span class="empty-icon" id="search-empty-icon"></span>Inizia a scrivere per cercare.<br>Clicca su una carta per i dettagli.</div>
-      </div>
-    </div>
-    <div class="collection-panel">
-      <div class="panel-title"><svg width="18" height="18" style="vertical-align:middle;margin-right:8px"><use href="#i-package"/></svg>Ultime aggiunte</div>
-      <div class="filter-row">
-        <button class="filter-btn active" id="filter-all" onclick="setFilter('all')">Tutte</button>
-        <button class="filter-btn" id="filter-pokemon" onclick="setFilter('pokemon')">Pokémon</button>
-        <button class="filter-btn" id="filter-onepiece" onclick="setFilter('onepiece')">One Piece</button>
-      </div>
-      <div class="collection-list" id="collection-list">
-        <div class="empty-state"><span class="empty-icon">✨</span>Collezione vuota.<br>Cerca e aggiungi la prima carta!</div>
       </div>
     </div>
   </div>
@@ -399,6 +437,9 @@
 <nav class="bottom-nav" id="bottom-nav" style="display:none;">
   <button class="nav-item active" id="nav-home" onclick="showScreen('screen-home')">
     <span class="nav-icon"><svg width="20" height="20"><use href="#i-home"/></svg></span><span class="nav-label">Home</span>
+  </button>
+  <button class="nav-item" id="nav-search" onclick="showScreen('screen-search')">
+    <span class="nav-icon"><svg width="20" height="20"><use href="#i-search"/></svg></span><span class="nav-label">Ricerca</span>
   </button>
   <button class="nav-item" id="nav-collection-pokemon" onclick="showScreen('screen-collection-pokemon')">
     <span class="nav-icon"><svg width="20" height="20"><use href="#i-zap"/></svg></span><span class="nav-label">Pokémon</span>
