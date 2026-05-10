@@ -128,6 +128,7 @@ async function onLogin(user){
   await loadDashboardHistory();
   hideLoading();
   renderDashboard();
+  checkAndAutoRefresh();
 }
 
 async function doLogout(){
@@ -1075,11 +1076,11 @@ async function refreshPrices(game){
   const items=collection.filter(i=>i.game===game);
   if(!items.length) return;
   const btn=document.getElementById('btn-refresh-'+game);
-  btn.disabled=true;
+  if(btn) btn.disabled=true;
   let done=0;
   const today = new Date().toISOString().slice(0,10);
   for(const item of items){
-    btn.textContent=`🔄 ${done}/${items.length}...`;
+    if(btn) btn.textContent=`🔄 ${done}/${items.length}...`;
     try{
       const data=await apiCall('/marketplace/products?blueprint_id='+item.bp_id);
       const all=data[item.bp_id]||[];
@@ -1111,9 +1112,11 @@ async function refreshPrices(game){
     done++;
     await new Promise(r=>setTimeout(r,150));
   }
-  btn.disabled=false;
-  btn.innerHTML='✅ Aggiornati!';
-  setTimeout(()=>{btn.innerHTML=`<svg width="14" height="14"><use href="#i-refresh"/></svg> Aggiorna prezzi`;},2000);
+  if(btn){
+    btn.disabled=false;
+    btn.innerHTML='✅ Aggiornati!';
+    setTimeout(()=>{btn.innerHTML=`<svg width="14" height="14"><use href="#i-refresh"/></svg> Aggiorna prezzi`;},2000);
+  }
   await loadDashboardHistory();
   renderDashboard();
   renderCollectionGrid(game);
@@ -1379,6 +1382,20 @@ function hideDeleteConfirm(){
   const inp=document.getElementById('delete-email-input');
   if(inp) inp.value='';
   hideMsg('msg-delete');
+}
+
+// ── AUTO REFRESH ──
+async function checkAndAutoRefresh(){
+  if(!collection.length) return;
+  const today=new Date().toISOString().slice(0,10);
+  const dates=_dashHistory.map(h=>h.snapshot_date).sort();
+  const lastDate=dates[dates.length-1]||null;
+  if(lastDate===today) return;
+  // Prezzi non aggiornati oggi — refresh silenzioso in background
+  await refreshPrices('pokemon');
+  await refreshPrices('onepiece');
+  await loadDashboardHistory();
+  renderDashboard();
 }
 
 // ── DASHBOARD ──
