@@ -536,9 +536,9 @@ input[type="date"].form-input{cursor:pointer;color-scheme:dark;}
 .hl-game-label.op{color:var(--onepiece);margin-top:14px;}
 .highlights-scroll{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;margin-bottom:4px;}
 .highlights-scroll::-webkit-scrollbar{display:none;}
-.highlight-card{flex-shrink:0;width:88px;background:var(--bg2);border:1px solid var(--border3);border-radius:12px;overflow:hidden;text-decoration:none;color:inherit;transition:all .18s var(--ease);display:block;}
+.highlight-card{flex-shrink:0;width:120px;background:var(--bg2);border:1px solid var(--border3);border-radius:12px;overflow:hidden;text-decoration:none;color:inherit;transition:all .18s var(--ease);display:block;}
 .highlight-card:hover{border-color:var(--gold);transform:translateY(-2px);box-shadow:var(--shadow-gold);}
-.highlight-card img{width:100%;aspect-ratio:2/3;object-fit:cover;display:block;background:var(--bg3);}
+.highlight-card img{width:100%;aspect-ratio:5/7;object-fit:contain;display:block;background:var(--bg3);}
 .hl-price-row{display:flex;align-items:center;justify-content:space-between;gap:4px;margin-top:2px;}
 .hl-trend{font-size:10px;font-weight:700;padding:2px 5px;border-radius:5px;line-height:1;flex-shrink:0;}
 .hl-trend.up{background:rgba(61,154,95,.2);color:#5BC97D;border:1px solid rgba(61,154,95,.35);}
@@ -560,7 +560,7 @@ input[type="date"].form-input{cursor:pointer;color-scheme:dark;}
 
 /* Desktop: carte highlights più grandi */
 @media(min-width:900px){
-  .highlight-card{width:104px;}
+  .highlight-card{width:150px;}
   .dash-games-grid{grid-template-columns:1fr 1fr;gap:16px;}
 }
 
