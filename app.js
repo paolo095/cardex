@@ -1424,13 +1424,13 @@ async function renderDashHighlights(){
     return `<div class="hl-game-label ${cls}">${game==='pokemon'?ICONS.zap(13):ICONS.skull(13)} ${label}</div>
     <div class="highlights-scroll">${list.map(c=>`
       <a class="highlight-card" href="${c.href}" target="_blank" rel="noopener noreferrer">
-        <div class="hl-img-wrap">
-          <img src="${c.image}" alt="${c.name}" loading="lazy" onerror="this.style.opacity='.3'">
-          ${trendBadge(c.trend)}
-        </div>
+        <img src="${c.image}" alt="${c.name}" loading="lazy" onerror="this.style.opacity='.3'">
         <div class="highlight-info">
           <div class="highlight-name">${c.name}</div>
-          <div class="highlight-price">€ ${c.price.toFixed(2)}</div>
+          <div class="hl-price-row">
+            <span class="highlight-price">€ ${c.price.toFixed(2)}</span>
+            ${trendBadge(c.trend)}
+          </div>
         </div>
       </a>`).join('')}</div>`;
   };
