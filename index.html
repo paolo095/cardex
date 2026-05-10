@@ -107,8 +107,8 @@ body::before {
   display: none; gap: 28px; font-size: 14px; color: var(--text-soft);
 }
 @media (min-width: 768px) { .nav-links { display: flex; } }
-.nav-cta, .nav-accedi { display: none; }
-@media (min-width: 768px) { .nav-cta, .nav-accedi { display: inline-flex; } }
+.nav-cta, .nav-accedi { display: none !important; }
+@media (min-width: 768px) { .nav-cta, .nav-accedi { display: inline-flex !important; } }
 .nav-links a { transition: color 150ms var(--ease-out); }
 @media (hover: hover) and (pointer: fine) {
   .nav-links a:hover { color: var(--text); }
