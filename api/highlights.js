@@ -5,34 +5,36 @@ const HEADERS = {
 };
 
 function extractCards(html, game) {
-  const tagPattern = /<a[\s\S]*?data-gtm-id[\s\S]*?>/g;
-  const tags = html.match(tagPattern) || [];
+  const blocks = html.match(/<a[^>]*data-gtm-listname="trending"[\s\S]*?<\/a>/g) || [];
 
-  function attr(tag, name) {
-    const m = tag.match(new RegExp(name + '="([^"]*)"'));
+  function attr(block, name) {
+    const m = block.match(new RegExp(name + '="([^"]*)"'));
     return m ? m[1] : '';
   }
   function findImg(id) {
     const m = html.match(new RegExp(`src="(/uploads/blueprints/image/${id}/preview_[^"]+)"`));
     return m ? 'https://www.cardtrader.com' + m[1] : '';
   }
-
-  const cards = [];
-  for (const tag of tags) {
-    if (attr(tag, 'data-gtm-listname') !== 'trending') continue;
-    const id    = attr(tag, 'data-gtm-id');
-    const name  = attr(tag, 'data-gtm-name');
-    const price = parseFloat(attr(tag, 'data-gtm-price')) || 0;
-    const pos   = parseInt(attr(tag, 'data-gtm-position')) || 99;
-    const href  = attr(tag, 'href');
-    if (!id || !name) continue;
-    cards.push({
-      id: parseInt(id), name, game, price, pos,
-      href:  'https://www.cardtrader.com' + href,
-      image: findImg(id)
-    });
+  function trend(block) {
+    const t = block.match(/title="(Prezzo[^"]+)"/);
+    if (!t) return 'stable';
+    if (t[1].includes('aumento')) return 'up';
+    if (t[1].includes('calo'))    return 'down';
+    return 'stable';
   }
-  return cards.sort((a, b) => a.pos - b.pos);
+
+  return blocks.map(block => ({
+    id:    parseInt(attr(block, 'data-gtm-id')),
+    name:  attr(block, 'data-gtm-name'),
+    game,
+    price: parseFloat(attr(block, 'data-gtm-price')) || 0,
+    pos:   parseInt(attr(block, 'data-gtm-position')) || 99,
+    href:  'https://www.cardtrader.com' + attr(block, 'href'),
+    image: findImg(attr(block, 'data-gtm-id')),
+    trend: trend(block),
+  }))
+  .filter(c => c.id && c.name)
+  .sort((a, b) => a.pos - b.pos);
 }
 
 export default async function handler(req, res) {

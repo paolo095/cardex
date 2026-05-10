@@ -1412,6 +1412,11 @@ async function renderDashHighlights(){
     el.innerHTML=`<div style="color:var(--muted);font-size:12px;text-align:center;padding:16px 0;">Dati non disponibili.</div>`;
     return;
   }
+  const trendBadge = t => {
+    if(t==='up')   return `<span class="hl-trend up">▲</span>`;
+    if(t==='down') return `<span class="hl-trend down">▼</span>`;
+    return `<span class="hl-trend stable">→</span>`;
+  };
   const renderScroll = (list, game) => {
     if(!list.length) return '';
     const label = game==='pokemon'?'Pokémon':'One Piece';
@@ -1419,7 +1424,10 @@ async function renderDashHighlights(){
     return `<div class="hl-game-label ${cls}">${game==='pokemon'?ICONS.zap(13):ICONS.skull(13)} ${label}</div>
     <div class="highlights-scroll">${list.map(c=>`
       <a class="highlight-card" href="${c.href}" target="_blank" rel="noopener noreferrer">
-        <img src="${c.image}" alt="${c.name}" loading="lazy" onerror="this.style.opacity='.3'">
+        <div class="hl-img-wrap">
+          <img src="${c.image}" alt="${c.name}" loading="lazy" onerror="this.style.opacity='.3'">
+          ${trendBadge(c.trend)}
+        </div>
         <div class="highlight-info">
           <div class="highlight-name">${c.name}</div>
           <div class="highlight-price">€ ${c.price.toFixed(2)}</div>
