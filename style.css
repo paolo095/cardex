@@ -530,6 +530,22 @@ input[type="date"].form-input{cursor:pointer;color-scheme:dark;}
   .profile-section{padding:18px;border-radius:14px;}
 }
 
+/* ── MARKET MOVERS ── */
+.movers-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;padding:0 2px;margin-bottom:8px;display:block;}
+.movers-label.pos{color:#5BC97D;}
+.movers-label.neg{color:#E88891;}
+.mover-row{display:flex;align-items:center;gap:10px;padding:8px 4px;border-bottom:1px solid var(--border3);border-radius:8px;transition:background .15s var(--ease);}
+.mover-row:last-child{border-bottom:none;}
+.mover-row:hover{background:var(--bg2);}
+.mover-row img{width:28px;height:40px;border-radius:4px;object-fit:cover;flex-shrink:0;background:var(--bg);}
+.mover-img-ph{width:28px;height:40px;border-radius:4px;background:var(--bg2);border:1px solid var(--border3);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--muted);}
+.mover-info{flex:1;min-width:0;}
+.mover-name{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.mover-prices{font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-top:2px;}
+.mover-delta{font-size:13px;font-weight:700;font-family:'JetBrains Mono',monospace;flex-shrink:0;}
+.mover-delta.pos{color:#5BC97D;}
+.mover-delta.neg{color:#E88891;}
+
 /* ── RICERCA (solo search panel) ── */
 .search-only-wrap{max-width:720px;margin:0 auto;padding:24px 20px;}
 @media(max-width:768px){.search-only-wrap{padding:14px 12px;}}
