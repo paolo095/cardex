@@ -67,6 +67,7 @@ function togglePw(inputId, btn){
   const isHidden=input.type==='password';
   input.type=isHidden?'text':'password';
   btn.innerHTML=isHidden?ICONS.eyeOff():ICONS.eye();
+  btn.setAttribute('aria-label', isHidden ? 'Nascondi password' : 'Mostra password');
 }
 
 // ── AUTH ──
@@ -76,7 +77,8 @@ function toggleAuthMode(){
   document.getElementById('btn-auth').textContent = isRegisterMode ? 'Registrati →' : 'Accedi →';
   document.getElementById('toggle-text').textContent = isRegisterMode ? 'Hai già un account?' : 'Non hai un account?';
   document.getElementById('auth-subtitle').textContent = isRegisterMode ? 'Crea il tuo account CARDEX' : 'Pokémon & One Piece · Prezzi reali CardTrader 🇮🇹';
-  document.querySelector('.auth-toggle a').textContent = isRegisterMode ? ' Accedi' : ' Registrati';
+  document.querySelector('.auth-link-btn').textContent = isRegisterMode ? 'Accedi' : 'Registrati';
+  document.getElementById('input-password').setAttribute('autocomplete', isRegisterMode ? 'new-password' : 'current-password');
   hideAuthError();
 }
 function showAuthError(msg){const el=document.getElementById('auth-error');el.textContent=msg;el.style.display='block';}

@@ -86,15 +86,19 @@ button,input,select,textarea{font-family:inherit;}
 .btn-primary:active{transform:scale(0.98);}
 .btn-primary:disabled{opacity:.5;cursor:not-allowed;filter:grayscale(.4);}
 .auth-toggle{margin-top:20px;text-align:center;font-size:13px;color:var(--muted);}
-.auth-toggle a{color:var(--gold);cursor:pointer;text-decoration:none;font-weight:500;}
-.auth-toggle a:hover{color:var(--gold-light);}
+.auth-toggle a,.auth-link-btn{color:var(--gold);cursor:pointer;text-decoration:none;font-weight:500;}
+.auth-toggle a:hover,.auth-link-btn:hover{color:var(--gold-light);}
 .auth-error{background:rgba(209,75,87,.08);border:1px solid rgba(209,75,87,.25);border-radius:10px;padding:11px 14px;color:#E88891;font-size:13px;margin-top:14px;display:none;}
 
 /* ── PASSWORD TOGGLE ── */
 .pw-wrap{position:relative;}
 .pw-wrap .form-input{padding-right:46px;}
-.pw-toggle{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);font-size:18px;line-height:1;padding:4px;transition:color .2s var(--ease);display:flex;align-items:center;justify-content:center;}
+.pw-toggle{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);font-size:18px;line-height:1;padding:0;min-width:44px;min-height:44px;transition:color .2s var(--ease);display:flex;align-items:center;justify-content:center;}
 .pw-toggle:hover{color:var(--gold);}
+.auth-link-btn{background:none;border:none;color:var(--gold);cursor:pointer;font-family:inherit;font-size:inherit;font-weight:500;padding:0;transition:color .2s var(--ease);}
+.auth-link-btn:hover{color:var(--gold-light);}
+.forgot-pw-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-family:inherit;font-size:12px;padding:0;transition:color .2s var(--ease);}
+.forgot-pw-btn:hover{color:var(--gold);}
 
 /* ── LOADING ── */
 #loading-overlay{position:fixed;inset:0;background:rgba(14,14,16,.97);z-index:999;display:none;flex-direction:column;align-items:center;justify-content:center;gap:24px;backdrop-filter:blur(12px);}
