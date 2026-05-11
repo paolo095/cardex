@@ -51,7 +51,7 @@ let previousScreen = 'screen-search';
 let _searchAllResults = [];
 let _searchPage = 0;
 let _searchFirstRender = false;
-const RESULTS_PER_PAGE = 12;
+const RESULTS_PER_PAGE = 24;
 
 // ── API ──
 async function apiCall(path){
@@ -253,6 +253,7 @@ function onSearchInput(){
   // Mostra autocomplete dai blueprint già in cache (veloce)
   showAutocomplete(q);
   document.getElementById('results-grid').innerHTML='<div class="empty-state"><span class="spinner"></span>Ricerca in corso...</div>';
+  const sci=document.getElementById('search-count'); if(sci) sci.textContent='';
   searchTimeout=setTimeout(()=>doSearch(q),400);
 }
 
@@ -387,10 +388,17 @@ async function doSearch(query){
       });
       results.push(...matched);
     }
-    // Re-render ogni volta che i risultati crescono
+    // Aggiorna contatore senza resettare paginazione
     if(searchId===myId&&results.length>0){
-      _searchFirstRender=true;
-      renderResultsGrid(results);
+      if(!_searchFirstRender){
+        _searchFirstRender=true;
+        renderResultsGrid(results);
+      } else {
+        _searchAllResults=results;
+        const info=document.getElementById('search-count');
+        if(info) info.textContent=results.length+' carte trovate';
+        if(_searchPage===0) renderSearchPage();
+      }
     }
     if(results.length>=200) break;
   }
@@ -413,6 +421,8 @@ function renderResultsGrid(bps){
   window._searchResults=bps;
   _searchPage=0;
   renderSearchPage();
+  const info=document.getElementById('search-count');
+  if(info) info.textContent=bps.length+' carte trovate';
 }
 
 function renderSearchPage(){

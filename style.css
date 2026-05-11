@@ -184,7 +184,8 @@ header{
 .search-input{width:100%;background:var(--bg2);border:1px solid var(--border3);border-radius:12px;padding:14px 16px;color:var(--text);font-size:15px;outline:none;transition:all .2s var(--ease);min-height:48px;}
 .search-input:focus{border-color:var(--gold);background:var(--bg3);box-shadow:0 0 0 3px var(--gold-glow);}
 .search-input::placeholder{color:var(--muted);}
-.search-hint{font-size:11px;color:var(--muted);margin-top:8px;display:flex;align-items:center;gap:4px;letter-spacing:.02em;}
+.search-hint-row{display:flex;align-items:center;justify-content:space-between;margin-top:8px;gap:8px;}
+.search-hint{font-size:11px;color:var(--muted);letter-spacing:.02em;}
 
 #autocomplete{position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--card);border:1px solid var(--border2);border-radius:14px;max-height:300px;overflow-y:auto;z-index:50;display:none;box-shadow:var(--shadow-lg);}
 #autocomplete.show{display:block;}
@@ -195,9 +196,9 @@ header{
 .autocomplete-name{flex:1;font-size:13px;font-weight:500;}
 .autocomplete-meta{font-size:11px;color:var(--muted);}
 
-#results-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:12px;max-height:520px;overflow-y:auto;padding:2px;}
-#results-grid::-webkit-scrollbar,.collection-list::-webkit-scrollbar{width:4px;}
-#results-grid::-webkit-scrollbar-thumb,.collection-list::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px;}
+#results-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;padding:2px;}
+.collection-list::-webkit-scrollbar{width:4px;}
+.collection-list::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px;}
 .result-card{background:var(--bg2);border:1px solid var(--border3);border-radius:14px;overflow:hidden;cursor:pointer;transition:all .2s var(--ease);position:relative;}
 .result-card:hover{border-color:var(--gold);transform:translateY(-3px);box-shadow:var(--shadow-gold);}
 .result-card:active{transform:translateY(-1px) scale(0.98);}
@@ -370,7 +371,7 @@ header{
   .header-logo{font-size:21px;letter-spacing:.28em;}
   .login-box{padding:32px 22px;border-radius:18px;}
   .login-logo{font-size:42px;}
-  #results-grid{grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px;}
+  #results-grid{grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;}
   .result-card{border-radius:12px;}
   .result-card-body{padding:7px 8px 9px;}
   .result-card-name{font-size:11px;}
@@ -410,7 +411,7 @@ header{
   .nav-item{min-height:50px;padding:8px 4px;}
 }
 @media(max-width:380px){
-  #results-grid{grid-template-columns:repeat(3,1fr);gap:6px;}
+  #results-grid{grid-template-columns:repeat(3,1fr);gap:8px;}
   .stats-grid{grid-template-columns:1fr;}
   .value-stats{flex-wrap:wrap;gap:14px;}
   .value-amount{font-size:38px;}
