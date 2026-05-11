@@ -1391,57 +1391,72 @@ function hideDeleteConfirm(){
   hideMsg('msg-delete');
 }
 
-// ── HIGHLIGHTS (Più vendute CardTrader) ──
-let _highlightsCache = null;
-let _highlightsCacheTime = 0;
-
-async function loadHighlights(){
-  const now = Date.now();
-  if(_highlightsCache && now - _highlightsCacheTime < 1800000) return _highlightsCache;
-  const ctrl = new AbortController();
-  const tid = setTimeout(()=>ctrl.abort(), 12000);
-  try{
-    const res = await fetch('/api/highlights', {signal: ctrl.signal});
-    clearTimeout(tid);
-    const data = await res.json();
-    if(Array.isArray(data) && data.length){ _highlightsCache=data; _highlightsCacheTime=now; }
-    return Array.isArray(data) ? data : [];
-  }catch{ clearTimeout(tid); return []; }
+// ── MOVIMENTI COLLEZIONE ──
+function computeCollectionMovers(){
+  const byCard={};
+  for(const h of _dashHistory){
+    if(!byCard[h.collection_id]) byCard[h.collection_id]=[];
+    byCard[h.collection_id].push(h);
+  }
+  const movers=[];
+  for(const[collId,entries] of Object.entries(byCard)){
+    if(entries.length<2) continue;
+    entries.sort((a,b)=>a.snapshot_date.localeCompare(b.snapshot_date));
+    const prev=entries[entries.length-2];
+    const curr=entries[entries.length-1];
+    const prevP=Number(prev.price), currP=Number(curr.price);
+    if(prevP<=0) continue;
+    const delta=currP-prevP, pct=(delta/prevP)*100;
+    if(Math.abs(pct)<1) continue;
+    const item=collection.find(c=>c.id===collId);
+    if(!item) continue;
+    movers.push({id:collId,name:item.name,game:item.game,
+      image:item.image||'',expansion:item.expansion||'',
+      prevPrice:prevP,currPrice:currP,delta,pct,
+      prevDate:prev.snapshot_date});
+  }
+  return movers.sort((a,b)=>Math.abs(b.pct)-Math.abs(a.pct));
 }
 
-async function renderDashHighlights(){
-  const el = document.getElementById('dash-highlights');
+function renderDashMovers(){
+  const el=document.getElementById('dash-movers');
   if(!el) return;
-  const cards = await loadHighlights();
-  const pok = cards.filter(c=>c.game==='pokemon');
-  const op  = cards.filter(c=>c.game==='onepiece');
-  if(!pok.length && !op.length){
-    el.innerHTML=`<div style="color:var(--muted);font-size:12px;text-align:center;padding:16px 0;">CardTrader non raggiungibile. Riprova più tardi.</div>`;
+  const movers=computeCollectionMovers();
+  const dateEl=document.getElementById('dash-movers-date');
+
+  if(!movers.length){
+    const msg=_dashHistory.length<2
+      ?'Aggiorna i prezzi domani per vedere i movimenti.'
+      :'Nessuna variazione significativa rilevata.';
+    el.innerHTML=`<div style="color:var(--muted);font-size:12px;text-align:center;padding:16px 0;">${msg}</div>`;
+    if(dateEl) dateEl.textContent='';
     return;
   }
-  const trendBadge = t => {
-    if(t==='up')   return `<span class="hl-trend up">▲</span>`;
-    if(t==='down') return `<span class="hl-trend down">▼</span>`;
-    return `<span class="hl-trend stable">→</span>`;
+
+  if(dateEl&&movers[0]?.prevDate){
+    const[,m,d]=movers[0].prevDate.split('-');
+    dateEl.textContent=`vs ${d}/${m}`;
+  }
+
+  const gainers=movers.filter(m=>m.delta>0).slice(0,3);
+  const losers=movers.filter(m=>m.delta<0).slice(0,3);
+
+  const renderRow=m=>{
+    const sign=m.delta>0?'+':'',cls=m.delta>0?'pos':'neg',arrow=m.delta>0?'▲':'▼';
+    return `<div class="mover-row" onclick="openCardFromCollection('${m.id}')">
+      ${m.image?`<img src="${m.image}" alt="${m.name}" loading="lazy">`:`<div class="mover-img-ph">${m.game==='pokemon'?ICONS.zap(13):ICONS.skull(13)}</div>`}
+      <div class="mover-info">
+        <div class="mover-name">${m.name}</div>
+        <div class="mover-prices">${m.expansion} · €${m.prevPrice.toFixed(2)} → €${m.currPrice.toFixed(2)}</div>
+      </div>
+      <div class="mover-delta ${cls}">${arrow} ${sign}${m.pct.toFixed(1)}%</div>
+    </div>`;
   };
-  const renderScroll = (list, game) => {
-    if(!list.length) return '';
-    const label = game==='pokemon'?'Pokémon':'One Piece';
-    const cls   = game==='pokemon'?'pok':'op';
-    return `<div class="hl-game-label ${cls}">${game==='pokemon'?ICONS.zap(13):ICONS.skull(13)} ${label}</div>
-    <div class="highlights-scroll">${list.map(c=>`
-      <a class="highlight-card" href="${c.href}" target="_blank" rel="noopener noreferrer">
-        <img src="${c.image}" alt="${c.name}" loading="lazy" onerror="this.style.opacity='.3'">
-        <div class="highlight-info">
-          <div class="highlight-name">${c.name}</div>
-          <div class="hl-price-row">
-            <span class="highlight-price">€ ${c.price.toFixed(2)}</span>
-            ${trendBadge(c.trend)}
-          </div>
-        </div>
-      </a>`).join('')}</div>`;
-  };
-  el.innerHTML = renderScroll(pok,'pokemon') + renderScroll(op,'onepiece');
+
+  let html='';
+  if(gainers.length) html+=`<div class="movers-label pos">▲ Aumenti</div>`+gainers.map(renderRow).join('');
+  if(losers.length)  html+=`<div class="movers-label neg"${gainers.length?' style="margin-top:14px"':''}>▼ Cali</div>`+losers.map(renderRow).join('');
+  el.innerHTML=html;
 }
 
 // ── AUTO REFRESH ──
@@ -1564,7 +1579,7 @@ function renderDashboard(){
 
   renderDashTop3();
   renderDashRecent();
-  renderDashHighlights();
+  renderDashMovers();
 }
 
 function setChartTimeframe(tf){
