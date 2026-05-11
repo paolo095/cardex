@@ -53,6 +53,80 @@ let _searchPage = 0;
 let _searchFirstRender = false;
 const RESULTS_PER_PAGE = 24;
 
+// ── SEARCH INDEX ──
+let _searchIndex = [];
+let _expFilter = null;
+
+function buildSearchIndex(){
+  _searchIndex = [];
+  for(const [expId, bps] of Object.entries(blueprintCache)){
+    const eid = Number(expId);
+    const game = expansionsDB.onepiece.some(e=>e.id===eid) ? 'onepiece' : 'pokemon';
+    for(const bp of bps){
+      if(!bp.name) continue;
+      _searchIndex.push({
+        id: bp.id,
+        name: bp.name,
+        expansion: bp.expansion?.name||'',
+        eid,
+        cn: bp.fixed_properties?.collector_number||'',
+        rarity: bp.fixed_properties?.[RARITY_FIELD[game]]||'',
+        image: bp.image_url||'',
+        game
+      });
+    }
+  }
+}
+
+function searchFromIndex(q, game){
+  const ql = q.toLowerCase();
+  const qc = ql.replace(/\s/g,'');
+  return _searchIndex.filter(item=>{
+    if(item.game !== game) return false;
+    if(_expFilter && item.eid !== _expFilter) return false;
+    const n = item.name.toLowerCase();
+    const cn = item.cn.toLowerCase();
+    return n.includes(ql) || cn===qc || cn.startsWith(qc) || cn.includes(qc);
+  });
+}
+
+function setExpFilter(eid){
+  _expFilter = eid;
+  renderExpFilterChips();
+  const q = document.getElementById('search-input')?.value.trim()||'';
+  if(q.length>=2) doSearch(q); else clearSearchResults();
+}
+
+function renderExpFilterChips(){
+  const el = document.getElementById('exp-filter-chips');
+  if(!el) return;
+  const exps = expansionsDB[currentGame].filter(e=>blueprintCache[e.id]);
+  if(!exps.length){ el.style.display='none'; return; }
+  el.style.display='flex';
+  el.innerHTML = [
+    `<button class="fchip${!_expFilter?' active':''}" onclick="setExpFilter(null)">Tutte</button>`,
+    ...exps.slice(0,30).map(e=>`<button class="fchip${_expFilter===e.id?' active':''}" onclick="setExpFilter(${e.id})">${e.name}</button>`)
+  ].join('');
+}
+
+function clearSearch(){
+  const inp = document.getElementById('search-input');
+  if(inp){ inp.value=''; inp.focus(); }
+  const cl = document.getElementById('srch-clear');
+  if(cl) cl.style.display='none';
+  clearSearchResults();
+  hideAutocomplete();
+}
+
+function clearSearchResults(){
+  _searchAllResults=[];
+  _searchPage=0;
+  const sci = document.getElementById('search-count');
+  if(sci) sci.textContent='';
+  const rg = document.getElementById('results-grid');
+  if(rg) rg.innerHTML=`<div class="empty-state"><span class="empty-icon">${ICONS.layers()}</span>Inizia a scrivere per cercare.</div>`;
+}
+
 // ── API ──
 async function apiCall(path){
   const res = await fetch(PROXY+'?path='+encodeURIComponent(path));
@@ -175,8 +249,8 @@ function showScreen(id){
   }
   else if(id==='screen-search'){
     document.getElementById('nav-search').classList.add('active');
-    const rg=document.getElementById('results-grid');
-    if(rg&&!_searchAllResults.length) rg.innerHTML=`<div class="empty-state"><span class="empty-icon">${ICONS.layers()}</span>Inizia a scrivere per cercare.<br>Clicca su una carta per i dettagli.</div>`;
+    if(!_searchAllResults.length) clearSearchResults();
+    renderExpFilterChips();
   }
   else if(id==='screen-collection-pokemon'){
     document.getElementById('nav-collection-pokemon').classList.add('active');
@@ -228,12 +302,15 @@ function selectGame(g){
   searchId++;
   clearTimeout(searchTimeout);
   currentGame=g;
-  document.getElementById('tab-pokemon').className='tab'+(g==='pokemon'?' active-pokemon':'');
-  document.getElementById('tab-onepiece').className='tab'+(g==='onepiece'?' active-onepiece':'');
-  document.getElementById('search-input').value='';
-  document.getElementById('search-input').placeholder=g==='pokemon'?'Es: Charizard, SV03-100...':'Es: Luffy, EB04-007...';
-  document.getElementById('results-grid').innerHTML=`<div class="empty-state"><span class="empty-icon">${ICONS.layers()}</span>Inizia a scrivere per cercare.</div>`;
+  _expFilter=null;
+  document.getElementById('tab-pokemon').className='stab'+(g==='pokemon'?' active-pokemon':'');
+  document.getElementById('tab-onepiece').className='stab'+(g==='onepiece'?' active-onepiece':'');
+  const inp=document.getElementById('search-input');
+  if(inp){ inp.value=''; inp.placeholder=g==='pokemon'?'Cerca Pokémon...':'Cerca One Piece...'; }
+  const cl=document.getElementById('srch-clear'); if(cl) cl.style.display='none';
+  clearSearchResults();
   hideAutocomplete();
+  renderExpFilterChips();
 }
 
 function isCollectorNumber(q){
@@ -245,16 +322,24 @@ function onSearchInput(){
   clearTimeout(searchTimeout);
   autocompleteIndex=-1;
   const q=document.getElementById('search-input').value.trim();
+  const cl=document.getElementById('srch-clear');
+  if(cl) cl.style.display=q?'flex':'none';
   if(q.length<2){
-    document.getElementById('results-grid').innerHTML=`<div class="empty-state"><span class="empty-icon">${ICONS.layers()}</span>Scrivi almeno 2 caratteri</div>`;
+    clearSearchResults();
     hideAutocomplete();
     return;
   }
-  // Mostra autocomplete dai blueprint già in cache (veloce)
   showAutocomplete(q);
-  document.getElementById('results-grid').innerHTML='<div class="empty-state"><span class="spinner"></span>Ricerca in corso...</div>';
+  // Ricerca istantanea dall'indice locale
+  if(_searchIndex.length){
+    const instant=searchFromIndex(q,currentGame);
+    if(instant.length){ renderResultsGrid(instant); }
+    else { document.getElementById('results-grid').innerHTML='<div class="empty-state"><span class="spinner"></span>Ricerca in corso...</div>'; }
+  } else {
+    document.getElementById('results-grid').innerHTML='<div class="empty-state"><span class="spinner"></span>Ricerca in corso...</div>';
+  }
   const sci=document.getElementById('search-count'); if(sci) sci.textContent='';
-  searchTimeout=setTimeout(()=>doSearch(q),400);
+  searchTimeout=setTimeout(()=>doSearch(q),300);
 }
 
 function onSearchKey(e){
@@ -662,17 +747,20 @@ function openAddModal(bp, lang, byCondition, minPrice){
   const cn = bp.fixed_properties?.collector_number ? ' · #'+bp.fixed_properties.collector_number : '';
   document.getElementById('add-modal-meta').textContent = (bp.expansion?.name||'') + cn;
   document.getElementById('add-modal-lang').textContent = lang.flag + ' ' + lang.label;
-  // Popola condizioni disponibili
-  const sel = document.getElementById('add-condition');
+  // Popola condizioni come chips
   const available = COND_ORDER.filter(c => byCondition[c]);
-  if(available.length === 0){
-    sel.innerHTML = '<option value="Near Mint">Near Mint</option>';
-  } else {
-    sel.innerHTML = available.map(c => {
-      const p = (byCondition[c].minCents/100).toFixed(2);
-      return `<option value="${c}" data-price="${p}">${c} — € ${p} (${byCondition[c].count} cop.)</option>`;
+  const condList = available.length ? available : ['Near Mint'];
+  const cchipsRow = document.getElementById('cchips-row');
+  const sel = document.getElementById('add-condition');
+  const condLabels = {'Near Mint':'NM','Slightly Played':'SP','Moderately Played':'MP','Played':'Played','Poor':'Poor'};
+  if(cchipsRow){
+    cchipsRow.innerHTML = condList.map((c,i)=>{
+      const p = byCondition[c] ? (byCondition[c].minCents/100).toFixed(2) : null;
+      return `<button type="button" class="cchip${i===0?' active':''}" data-cond="${c}" onclick="selectCondChip(this)">${condLabels[c]||c}${p?`<span class="cchip-price">€${p}</span>`:''}` + `</button>`;
     }).join('');
   }
+  sel.innerHTML = condList.map(c=>`<option value="${c}">${c}</option>`).join('');
+  sel.value = condList[0];
   // Pre-fill prezzo + data + reset campi
   const firstPrice = available.length ? (byCondition[available[0]].minCents/100) : minPrice;
   document.getElementById('add-price').value = firstPrice.toFixed(2);
@@ -692,9 +780,19 @@ function closeAddModal(){
   _addCtx = null;
 }
 
+function selectCondChip(btn){
+  document.querySelectorAll('#cchips-row .cchip').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const cond = btn.dataset.cond;
+  const sel = document.getElementById('add-condition');
+  if(sel) sel.value = cond;
+  onConditionChange();
+}
+
 function getCtPriceForCondition(){
   if(!_addCtx) return 0;
-  const cond = document.getElementById('add-condition').value;
+  const active = document.querySelector('#cchips-row .cchip.active');
+  const cond = active ? active.dataset.cond : document.getElementById('add-condition').value;
   const c = _addCtx.byCondition?.[cond];
   return c ? c.minCents/100 : _addCtx.minPrice;
 }
@@ -736,7 +834,8 @@ function updatePriceHint(){
 async function confirmAddCard(){
   if(!_addCtx) return;
   const { bp, lang } = _addCtx;
-  const condition = document.getElementById('add-condition').value;
+  const activeChip = document.querySelector('#cchips-row .cchip.active');
+  const condition = activeChip ? activeChip.dataset.cond : document.getElementById('add-condition').value;
   const paidPrice = parseFloat(document.getElementById('add-price').value);
   const purchaseDate = document.getElementById('add-date').value;
   const qty = parseInt(document.getElementById('add-qty').value, 10);
@@ -1487,6 +1586,8 @@ async function prefetchRecentBlueprints(){
       await new Promise(r=>setTimeout(r,60));
     }
   }
+  buildSearchIndex();
+  renderExpFilterChips();
 }
 
 // ── AUTO REFRESH ──
