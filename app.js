@@ -1398,15 +1398,15 @@ let _highlightsCacheTime = 0;
 async function loadHighlights(){
   const now = Date.now();
   if(_highlightsCache && now - _highlightsCacheTime < 1800000) return _highlightsCache;
+  const ctrl = new AbortController();
+  const tid = setTimeout(()=>ctrl.abort(), 12000);
   try{
-    const res = await fetch('/api/highlights');
+    const res = await fetch('/api/highlights', {signal: ctrl.signal});
+    clearTimeout(tid);
     const data = await res.json();
-    if(Array.isArray(data) && data.length){
-      _highlightsCache = data;
-      _highlightsCacheTime = now;
-    }
-    return data;
-  }catch{ return []; }
+    if(Array.isArray(data) && data.length){ _highlightsCache=data; _highlightsCacheTime=now; }
+    return Array.isArray(data) ? data : [];
+  }catch{ clearTimeout(tid); return []; }
 }
 
 async function renderDashHighlights(){
@@ -1416,7 +1416,7 @@ async function renderDashHighlights(){
   const pok = cards.filter(c=>c.game==='pokemon');
   const op  = cards.filter(c=>c.game==='onepiece');
   if(!pok.length && !op.length){
-    el.innerHTML=`<div style="color:var(--muted);font-size:12px;text-align:center;padding:16px 0;">Dati non disponibili.</div>`;
+    el.innerHTML=`<div style="color:var(--muted);font-size:12px;text-align:center;padding:16px 0;">CardTrader non raggiungibile. Riprova più tardi.</div>`;
     return;
   }
   const trendBadge = t => {

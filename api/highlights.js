@@ -43,9 +43,11 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') { res.status(200).end(); return; }
 
   try {
+    const ctrl = new AbortController();
+    setTimeout(() => ctrl.abort(), 8000);
     const [rPok, rOP] = await Promise.all([
-      fetch('https://www.cardtrader.com/it/highlights?game=pokemon',   { headers: HEADERS }),
-      fetch('https://www.cardtrader.com/it/highlights?game=one-piece', { headers: HEADERS }),
+      fetch('https://www.cardtrader.com/it/highlights?game=pokemon',   { headers: HEADERS, signal: ctrl.signal }),
+      fetch('https://www.cardtrader.com/it/highlights?game=one-piece', { headers: HEADERS, signal: ctrl.signal }),
     ]);
     if (!rPok.ok || !rOP.ok) throw new Error(`CardTrader ${rPok.status}/${rOP.status}`);
     const [htmlPok, htmlOP] = await Promise.all([rPok.text(), rOP.text()]);
