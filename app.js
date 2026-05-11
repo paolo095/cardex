@@ -193,7 +193,7 @@ async function onLogin(user){
     const el=document.getElementById('avatar-'+s);
     if(el){el.textContent=letter;el.style.background=color;el.style.boxShadow=`0 0 0 2px ${color}33`;}
   });
-  document.getElementById('header-username').textContent=username;
+  const unEl=document.getElementById('header-username'); if(unEl) unEl.textContent=username;
   document.getElementById('bottom-nav').style.display='flex';
   showScreen('screen-home');
   showLoading();
@@ -929,34 +929,9 @@ function setFilter(f){
   updateCollectionUI();
 }
 
-function updateCollectionUI(){
-  const list=document.getElementById('collection-list');
-  const filtered=collection.filter(item=>collectionFilter==='all'||item.game===collectionFilter);
-  if(!filtered.length){
-    list.innerHTML=`<div class="empty-state"><span class="empty-icon">${ICONS.sparkles()}</span>Nessuna carta qui.<br>Cerca e aggiungi!</div>`;
-    return;
-  }
-  // Mostra solo le ultime 8 nella sidebar
-  list.innerHTML=filtered.slice(0,8).map(item=>`
-    <div class="coll-item">
-      ${item.image?`<img class="coll-thumb" src="${item.image}" alt="${item.name}" loading="lazy" onerror="this.style.display='none'">`:`<div class="coll-dot dot-${item.game}"></div>`}
-      <div class="coll-info">
-        <div class="coll-name" title="${item.name}">${item.name}</div>
-        <div class="coll-lang">${item.lang_flag||''} ${item.lang_label||''}</div>
-      </div>
-      <div class="coll-price">€ ${Number(item.price).toFixed(2)}</div>
-      <button class="btn-remove" onclick="removeCard('${item.id}')">×</button>
-    </div>
-  `).join('');
-}
+function updateCollectionUI(){ /* superseded by renderDashboard */ }
 
-function updateBanner(){
-  const total=collection.reduce((s,i)=>s+Number(i.price||0),0);
-  document.getElementById('total-value').textContent=total.toFixed(2).replace('.',',');
-  document.getElementById('stat-total').textContent=collection.length;
-  document.getElementById('stat-pok').textContent=collection.filter(i=>i.game==='pokemon').length;
-  document.getElementById('stat-op').textContent=collection.filter(i=>i.game==='onepiece').length;
-}
+function updateBanner(){ /* superseded by renderDashboard */ }
 
 // ── COLLECTION FULL PAGE ──
 let _collGroupsList = [];
