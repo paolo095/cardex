@@ -387,8 +387,8 @@ async function doSearch(query){
       });
       results.push(...matched);
     }
-    // Render solo al primo batch con risultati (no flickering)
-    if(searchId===myId&&results.length>0&&!_searchFirstRender){
+    // Re-render ogni volta che i risultati crescono
+    if(searchId===myId&&results.length>0){
       _searchFirstRender=true;
       renderResultsGrid(results);
     }
@@ -1464,7 +1464,7 @@ function renderDashMovers(){
 
 // ── PRE-FETCH BLUEPRINT CACHE ──
 async function prefetchRecentBlueprints(){
-  const limits = { pokemon: 50, onepiece: 20 };
+  const limits = { pokemon: 200, onepiece: 83 };
   for(const [game, limit] of Object.entries(limits)){
     const exps = expansionsDB[game].slice(0, limit);
     for(const exp of exps){
@@ -1474,7 +1474,7 @@ async function prefetchRecentBlueprints(){
         const catId = SINGLE_CAT_IDS[game];
         blueprintCache[exp.id] = catId ? raw.filter(bp=>bp.category_id===catId) : raw;
       }catch{}
-      await new Promise(r=>setTimeout(r,80));
+      await new Promise(r=>setTimeout(r,60));
     }
   }
 }
