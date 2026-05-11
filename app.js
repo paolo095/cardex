@@ -133,7 +133,10 @@ async function onLogin(user){
     hideLoading();
   }
   renderDashboard();
-  (async()=>{ await checkAndAutoRefresh(); })();
+  (async()=>{
+    await prefetchRecentBlueprints();
+    await checkAndAutoRefresh();
+  })();
 }
 
 async function doLogout(){
@@ -1457,6 +1460,23 @@ function renderDashMovers(){
   if(gainers.length) html+=`<div class="movers-label pos">▲ Aumenti</div>`+gainers.map(renderRow).join('');
   if(losers.length)  html+=`<div class="movers-label neg"${gainers.length?' style="margin-top:14px"':''}>▼ Cali</div>`+losers.map(renderRow).join('');
   el.innerHTML=html;
+}
+
+// ── PRE-FETCH BLUEPRINT CACHE ──
+async function prefetchRecentBlueprints(){
+  const limits = { pokemon: 50, onepiece: 20 };
+  for(const [game, limit] of Object.entries(limits)){
+    const exps = expansionsDB[game].slice(0, limit);
+    for(const exp of exps){
+      if(blueprintCache[exp.id]) continue;
+      try{
+        const raw = await apiCall('/blueprints/export?expansion_id='+exp.id);
+        const catId = SINGLE_CAT_IDS[game];
+        blueprintCache[exp.id] = catId ? raw.filter(bp=>bp.category_id===catId) : raw;
+      }catch{}
+      await new Promise(r=>setTimeout(r,80));
+    }
+  }
 }
 
 // ── AUTO REFRESH ──
