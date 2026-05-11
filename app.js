@@ -123,10 +123,15 @@ async function onLogin(user){
   document.getElementById('bottom-nav').style.display='flex';
   showScreen('screen-home');
   showLoading();
-  await loadExpansions();
-  await loadCollection();
-  await loadDashboardHistory();
-  hideLoading();
+  try{
+    await loadExpansions();
+    await loadCollection();
+    await loadDashboardHistory();
+  }catch(e){
+    console.error('Errore caricamento dati:', e);
+  }finally{
+    hideLoading();
+  }
   renderDashboard();
   (async()=>{ await checkAndAutoRefresh(); })();
 }
@@ -206,9 +211,11 @@ function setProgress(pct,text){
 // ── LOAD DATA ──
 async function loadExpansions(){
   setProgress(20,'Caricamento espansioni...');
-  const allExp=await apiCall('/expansions');
-  expansionsDB.pokemon=allExp.filter(e=>e.game_id===GAME_IDS.pokemon).sort((a,b)=>b.id-a.id);
-  expansionsDB.onepiece=allExp.filter(e=>e.game_id===GAME_IDS.onepiece).sort((a,b)=>b.id-a.id);
+  try{
+    const allExp=await apiCall('/expansions');
+    expansionsDB.pokemon=allExp.filter(e=>e.game_id===GAME_IDS.pokemon).sort((a,b)=>b.id-a.id);
+    expansionsDB.onepiece=allExp.filter(e=>e.game_id===GAME_IDS.onepiece).sort((a,b)=>b.id-a.id);
+  }catch(e){ console.error('loadExpansions failed:', e); }
   setProgress(100,'✅ Pronto!');
   await new Promise(r=>setTimeout(r,300));
 }
