@@ -340,24 +340,14 @@ function onSearchInput(){
   }
   showAutocomplete(q);
   // Ricerca istantanea dall'indice locale
-  const instant=searchFromIndex(q,currentGame);
-  if(instant.length){
-    renderResultsGrid(instant);
-    const sci=document.getElementById('search-count');
-    if(sci) sci.textContent=instant.length+' carte trovate';
+  if(_searchIndex.length){
+    const instant=searchFromIndex(q,currentGame);
+    if(instant.length){ renderResultsGrid(instant); }
+    else { document.getElementById('results-grid').innerHTML='<div class="empty-state"><span class="spinner"></span>Ricerca in corso...</div>'; }
   } else {
-    const totalExps=expansionsDB[currentGame]?.length||1;
-    const cachedCount=Object.keys(blueprintCache).filter(id=>
-      expansionsDB[currentGame]?.some(e=>e.id===Number(id))
-    ).length;
-    const loadPct=Math.round(cachedCount/totalExps*100);
-    const isLoading=cachedCount<totalExps;
-    const msg=isLoading
-      ?`<span class="spinner"></span>Caricamento carte… ${loadPct}%`
-      :`<div class="empty-state"><span class="empty-icon">${ICONS.searchX()}</span>Nessuna carta trovata.</div>`;
-    document.getElementById('results-grid').innerHTML=`<div class="empty-state">${msg}</div>`;
-    const sci=document.getElementById('search-count'); if(sci) sci.textContent='';
+    document.getElementById('results-grid').innerHTML='<div class="empty-state"><span class="spinner"></span>Ricerca in corso...</div>';
   }
+  const sci=document.getElementById('search-count'); if(sci) sci.textContent='';
   searchTimeout=setTimeout(()=>doSearch(q),300);
 }
 
@@ -449,45 +439,69 @@ async function translateToEnglish(q){
 
 async function doSearch(query){
   const myId=++searchId;
+  _searchFirstRender=false;
   const q=query.toLowerCase();
+  const exps=expansionsDB[currentGame];
+  const isCN=isCollectorNumber(q);
+  const results=[];
 
-  // Ricerca istantanea dall'indice locale
-  let results = searchFromIndex(q, currentGame);
-
-  if(results.length>0){
-    renderResultsGrid(results);
-  } else {
-    // Calcola % di caricamento per dare feedback utile
-    const totalExps = expansionsDB[currentGame]?.length||1;
-    const cachedCount = Object.keys(blueprintCache).filter(id=>
-      expansionsDB[currentGame]?.some(e=>e.id===Number(id))
-    ).length;
-    const loadPct = Math.round(cachedCount/totalExps*100);
-    const isLoading = cachedCount < totalExps;
-
-    const msg = isLoading
-      ? `<span class="spinner"></span>Caricamento carte… ${loadPct}%`
-      : `<span class="empty-icon">${ICONS.searchX()}</span>Nessuna carta trovata.`;
-    document.getElementById('results-grid').innerHTML=`<div class="empty-state">${msg}</div>`;
+  // Per Pokémon: traduce la query italiano→inglese (con cache locale)
+  let translatedQ=null;
+  if(currentGame==='pokemon'&&!isCN){
+    translatedQ=await translateToEnglish(query);
+    if(searchId!==myId) return;
   }
 
-  const sci=document.getElementById('search-count');
-  if(sci) sci.textContent = results.length ? results.length+' carte trovate' : '';
-
-  // Per Pokémon: prova anche traduzione italiano→inglese in background
-  if(searchId===myId && currentGame==='pokemon' && !isCollectorNumber(q)){
-    translateToEnglish(query).then(tq=>{
-      if(searchId!==myId||!tq||tq===q) return;
-      const tqLow=tq.toLowerCase();
-      const withTranslation=_searchIndex.filter(item=>{
-        if(item.game!=='pokemon') return false;
-        if(_expFilter&&item.eid!==_expFilter) return false;
-        return item.name.toLowerCase().includes(tqLow);
+  for(let i=0;i<exps.length;i+=8){
+    if(searchId!==myId) return;
+    const batch=exps.slice(i,i+8);
+    const toFetch=batch.filter(e=>!blueprintCache[e.id]);
+    if(toFetch.length){
+      const fetched=await Promise.allSettled(toFetch.map(e=>apiCall('/blueprints/export?expansion_id='+e.id)));
+      const catId=SINGLE_CAT_IDS[currentGame];
+      fetched.forEach((r,j)=>{
+        if(r.status==='fulfilled'&&Array.isArray(r.value)){
+          // Filtra solo carte singole
+          blueprintCache[toFetch[j].id]=catId
+            ? r.value.filter(bp=>bp.category_id===catId)
+            : r.value;
+        }
       });
-      if(!withTranslation.length) return;
-      const merged=[...new Map([...results,...withTranslation].map(x=>[x.id,x])).values()];
-      if(searchId===myId) renderResultsGrid(merged);
-    });
+    }
+    for(const exp of batch){
+      const bps=blueprintCache[exp.id]||[];
+      const matched=bps.filter(bp=>{
+        if(!bp.name) return false;
+        const name=bp.name.toLowerCase();
+        const nameMatch=name.includes(q)||(translatedQ&&name.includes(translatedQ));
+        const cn=(bp.fixed_properties?.collector_number||'').toLowerCase();
+        const qClean=q.replace(/\s/g,'');
+        const qNorm=normalizeCN(qClean);
+        const cnNorm=normalizeCN(cn);
+        const cnMatch=cn===qClean||cn.includes(qClean)||cnNorm===qNorm||cnNorm.startsWith(qNorm);
+        return nameMatch||cnMatch;
+      });
+      results.push(...matched);
+    }
+    // Aggiorna contatore senza resettare paginazione
+    if(searchId===myId&&results.length>0){
+      if(!_searchFirstRender){
+        _searchFirstRender=true;
+        renderResultsGrid(results);
+      } else {
+        _searchAllResults=results;
+        const info=document.getElementById('search-count');
+        if(info) info.textContent=results.length+' carte trovate';
+        if(_searchPage===0) renderSearchPage();
+      }
+    }
+    if(results.length>=200) break;
+  }
+  if(searchId!==myId) return;
+  if(!results.length){
+    document.getElementById('results-grid').innerHTML=`<div class="empty-state"><span class="empty-icon">${ICONS.searchX()}</span>Nessuna carta trovata.</div>`;
+  } else {
+    renderResultsGrid(results); // render finale completo
   }
 }
 
@@ -1543,45 +1557,22 @@ function renderDashMovers(){
 }
 
 // ── PRE-FETCH BLUEPRINT CACHE ──
-// Carica tutte le espansioni in batch paralleli (8 alla volta) — molto più veloce
 async function prefetchRecentBlueprints(){
-  for(const game of ['pokemon','onepiece']){
-    const exps = expansionsDB[game];
-    const catId = SINGLE_CAT_IDS[game];
-    for(let i=0; i<exps.length; i+=8){
-      const batch = exps.slice(i,i+8).filter(e=>!(e.id in blueprintCache));
-      if(!batch.length) continue;
-      const settled = await Promise.allSettled(
-        batch.map(e=>apiCall('/blueprints/export?expansion_id='+e.id))
-      );
-      settled.forEach((r,j)=>{
-        const expId = batch[j].id;
-        if(r.status==='fulfilled'&&Array.isArray(r.value)){
-          blueprintCache[expId] = catId ? r.value.filter(bp=>bp.category_id===catId) : r.value;
-        } else {
-          blueprintCache[expId] = []; // segna come tentato (evita retry)
-        }
-      });
-      buildSearchIndex();
-      // Aggiorna risultati se l'utente sta cercando
-      _refreshActiveSearch();
+  const limits = { pokemon: 200, onepiece: 83 };
+  for(const [game, limit] of Object.entries(limits)){
+    const exps = expansionsDB[game].slice(0, limit);
+    for(const exp of exps){
+      if(blueprintCache[exp.id]) continue;
+      try{
+        const raw = await apiCall('/blueprints/export?expansion_id='+exp.id);
+        const catId = SINGLE_CAT_IDS[game];
+        blueprintCache[exp.id] = catId ? raw.filter(bp=>bp.category_id===catId) : raw;
+      }catch{}
+      await new Promise(r=>setTimeout(r,60));
     }
   }
+  buildSearchIndex();
   renderExpFilterChips();
-}
-
-// Riaggiorna la griglia di ricerca se c'è una query attiva nella schermata search
-function _refreshActiveSearch(){
-  const screen = document.querySelector('.screen.active');
-  if(screen?.id !== 'screen-search') return;
-  const q = document.getElementById('search-input')?.value?.trim()||'';
-  if(q.length<2) return;
-  const results = searchFromIndex(q.toLowerCase(), currentGame);
-  if(results.length>0) renderResultsGrid(results);
-  else {
-    const sci = document.getElementById('search-count');
-    if(sci) sci.textContent='';
-  }
 }
 
 // ── AUTO REFRESH ──
