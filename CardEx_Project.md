@@ -1,7 +1,7 @@
 # CardEx — Progetto TCG Collection Manager
 
 > Documento di contesto per continuare lo sviluppo in una nuova chat.
-> Versione: 1.4 | Stato: Beta con utenti reali
+> Versione: 1.5 | Stato: Beta con utenti reali | Aggiornato: 2026-05-28
 
 ---
 
@@ -19,12 +19,13 @@ App web per collezionisti italiani di carte TCG (Pokémon e One Piece). Risolve 
 
 ```
 cardex/
-├── index.html      # HTML (~400 righe)
-├── style.css       # CSS (~560 righe)
-├── app.js          # JavaScript (~1200 righe)
+├── app.html        # HTML principale (NON index.html)
+├── style.css       # CSS
+├── app.js          # JavaScript (~1700 righe)
 ├── reset.html      # Pagina dedicata reset password
 └── api/
-    └── proxy.js    # Proxy serverless Vercel → CardTrader API
+    ├── proxy.js    # Proxy serverless Vercel → CardTrader API
+    └── scan.js     # Serverless function: scansione carta con Gemini Vision
 ```
 
 ### Flusso dati
@@ -288,14 +289,16 @@ const ICONS = { zap, skull, eye, eyeOff, trash, pencil, check, trendingUp, calen
 - [x] **Fix autocomplete: suggerimenti separati per Pokémon e One Piece** (blueprintCache filtrata per expansionsDB[currentGame])
 - [x] **Ricerca per nome italiano Pokémon** (Google Translate API it→en con cache locale; solo Pokémon, One Piece non ha release italiana)
 - [x] **UI: emoji sostituite con icone SVG bianche** (Lucide-style, definite come symbols in HTML + ICONS object in JS)
+- [x] **Scanner fotocamera** — overlay camera live in app.html, Gemini 2.5 Flash Vision via api/scan.js, normalizeCN() per numero collezionista, confirmScanResult usa nome per la ricerca
 
 ---
 
 ## 📋 TODO — Prossimi Sviluppi
 
 ### Alta priorità
+- [ ] **Migliorare la ricerca** — da discutere con l'utente: capire esattamente cosa non funziona prima di toccare il codice. Problemi noti: `/blueprints/export?expansion_id=X` ritorna 404 per alcune espansioni; prima ricerca lenta. NON fare modifiche autonome.
 - [ ] **Step 4: Modifica carta** — editare condizione, prezzo pagato, data, note di una copia già in collezione
-- [ ] **Bug da beta test** — da raccogliere e fixare (sessione in corso)
+- [ ] **Bug da beta test** — da raccogliere e fixare
 - [ ] **Notifiche prezzo**: alert quando carta supera/scende sotto soglia
 - [ ] **Export PDF/CSV**: scarica la collezione completa
 
@@ -306,7 +309,6 @@ const ICONS = { zap, skull, eye, eyeOff, trash, pencil, check, trendingUp, calen
 - [ ] **SMTP professionale con dominio proprio**
 
 ### Futuro
-- [ ] **Scansione barcode**: aggiunta carta con fotocamera
 - [ ] **App mobile nativa** (React Native/Expo)
 - [ ] **Altri TCG** (Dragon Ball, Lorcana, Digimon)
 
@@ -342,10 +344,15 @@ git push
 
 ## 📝 Note per la prossima sessione
 
-- **Struttura multi-file**: index.html + style.css + app.js + reset.html
+- **File HTML principale è `app.html`** (non index.html)
+- **Struttura multi-file**: app.html + style.css + app.js + reset.html + api/proxy.js + api/scan.js
 - **Due modal overlay**: `#add-modal` (aggiunta) e `#card-detail-modal` (dettaglio con grafico)
 - Il raggruppamento carte usa `bp_id|lang|condition` come chiave — `_collGroupsList` tiene i gruppi della griglia corrente
 - `price` = valore mercato CT aggiornato; `paid_price` = quanto ha pagato l'utente
+- **Scanner**: funziona. Usa nome carta per ricerca dopo scan, non il collector number.
+- **Ricerca**: `/blueprints/export?expansion_id=X` ritorna 404 su alcune espansioni. `prefetchRecentBlueprints()` carica in background sequenzialmente. Da discutere con l'utente prima di modificare.
+- **GEMINI_API_KEY**: variabile d'ambiente su Vercel, necessaria per lo scanner
+- **Git workflow**: modificare file con editor/Claude → commit dal bash sandbox → eliminare HEAD.lock da Finder → Push origin da GitHub Desktop
 - Il grafico storico legge da `card_price_history` (1 punto/giorno/carta)
 - `editCardCopy(id)` è un placeholder — Step 4 da implementare
 - La policy RLS ALL su `collections` aveva `with_check = NULL` → fix con policy INSERT separata
