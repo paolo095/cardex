@@ -78,15 +78,24 @@ function buildSearchIndex(){
   }
 }
 
+function normalizeCN(s){
+  // "209/197" → "209", "OP01-060" → "op01-060", "025/165" → "025"
+  if(!s) return '';
+  const c = s.toLowerCase().trim();
+  return c.includes('/') ? c.split('/')[0] : c;
+}
+
 function searchFromIndex(q, game){
   const ql = q.toLowerCase();
   const qc = ql.replace(/\s/g,'');
+  const qn = normalizeCN(qc); // versione normalizzata (senza "/totale")
   return _searchIndex.filter(item=>{
     if(item.game !== game) return false;
     if(_expFilter && item.eid !== _expFilter) return false;
     const n = item.name.toLowerCase();
     const cn = item.cn.toLowerCase();
-    return n.includes(ql) || cn===qc || cn.startsWith(qc) || cn.includes(qc);
+    const cnN = normalizeCN(cn);
+    return n.includes(ql) || cn===qc || cn.includes(qc) || cnN===qn || cnN.startsWith(qn);
   });
 }
 
@@ -466,9 +475,10 @@ async function doSearch(query){
         const name=bp.name.toLowerCase();
         const nameMatch=name.includes(q)||(translatedQ&&name.includes(translatedQ));
         const cn=(bp.fixed_properties?.collector_number||'').toLowerCase();
-        // Supporta ricerca per codice: 201/165, sv03-100, eb04-007, ecc.
         const qClean=q.replace(/\s/g,'');
-        const cnMatch=cn===qClean||cn.startsWith(qClean)||cn.includes(qClean);
+        const qNorm=normalizeCN(qClean);
+        const cnNorm=normalizeCN(cn);
+        const cnMatch=cn===qClean||cn.includes(qClean)||cnNorm===qNorm||cnNorm.startsWith(qNorm);
         return nameMatch||cnMatch;
       });
       results.push(...matched);
@@ -1939,8 +1949,10 @@ function confirmScanResult(){
   const game = _scanResult.game;
   if(game === 'pokemon' || game === 'onepiece') selectGame(game);
 
-  const cn    = _scanResult.collector_number;
-  const query = (cn && cn !== 'null' && cn.length > 1) ? cn : _scanResult.name;
+  // Usa sempre il nome per la ricerca — è affidabile e trova sempre risultati.
+  // Il collector_number viene mostrato nella scheda ma non usato come query
+  // perché CardTrader può salvare "209" invece di "209/197".
+  const query = _scanResult.name;
 
   stopScanner();
   const searchInput = document.getElementById('search-input');
