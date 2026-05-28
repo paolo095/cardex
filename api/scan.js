@@ -1,5 +1,5 @@
 // /api/scan.js — Vercel Serverless Function
-// Riceve un frame base64 dalla fotocamera, lo invia a Gemini Vision,
+// Riceve un frame base64 dalla fotocamera, lo invia a Gemini 2.5 Flash Vision,
 // restituisce { name, collector_number, game } per la ricerca su CardTrader.
 
 module.exports = async function handler(req, res) {
@@ -15,26 +15,26 @@ module.exports = async function handler(req, res) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return res.status(500).json({ error: 'GEMINI_API_KEY not configured' });
 
-  const prompt = `You are analyzing a trading card game (TCG) card photo. This is a real physical card held in front of a camera.
+  const prompt = `You are analyzing a photo of a physical trading card game (TCG) card.
 
-Your task: identify the card and extract its info. Be generous — even if the image is slightly angled or not perfectly sharp, do your best.
-
-Extract:
+Extract the following information:
 1. Card name in English (e.g. "Charizard", "Pikachu", "Monkey D. Luffy", "Roronoa Zoro")
-2. Collector number as printed (e.g. "4/165", "025/165", "OP01-060", "EB04-007"). If you cannot read it clearly, use null.
-3. Game: write "pokemon" for Pokémon TCG cards, "onepiece" for One Piece TCG cards.
+2. Collector number exactly as printed (e.g. "4/165", "025/165", "OP01-060", "EB04-007"). Use null if unreadable.
+3. Game: "pokemon" for Pokémon TCG, "onepiece" for One Piece TCG.
 
-Pokémon cards have: HP in top-right, energy symbols, "Pokémon" branding.
-One Piece cards have: a character number like "OP01-060" or "EB04-007", "ONE PIECE CARD GAME" branding.
+Pokémon cards: HP in top-right, energy symbols, "Pokémon" branding.
+One Piece cards: character code like "OP01-060" or "EB04-007", "ONE PIECE CARD GAME" branding.
 
-Return ONLY a raw JSON object — no markdown, no explanation:
+Be generous — do your best even if the image is slightly angled or not perfectly sharp.
+
+Return ONLY a raw JSON object, no markdown, no explanation:
 {"name":"card name","collector_number":"number or null","game":"pokemon or onepiece"}
 
-Only return {"error":"not_found"} if you truly cannot see any TCG card in the image at all.`;
+Only return {"error":"not_found"} if there is truly no TCG card visible in the image.`;
 
   try {
     const geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
