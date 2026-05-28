@@ -1886,7 +1886,6 @@ async function captureFrame(){
 
   document.getElementById('scanner-loading').style.display = 'flex';
 
-<<<<<<< HEAD
   // Ridimensiona a max 900px per bilanciare qualità e dimensione payload
   const MAX_W = 900;
   let w = video.videoWidth;
@@ -1898,14 +1897,6 @@ async function captureFrame(){
   canvas.height = h;
   canvas.getContext('2d').drawImage(video, 0, 0, w, h);
   const base64 = canvas.toDataURL('image/jpeg', 0.88).split(',')[1];
-=======
-  const canvas = document.createElement('canvas');
-  canvas.width  = video.videoWidth;
-  canvas.height = video.videoHeight;
-  canvas.getContext('2d').drawImage(video, 0, 0);
-  // Qualità alta per preservare i dettagli del testo della carta
-  const base64 = canvas.toDataURL('image/jpeg', 0.92).split(',')[1];
->>>>>>> a2b37a8ac60acedba5ee90015c5bbcbf4c25a325
 
   await scanCard(base64);
 }
@@ -1918,10 +1909,7 @@ async function scanCard(base64){
       body: JSON.stringify({ image: base64, mimeType: 'image/jpeg' })
     });
     const data = await res.json();
-<<<<<<< HEAD
     console.log('[scanner] Risposta Gemini:', JSON.stringify(data));
-=======
->>>>>>> a2b37a8ac60acedba5ee90015c5bbcbf4c25a325
     document.getElementById('scanner-loading').style.display = 'none';
 
     // Accetta il risultato se ha almeno il nome della carta
