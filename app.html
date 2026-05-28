@@ -27,6 +27,7 @@
   <symbol id="i-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></symbol>
   <symbol id="i-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol>
   <symbol id="i-calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></symbol>
+  <symbol id="i-camera" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></symbol>
   <symbol id="i-package" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></symbol>
 </svg>
 
@@ -155,6 +156,7 @@
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="srch-ico"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           <input class="srch-input" id="search-input" type="text" placeholder="Cerca carta..." oninput="onSearchInput()" onkeydown="onSearchKey(event)" autocomplete="off"/>
           <button class="srch-clear" id="srch-clear" onclick="clearSearch()">×</button>
+          <button class="srch-cam-btn" onclick="openScanner()" title="Scansiona carta con fotocamera" aria-label="Scansiona carta"><svg width="17" height="17"><use href="#i-camera"/></svg></button>
           <div id="autocomplete"></div>
         </div>
         <div class="srch-avatars">
@@ -445,6 +447,43 @@
     <button class="modal-close" onclick="closeCardDetailModal()">×</button>
     <div id="cdm-header" class="modal-header"></div>
     <div id="cdm-body"></div>
+  </div>
+</div>
+
+<!-- SCANNER OVERLAY -->
+<div id="scanner-overlay" class="scanner-overlay">
+  <div class="scanner-header">
+    <span class="scanner-title">Inquadra la carta</span>
+    <button class="scanner-close-btn" onclick="stopScanner()" aria-label="Chiudi scanner">✕</button>
+  </div>
+  <div class="scanner-body">
+    <video id="scanner-video" autoplay playsinline muted></video>
+    <div class="scanner-frame">
+      <span class="sf-c tl"></span><span class="sf-c tr"></span>
+      <span class="sf-c bl"></span><span class="sf-c br"></span>
+    </div>
+    <div class="scanner-hint-bar">Centra la carta nel riquadro</div>
+  </div>
+  <div class="scanner-footer">
+    <button class="scanner-capture-btn" id="scanner-capture-btn" onclick="captureFrame()" aria-label="Scatta foto">
+      <span class="capture-inner"></span>
+    </button>
+  </div>
+  <div id="scanner-loading" class="scanner-status" style="display:none;">
+    <span class="spinner"></span><span>Analisi in corso…</span>
+  </div>
+  <div id="scanner-result" class="scanner-status" style="display:none;">
+    <div class="scan-result-card">
+      <div class="scan-result-name" id="scanner-result-name"></div>
+      <div class="scan-result-meta" id="scanner-result-meta"></div>
+    </div>
+    <button class="btn-action" onclick="confirmScanResult()">✓ Cerca questa carta</button>
+    <button class="btn-action" style="background:rgba(255,255,255,.08)" onclick="retryScan()">↩ Riprova</button>
+  </div>
+  <div id="scanner-error" class="scanner-status scanner-error-box" style="display:none;">
+    <span>Carta non riconosciuta.<br>Prova a migliorare la luce.</span>
+    <button class="btn-action" onclick="retryScan()">↩ Riprova</button>
+    <button class="btn-cancel btn-action" onclick="stopScanner()">Annulla</button>
   </div>
 </div>
 

@@ -1824,3 +1824,132 @@ async function deleteAccount(){
   }
 }
 
+// ══════════════════════════════════════════════════════════
+// ── SCANNER — Fotocamera + Gemini Vision ──
+// ══════════════════════════════════════════════════════════
+let _scanStream = null;
+let _scanResult = null;
+
+async function openScanner(){
+  const overlay = document.getElementById('scanner-overlay');
+  if(!overlay) return;
+  resetScannerUI();
+  overlay.classList.add('show');
+
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }
+    });
+    _scanStream = stream;
+    const video = document.getElementById('scanner-video');
+    if(video){ video.srcObject = stream; }
+  } catch(e){
+    overlay.classList.remove('show');
+    if(e.name === 'NotAllowedError'){
+      alert('Permesso fotocamera negato. Abilitalo nelle impostazioni del browser.');
+    } else {
+      alert('Impossibile accedere alla fotocamera: ' + e.message);
+    }
+  }
+}
+
+function stopScanner(){
+  if(_scanStream){
+    _scanStream.getTracks().forEach(t => t.stop());
+    _scanStream = null;
+  }
+  const overlay = document.getElementById('scanner-overlay');
+  if(overlay) overlay.classList.remove('show');
+  const video = document.getElementById('scanner-video');
+  if(video) video.srcObject = null;
+  _scanResult = null;
+}
+
+function resetScannerUI(){
+  ['scanner-loading','scanner-result','scanner-error'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.style.display = 'none';
+  });
+  const btn = document.getElementById('scanner-capture-btn');
+  if(btn) btn.disabled = false;
+}
+
+async function captureFrame(){
+  const video = document.getElementById('scanner-video');
+  const btn   = document.getElementById('scanner-capture-btn');
+  if(!video || !video.videoWidth) return;
+
+  btn.disabled = true;
+
+  // Breve pausa per far stabilizzare l'autofocus prima di catturare
+  await new Promise(r => setTimeout(r, 400));
+
+  document.getElementById('scanner-loading').style.display = 'flex';
+
+  // Ridimensiona a max 900px per bilanciare qualità e dimensione payload
+  const MAX_W = 900;
+  let w = video.videoWidth;
+  let h = video.videoHeight;
+  if(w > MAX_W){ h = Math.round(h * MAX_W / w); w = MAX_W; }
+
+  const canvas = document.createElement('canvas');
+  canvas.width  = w;
+  canvas.height = h;
+  canvas.getContext('2d').drawImage(video, 0, 0, w, h);
+  const base64 = canvas.toDataURL('image/jpeg', 0.88).split(',')[1];
+
+  await scanCard(base64);
+}
+
+async function scanCard(base64){
+  try {
+    const res = await fetch('/api/scan', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ image: base64, mimeType: 'image/jpeg' })
+    });
+    const data = await res.json();
+    console.log('[scanner] Risposta Gemini:', JSON.stringify(data));
+    document.getElementById('scanner-loading').style.display = 'none';
+
+    // Accetta il risultato se ha almeno il nome della carta
+    if(!data || data.error === 'not_found' || !data.name){
+      document.getElementById('scanner-error').style.display = 'flex';
+      return;
+    }
+
+    _scanResult = data;
+    document.getElementById('scanner-result-name').textContent = data.name;
+    const metaParts = [];
+    const cn = data.collector_number;
+    if(cn && cn !== 'null' && cn !== null && cn.length > 1) metaParts.push('#' + cn);
+    if(data.game) metaParts.push(data.game === 'pokemon' ? '⚡ Pokémon' : '☠️ One Piece');
+    document.getElementById('scanner-result-meta').textContent = metaParts.join(' · ');
+    document.getElementById('scanner-result').style.display = 'flex';
+
+  } catch(e){
+    console.error('[scanner] Errore:', e);
+    document.getElementById('scanner-loading').style.display = 'none';
+    document.getElementById('scanner-error').style.display = 'flex';
+  }
+}
+
+function confirmScanResult(){
+  if(!_scanResult) return;
+  const game = _scanResult.game;
+  if(game === 'pokemon' || game === 'onepiece') selectGame(game);
+
+  const cn    = _scanResult.collector_number;
+  const query = (cn && cn !== 'null' && cn.length > 1) ? cn : _scanResult.name;
+
+  stopScanner();
+  const searchInput = document.getElementById('search-input');
+  if(searchInput) searchInput.value = query;
+  showScreen('screen-search');
+  doSearch(query);
+}
+
+function retryScan(){
+  _scanResult = null;
+  resetScannerUI();
+}
