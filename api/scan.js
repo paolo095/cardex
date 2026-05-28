@@ -34,11 +34,7 @@ Only return {"error":"not_found"} if you truly cannot see any TCG card in the im
 
   try {
     const geminiRes = await fetch(
-<<<<<<< HEAD
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
-=======
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
->>>>>>> a2b37a8ac60acedba5ee90015c5bbcbf4c25a325
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
