@@ -47,7 +47,8 @@ Only return {"error":"not_found"} if there is truly no TCG card visible in the i
           }],
           generationConfig: {
             temperature: 0,
-            maxOutputTokens: 150
+            maxOutputTokens: 512,
+            thinkingConfig: { thinkingBudget: 0 }
           }
         })
       }
