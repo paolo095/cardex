@@ -636,10 +636,7 @@ input[type="date"].form-input{cursor:pointer;color-scheme:dark;}
 .dash-game-tile:active{transform:scale(0.98);}
 .pokemon-tile::before{content:'';position:absolute;top:-40px;right:-40px;width:130px;height:130px;border-radius:50%;background:radial-gradient(circle,rgba(232,197,71,0.08),transparent 65%);pointer-events:none;}
 .onepiece-tile::before{content:'';position:absolute;top:-40px;right:-40px;width:130px;height:130px;border-radius:50%;background:radial-gradient(circle,rgba(201,74,58,0.08),transparent 65%);pointer-events:none;}
-.dash-game-icon{margin-bottom:10px;color:var(--muted);}
-.pokemon-tile .dash-game-icon{color:var(--pokemon);}
-.onepiece-tile .dash-game-icon{color:var(--onepiece);}
-.dash-game-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.18em;color:var(--muted);margin-bottom:8px;}
+.dash-game-logo{display:block;height:clamp(28px,6vw,44px);width:auto;max-width:100%;object-fit:contain;margin-bottom:10px;}
 .dash-game-value{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:.04em;line-height:1;margin-bottom:4px;}
 .pokemon-tile .dash-game-value{color:var(--pokemon);}
 .onepiece-tile .dash-game-value{color:var(--onepiece);}
