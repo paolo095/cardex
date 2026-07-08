@@ -12,7 +12,9 @@ const GAME_LANGS = {
 const LANG_MAP = { it:'it', en:'en', jp:'jp' };
 const LANG_FIELD = { pokemon:'pokemon_language', onepiece:'onepiece_language' };
 const RARITY_FIELD = { pokemon:'pokemon_rarity', onepiece:'onepiece_rarity' };
-const COND_ORDER = ['Near Mint','Slightly Played','Moderately Played','Played','Poor'];
+const COND_ORDER = ['Mint','Near Mint','Slightly Played','Moderately Played','Played','Poor'];
+// Priorità per il prezzo di riferimento: la prima Near Mint è il prezzo "vero" di mercato
+const PRICE_PRIORITY = ['Near Mint','Mint','Slightly Played','Moderately Played','Played','Poor'];
 
 // ── STATE ──
 let currentUser = null;
@@ -728,7 +730,6 @@ async function openDetail(bp){
       }
       const minCents=Math.min(...prods.map(p=>p.price?.cents||Infinity));
       const minPrice=minCents/100;
-      if(lpEl) lpEl.textContent='€ '+minPrice.toFixed(2);
       const byCondition={};
       for(const p of prods){
         const cond=p.properties_hash?.condition||'Unknown';
@@ -736,6 +737,11 @@ async function openDetail(bp){
         byCondition[cond].count++;
         if(p.price?.cents<byCondition[cond].minCents) byCondition[cond].minCents=p.price.cents;
       }
+      // Prezzo di riferimento = prima copia Near Mint (come si guarda su CardTrader),
+      // non il minimo assoluto che può essere una copia rovinata
+      const refCond=PRICE_PRIORITY.find(c=>byCondition[c]);
+      const refPrice=refCond?byCondition[refCond].minCents/100:minPrice;
+      if(lpEl) lpEl.innerHTML='€ '+refPrice.toFixed(2)+(refCond?` <span class="price-cond-tag">${refCond}</span>`:'');
       const condRows=COND_ORDER.filter(c=>byCondition[c]).map(c=>`
         <div class="condition-row">
           <span class="condition-name">${c}</span>
@@ -747,7 +753,7 @@ async function openDetail(bp){
       if(lsEl) lsEl.innerHTML=`
         <div class="lang-stats">
           <div class="lang-stat"><div class="lang-stat-label">Copie</div><div class="lang-stat-value">${prods.length}</div></div>
-          <div class="lang-stat"><div class="lang-stat-label">Prezzo min.</div><div class="lang-stat-value">€${minPrice.toFixed(2)}</div></div>
+          <div class="lang-stat"><div class="lang-stat-label">Min. assoluto</div><div class="lang-stat-value">€${minPrice.toFixed(2)}</div></div>
           <div class="lang-stat" style="flex:2"><div class="lang-stat-label">Provenienza</div><div class="lang-stat-value" style="font-family:'DM Sans',sans-serif;font-size:12px;">${itBadge}</div></div>
         </div>
         <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Per condizione</div>
@@ -755,8 +761,8 @@ async function openDetail(bp){
       `;
       if(lbEl){
         lbEl.disabled=false;
-        lbEl.textContent=`+ Aggiungi (${l.flag} ${l.label}) — da € ${minPrice.toFixed(2)}`;
-        lbEl.onclick=()=>openAddModal(bp,l,byCondition,minPrice);
+        lbEl.textContent=`+ Aggiungi (${l.flag} ${l.label}) — da € ${refPrice.toFixed(2)}`;
+        lbEl.onclick=()=>openAddModal(bp,l,byCondition,refPrice);
       }
     }
   }catch(e){

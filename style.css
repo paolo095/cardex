@@ -265,6 +265,7 @@ header{
 .lang-name-text{font-size:15px;font-weight:600;}
 .lang-price{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:.04em;color:var(--gold-light);}
 .lang-price.unavailable{color:var(--muted);font-size:15px;font-family:'Inter',sans-serif;font-weight:400;letter-spacing:0;}
+.price-cond-tag{font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted2);background:var(--bg3);border-radius:6px;padding:2px 7px;vertical-align:middle;margin-left:6px;}
 .lang-stats{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
 .lang-stat{background:var(--bg2);border-radius:10px;padding:10px 14px;flex:1;min-width:90px;border:1px solid var(--border3);}
 .lang-stat-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.14em;margin-bottom:4px;}
