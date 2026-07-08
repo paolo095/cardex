@@ -563,8 +563,14 @@ input[type="date"].form-input{cursor:pointer;color-scheme:dark;}
 /* ── RICERCA ── */
 .srch-page{display:flex;flex-direction:column;min-height:100vh;}
 .srch-top{position:sticky;top:0;z-index:50;background:rgba(14,14,16,.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--border3);padding:12px 16px 0;}
+.srch-top-inner{max-width:760px;margin:0 auto;width:100%;}
 .srch-top-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
-.srch-box{position:relative;flex:1;display:flex;align-items:center;background:var(--bg2);border:1px solid var(--border3);border-radius:14px;padding:0 12px;gap:8px;transition:border-color .2s var(--ease);}
+.game-seg{display:flex;align-items:center;background:var(--bg2);border:1px solid var(--border3);border-radius:100px;padding:3px;gap:2px;flex-shrink:0;}
+.game-seg .stab{display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:100px;border:none;background:transparent;color:var(--muted2);font-size:12.5px;font-weight:600;cursor:pointer;transition:all .2s var(--ease);white-space:nowrap;min-height:0;flex:none;text-align:left;}
+.game-seg .stab:hover{color:var(--text);}
+.game-seg .stab.active-pokemon{background:rgba(232,197,71,.14);color:var(--pokemon);}
+.game-seg .stab.active-onepiece{background:rgba(201,74,58,.14);color:var(--onepiece);}
+.srch-box{position:relative;flex:1;display:flex;align-items:center;background:var(--bg2);border:1px solid var(--border3);border-radius:100px;padding:0 16px;gap:8px;transition:border-color .2s var(--ease);}
 .srch-box:focus-within{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-glow);}
 .srch-ico{flex-shrink:0;color:var(--muted);}
 .srch-input{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-size:15px;padding:13px 0;font-family:inherit;}
@@ -586,10 +592,6 @@ input[type="date"].form-input{cursor:pointer;color-scheme:dark;}
 .autocomplete-footer.muted{color:var(--muted);font-weight:400;cursor:default;}
 .autocomplete-footer.muted:hover{background:transparent;}
 .srch-avatars{flex-shrink:0;}
-.srch-game-row{display:flex;gap:8px;margin-bottom:10px;}
-.stab{flex:1;padding:10px;border-radius:10px;border:1px solid var(--border3);background:var(--bg2);color:var(--muted2);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s var(--ease);text-align:center;min-height:40px;}
-.stab.active-pokemon{background:rgba(232,197,71,.10);border-color:rgba(232,197,71,.35);color:var(--pokemon);}
-.stab.active-onepiece{background:rgba(201,74,58,.10);border-color:rgba(201,74,58,.35);color:var(--onepiece);}
 .fchips-scroll{display:flex;gap:6px;overflow-x:auto;padding-bottom:10px;scrollbar-width:none;}
 .fchips-scroll::-webkit-scrollbar{display:none;}
 .fchip{flex-shrink:0;padding:6px 14px;border-radius:100px;border:1px solid var(--border3);background:var(--bg2);color:var(--muted2);font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;transition:all .18s var(--ease);}
@@ -603,6 +605,8 @@ input[type="date"].form-input{cursor:pointer;color-scheme:dark;}
   .srch-top{padding:10px 12px 0;}
   #results-grid{grid-template-columns:repeat(2,1fr);gap:10px;}
   .srch-body{padding:12px 12px 80px;}
+  .stab-label{display:none;} /* su mobile solo icone nel selettore gioco */
+  .game-seg .stab{padding:9px 11px;}
 }
 @media(max-width:380px){#results-grid{grid-template-columns:repeat(2,1fr);gap:8px;}}
 

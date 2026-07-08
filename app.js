@@ -13,8 +13,32 @@ const LANG_MAP = { it:'it', en:'en', jp:'jp' };
 const LANG_FIELD = { pokemon:'pokemon_language', onepiece:'onepiece_language' };
 const RARITY_FIELD = { pokemon:'pokemon_rarity', onepiece:'onepiece_rarity' };
 const COND_ORDER = ['Mint','Near Mint','Slightly Played','Moderately Played','Played','Poor'];
-// Priorità per il prezzo di riferimento: la prima Near Mint è il prezzo "vero" di mercato
-const PRICE_PRIORITY = ['Near Mint','Mint','Slightly Played','Moderately Played','Played','Poor'];
+
+// ══ REGOLA CARDEX (obiettivo n.1 dell'app) ══
+// Il valore di mercato di una carta è il prezzo MINIMO di una copia
+// NEAR MINT venduta da un UTENTE ITALIANO su CardTrader.
+// Fallback espliciti, in ordine, solo se quella combinazione non esiste.
+function marketPrice(allProducts, game, langCode){
+  const langField=LANG_FIELD[game];
+  const ctLang=LANG_MAP[langCode];
+  const byLang=allProducts.filter(p=>p.properties_hash?.[langField]===ctLang);
+  const it=byLang.filter(p=>p.user?.country_code==='IT');
+  const minOf=(list,cond)=>{
+    const l=cond?list.filter(p=>(p.properties_hash?.condition||'')===cond):list;
+    if(!l.length) return null;
+    const c=Math.min(...l.map(p=>p.price?.cents??Infinity));
+    return isFinite(c)?c/100:null;
+  };
+  let price,source;
+  if((price=minOf(it,'Near Mint'))!=null)          source='Near Mint 🇮🇹';
+  else if((price=minOf(it,'Mint'))!=null)          source='Mint 🇮🇹';
+  else if((price=minOf(byLang,'Near Mint'))!=null) source='Near Mint estero';
+  else if((price=minOf(it,null))!=null)            source='Min 🇮🇹 (no NM)';
+  else if((price=minOf(byLang,null))!=null)        source='Min estero';
+  else return null;
+  const itNM=it.filter(p=>(p.properties_hash?.condition||'')==='Near Mint').length;
+  return {price,source,itCount:it.length,itNM,langCount:byLang.length};
+}
 
 // ── STATE ──
 let currentUser = null;
@@ -737,11 +761,10 @@ async function openDetail(bp){
         byCondition[cond].count++;
         if(p.price?.cents<byCondition[cond].minCents) byCondition[cond].minCents=p.price.cents;
       }
-      // Prezzo di riferimento = prima copia Near Mint (come si guarda su CardTrader),
-      // non il minimo assoluto che può essere una copia rovinata
-      const refCond=PRICE_PRIORITY.find(c=>byCondition[c]);
-      const refPrice=refCond?byCondition[refCond].minCents/100:minPrice;
-      if(lpEl) lpEl.innerHTML='€ '+refPrice.toFixed(2)+(refCond?` <span class="price-cond-tag">${refCond}</span>`:'');
+      // Regola CardEx: minima Near Mint da venditore italiano
+      const mp=marketPrice(all,currentGame,l.code);
+      const refPrice=mp?mp.price:minPrice;
+      if(lpEl) lpEl.innerHTML='€ '+refPrice.toFixed(2)+(mp?` <span class="price-cond-tag">${mp.source}</span>`:'');
       const condRows=COND_ORDER.filter(c=>byCondition[c]).map(c=>`
         <div class="condition-row">
           <span class="condition-name">${c}</span>
@@ -752,9 +775,9 @@ async function openDetail(bp){
       const itBadge=isIT?`<span class="it-badge">🇮🇹 Venditori IT</span>`:`<span class="no-it-badge">⚠️ Nessun venditore IT</span>`;
       if(lsEl) lsEl.innerHTML=`
         <div class="lang-stats">
-          <div class="lang-stat"><div class="lang-stat-label">Copie</div><div class="lang-stat-value">${prods.length}</div></div>
-          <div class="lang-stat"><div class="lang-stat-label">Min. assoluto</div><div class="lang-stat-value">€${minPrice.toFixed(2)}</div></div>
-          <div class="lang-stat" style="flex:2"><div class="lang-stat-label">Provenienza</div><div class="lang-stat-value" style="font-family:'DM Sans',sans-serif;font-size:12px;">${itBadge}</div></div>
+          <div class="lang-stat"><div class="lang-stat-label">Copie 🇮🇹</div><div class="lang-stat-value">${mp?mp.itCount:0}</div></div>
+          <div class="lang-stat"><div class="lang-stat-label">di cui NM</div><div class="lang-stat-value">${mp?mp.itNM:0}</div></div>
+          <div class="lang-stat" style="flex:2"><div class="lang-stat-label">Provenienza prezzo</div><div class="lang-stat-value" style="font-family:'DM Sans',sans-serif;font-size:12px;">${itBadge}</div></div>
         </div>
         <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Per condizione</div>
         <div class="condition-list">${condRows||'<div style="color:var(--muted);font-size:13px;">N/D</div>'}</div>
@@ -1288,18 +1311,10 @@ async function refreshPrices(game){
     try{
       const data=await apiCall('/marketplace/products?blueprint_id='+item.bp_id);
       const all=data[item.bp_id]||[];
-      const langField=LANG_FIELD[item.game];
-      const ctLang=LANG_MAP[item.lang];
-      const byLang=all.filter(p=>p.properties_hash?.[langField]===ctLang);
-      const itProds=byLang.filter(p=>p.user?.country_code==='IT');
-      const langProds=itProds.length>0?itProds:byLang;
-      // Filtra per condizione della carta (con fallback al min lingua se non disponibile)
-      const cond = item.condition || 'Near Mint';
-      const condProds = langProds.filter(p => (p.properties_hash?.condition||'') === cond);
-      const prods = condProds.length > 0 ? condProds : langProds;
-      if(prods.length>0){
-        const minCents=Math.min(...prods.map(p=>p.price?.cents||Infinity));
-        const newPrice=minCents/100;
+      // Regola CardEx: valore = minima Near Mint da venditore italiano
+      const mp=marketPrice(all,item.game,item.lang);
+      if(mp){
+        const newPrice=mp.price;
         if(Math.abs(newPrice-Number(item.price))>0.01){
           await sb.from('collections').update({price:newPrice}).eq('id',item.id);
           item.price=newPrice;

@@ -149,23 +149,25 @@
   <div class="srch-page">
     <!-- Sticky top bar -->
     <div class="srch-top">
-      <div class="srch-top-row">
-        <div class="srch-box">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="srch-ico"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input class="srch-input" id="search-input" type="text" placeholder="Nome, espansione o numero… (es: zoro op06)" oninput="onSearchInput()" onkeydown="onSearchKey(event)" autocomplete="off"/>
-          <button class="srch-clear" id="srch-clear" onclick="clearSearch()">×</button>
-          <button class="srch-cam-btn" onclick="openScanner()" title="Scansiona carta con fotocamera" aria-label="Scansiona carta"><svg width="17" height="17"><use href="#i-camera"/></svg></button>
-          <div id="autocomplete"></div>
+      <div class="srch-top-inner">
+        <div class="srch-top-row">
+          <div class="game-seg">
+            <button class="stab active-pokemon" id="tab-pokemon" onclick="selectGame('pokemon')"><svg width="14" height="14"><use href="#i-zap"/></svg><span class="stab-label">Pokémon</span></button>
+            <button class="stab" id="tab-onepiece" onclick="selectGame('onepiece')"><svg width="16" height="16"><use href="#i-skull"/></svg><span class="stab-label">One Piece</span></button>
+          </div>
+          <div class="srch-box">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="srch-ico"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input class="srch-input" id="search-input" type="text" placeholder="Nome, espansione o numero… (es: zoro op06)" oninput="onSearchInput()" onkeydown="onSearchKey(event)" autocomplete="off"/>
+            <button class="srch-clear" id="srch-clear" onclick="clearSearch()">×</button>
+            <button class="srch-cam-btn" onclick="openScanner()" title="Scansiona carta con fotocamera" aria-label="Scansiona carta"><svg width="17" height="17"><use href="#i-camera"/></svg></button>
+            <div id="autocomplete"></div>
+          </div>
+          <div class="srch-avatars">
+            <div class="avatar" id="avatar-h" onclick="showProfile()">U</div>
+          </div>
         </div>
-        <div class="srch-avatars">
-          <div class="avatar" id="avatar-h" onclick="showProfile()">U</div>
-        </div>
+        <div class="fchips-scroll" id="exp-filter-chips"></div>
       </div>
-      <div class="srch-game-row">
-        <button class="stab active-pokemon" id="tab-pokemon" onclick="selectGame('pokemon')"><svg width="13" height="13" style="vertical-align:middle;margin-right:3px"><use href="#i-zap"/></svg>Pokémon</button>
-        <button class="stab" id="tab-onepiece" onclick="selectGame('onepiece')"><svg width="17" height="17" style="vertical-align:middle;margin-right:3px"><use href="#i-skull"/></svg>One Piece</button>
-      </div>
-      <div class="fchips-scroll" id="exp-filter-chips"></div>
     </div>
     <!-- Meta + results -->
     <div class="srch-body">
