@@ -77,52 +77,76 @@ function getIndex(game){
   return flatIndex[game];
 }
 
-// Parsing query: token con cifre → numero carta, token testuali → nome
+// Parsing query stile CardTrader: ogni token può matchare nome carta,
+// espansione (nome o codice) o numero. Coppie adiacenti tipo "op"+"06"
+// vengono fuse in "op06" per matchare i codici espansione/seriali.
 function parseQuery(q){
   const tokens=q.toLowerCase().trim().split(/\s+/).filter(Boolean);
-  const nameTokens=[],numTokens=[];
+  const nameTokens=[],numTokens=[],mergedPairs=[];
   for(const t of tokens){
     if(/\d/.test(t)) numTokens.push(t.replace(/^#/,''));
     else nameTokens.push(t);
   }
-  return {nameTokens,numTokens};
+  for(let i=0;i<tokens.length-1;i++){
+    if(!/\d/.test(tokens[i])&&/\d/.test(tokens[i+1])){
+      mergedPairs.push((tokens[i]+tokens[i+1]).replace(/[#-]/g,''));
+    }
+  }
+  return {tokens,nameTokens,numTokens,mergedPairs};
 }
 
-// Punteggio: -1 = nessun match. Tutti i token devono matchare.
-function scoreAgainst(bp,nameTokens,numTokens){
-  const name=(bp.name||'').toLowerCase();
+// Punteggio: -1 = nessun match. Ogni token deve matchare almeno un campo
+// (nome carta > codice espansione > nome espansione > numero carta).
+function scoreAgainst(bp,pq){
+  const name=((bp.name||'')+(bp.version?' '+bp.version:'')).toLowerCase();
   if(!name) return -1;
-  const cn=(bp.fixed_properties?.collector_number||'').toLowerCase().replace(/\s/g,'');
+  const cn=(bp.fixed_properties?.collector_number||'').toLowerCase().replace(/[\s-]/g,'');
+  const expName=(bp.expansion?.name||'').toLowerCase();
+  const expCode=(bp.expansion?.code||'').toLowerCase().replace(/[\s-]/g,'');
   let score=0;
-  for(const t of nameTokens){
+  for(const t of pq.nameTokens){
     const idx=name.indexOf(t);
-    if(idx<0) return -1;
-    if(idx===0) score+=100;                                    // inizio nome
-    else if(name[idx-1]===' '||name[idx-1]==='-') score+=60;   // inizio parola
-    else score+=20;                                            // substring
-  }
-  if(nameTokens.length&&name===nameTokens.join(' ')) score+=200; // nome esatto
-  for(const t of numTokens){
-    if(!cn) return -1;
-    if(cn===t) score+=300;                       // numero esatto
-    else if(normalizeCN(cn)===t) score+=250;     // numeratore esatto (116 → 116/086)
-    else if(cn.startsWith(t)) score+=180;        // prefisso
-    else if(cn.includes(t)) score+=60;           // contenuto ovunque (es. EB04-007)
+    if(idx===0) score+=100;                                                      // inizio nome
+    else if(idx>0&&(name[idx-1]===' '||name[idx-1]==='-'||name[idx-1]==='.')) score+=60; // inizio parola
+    else if(idx>0) score+=20;                                                    // substring nel nome
+    else if(expCode&&expCode.includes(t)) score+=30;                             // codice espansione (es. "op")
+    else if(expName&&expName.includes(t)) score+=25;                             // nome espansione
+    else if(cn&&cn.includes(t)) score+=15;                                       // dentro il seriale (es. "eb")
     else return -1;
+  }
+  if(pq.nameTokens.length&&name===pq.nameTokens.join(' ')) score+=200;           // nome esatto
+  for(const t of pq.numTokens){
+    const tc=t.replace(/-/g,'');
+    if(cn&&cn===tc) score+=300;                          // numero esatto
+    else if(cn&&normalizeCN(cn)===tc) score+=250;        // numeratore esatto (116 → 116/086)
+    else if(cn&&cn.startsWith(tc)) score+=180;           // prefisso numero
+    else if(cn&&cn.includes(tc)) score+=60;              // contenuto nel seriale
+    else if(expCode&&expCode.includes(tc)) score+=40;    // nel codice espansione (es. "06" in op06)
+    else if(expName&&expName.includes(t)) score+=20;     // nel nome espansione (es. "151")
+    else return -1;
+  }
+  // Bonus coppie fuse: "op 06" → op06 = codice espansione o inizio seriale
+  for(const m of pq.mergedPairs){
+    if(expCode&&(expCode===m||expCode.startsWith(m))) score+=150;
+    if(cn&&cn.startsWith(m)) score+=150;
   }
   return score;
 }
 
 function searchCatalog(q,game){
-  const {nameTokens,numTokens}=parseQuery(q);
-  if(!nameTokens.length&&!numTokens.length) return [];
-  const translated=translationCache[q.toLowerCase().trim()]||translationCache[nameTokens.join(' ')];
-  const tTokens=translated?translated.split(/\s+/).filter(t=>t&&!/\d/.test(t)):null;
+  const pq=parseQuery(q);
+  if(!pq.nameTokens.length&&!pq.numTokens.length) return [];
+  const translated=translationCache[q.toLowerCase().trim()]||translationCache[pq.nameTokens.join(' ')];
+  let tpq=null;
+  if(translated&&pq.nameTokens.length){
+    const tTokens=translated.split(/\s+/).filter(t=>t&&!/\d/.test(t));
+    if(tTokens.length) tpq={...pq,nameTokens:tTokens};
+  }
   const out=[];
   for(const bp of getIndex(game)){
     if(_expFilter&&bp.expansion_id!==_expFilter) continue;
-    let s=scoreAgainst(bp,nameTokens,numTokens);
-    if(s<0&&tTokens&&nameTokens.length) s=scoreAgainst(bp,tTokens,numTokens);
+    let s=scoreAgainst(bp,pq);
+    if(s<0&&tpq) s=scoreAgainst(bp,tpq);
     if(s>=0) out.push([s,bp]);
   }
   out.sort((a,b)=>b[0]-a[0]||(b[1].expansion_id||0)-(a[1].expansion_id||0));
@@ -343,8 +367,13 @@ async function doLogout(){
 
 // Click outside autocomplete to close
 document.addEventListener('click',(e)=>{
-  if(!e.target.closest('.search-box')) hideAutocomplete();
+  if(!e.target.closest('.search-box')&&!e.target.closest('.srch-box')&&!e.target.closest('#autocomplete')) hideAutocomplete();
 });
+// Scroll di pagina: chiudi il dropdown così la rotella scorre i risultati
+window.addEventListener('scroll',()=>{
+  const ac=document.getElementById('autocomplete');
+  if(ac&&ac.classList.contains('show')) hideAutocomplete();
+},{passive:true});
 
 // ── SCREENS ──
 function showScreen(id){
@@ -417,7 +446,7 @@ function selectGame(g){
   document.getElementById('tab-pokemon').className='stab'+(g==='pokemon'?' active-pokemon':'');
   document.getElementById('tab-onepiece').className='stab'+(g==='onepiece'?' active-onepiece':'');
   const inp=document.getElementById('search-input');
-  if(inp){ inp.value=''; inp.placeholder=g==='pokemon'?'Cerca Pokémon...':'Cerca One Piece...'; }
+  if(inp){ inp.value=''; inp.placeholder=g==='pokemon'?'Nome, espansione o numero… (es: greninja 116)':'Nome, espansione o numero… (es: zoro op06)'; }
   const cl=document.getElementById('srch-clear'); if(cl) cl.style.display='none';
   clearSearchResults();
   hideAutocomplete();
@@ -428,7 +457,7 @@ function selectGame(g){
 
 function runSearch(q){
   lastResults=searchCatalog(q,currentGame);
-  renderDropdown(lastResults);
+  renderDropdown(lastResults,q);
   if(lastResults.length){
     renderResultsGrid(lastResults.slice(0,300));
   } else {
@@ -476,9 +505,10 @@ function onSearchKey(e){
     e.preventDefault();
     autocompleteIndex=Math.max(autocompleteIndex-1,-1);
     items.forEach((el,i)=>el.classList.toggle('highlighted',i===autocompleteIndex));
-  } else if(e.key==='Enter' && autocompleteIndex>=0){
+  } else if(e.key==='Enter'){
     e.preventDefault();
-    items[autocompleteIndex].click();
+    if(autocompleteIndex>=0) items[autocompleteIndex].click();
+    else showAllResults(); // Enter senza selezione: chiudi dropdown e mostra la griglia
   } else if(e.key==='Escape'){
     hideAutocomplete();
   }
@@ -489,7 +519,19 @@ function hideAutocomplete(){
   autocompleteIndex=-1;
 }
 
-function renderDropdown(results){
+// Evidenzia le parti di testo che matchano i token della query
+function highlightTokens(text,tokens){
+  if(!text) return '';
+  let safe=text.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  const parts=[...new Set(tokens.filter(t=>t.length>=2))].sort((a,b)=>b.length-a.length);
+  for(const t of parts){
+    const esc=t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+    safe=safe.replace(new RegExp(`(${esc})(?![^<]*>)`,'gi'),'<b class="hl">$1</b>');
+  }
+  return safe;
+}
+
+function renderDropdown(results,q){
   const ac=document.getElementById('autocomplete');
   const indexing=indexProgress[currentGame]<1;
   if(!results.length){
@@ -499,23 +541,25 @@ function renderDropdown(results){
     } else hideAutocomplete();
     return;
   }
+  const tokens=(q||'').toLowerCase().trim().split(/\s+/).filter(Boolean);
   const top=results.slice(0,8);
   let html=top.map(bp=>{
     const cn=bp.fixed_properties?.collector_number?'#'+bp.fixed_properties.collector_number:'';
     const expName=bp.expansion?.name||'';
+    const nameFull=bp.name+(bp.version?` — ${bp.version}`:'');
     const thumb=bp.image_url
       ?`<img class="autocomplete-thumb" src="${bp.image_url}" loading="lazy" alt="">`
-      :`<div class="autocomplete-icon">${currentGame==='pokemon'?ICONS.zap():ICONS.skull()}</div>`;
+      :`<div class="autocomplete-thumb autocomplete-thumb-ph">${currentGame==='pokemon'?ICONS.zap():ICONS.skull()}</div>`;
     return `<div class="autocomplete-item" onclick="selectAutocomplete(${bp.id})">
       ${thumb}
       <div style="flex:1;min-width:0;">
-        <div class="autocomplete-name">${bp.name}</div>
-        <div class="autocomplete-meta">${expName} ${cn}</div>
+        <div class="autocomplete-name">${highlightTokens(nameFull,tokens)}</div>
+        <div class="autocomplete-meta">${highlightTokens(expName,tokens)}${cn?' <span class="autocomplete-cn">'+highlightTokens(cn,tokens)+'</span>':''}</div>
       </div>
     </div>`;
   }).join('');
   if(results.length>top.length){
-    html+=`<div class="autocomplete-footer" onclick="showAllResults()">Mostra tutti i ${results.length} risultati</div>`;
+    html+=`<div class="autocomplete-footer" onclick="showAllResults()">Mostra tutti i ${results.length} risultati ↵</div>`;
   }
   if(indexing){
     html+=`<div class="autocomplete-footer muted">Catalogo in aggiornamento (${Math.round(indexProgress[currentGame]*100)}%) — altri risultati in arrivo…</div>`;
@@ -1610,7 +1654,8 @@ function renderDashMovers(){
 }
 
 // ── PRE-FETCH BLUEPRINT CACHE (background, persistito in IndexedDB) ──
-const FRESH_EXPANSIONS = 3; // le N espansioni più recenti vengono riscaricate a ogni sessione
+const FRESH_EXPANSIONS = 3;   // le N espansioni più recenti vengono riscaricate a ogni sessione
+const PREFETCH_CONCURRENCY = 3; // download paralleli (moderati per non saturare il proxy)
 async function prefetchRecentBlueprints(){
   const limits = { pokemon: 200, onepiece: 83 };
   const order = currentGame==='pokemon' ? ['pokemon','onepiece'] : ['onepiece','pokemon'];
@@ -1620,19 +1665,23 @@ async function prefetchRecentBlueprints(){
     const toFetch = exps.filter((e,i)=>i<FRESH_EXPANSIONS||!blueprintCache[e.id]);
     let done = exps.length - toFetch.length;
     updateIndexStatus(game, done/exps.length);
-    for(const exp of toFetch){
-      try{
-        const raw = await apiCall('/blueprints/export?expansion_id='+exp.id);
-        const catId = SINGLE_CAT_IDS[game];
-        const bps = (catId ? raw.filter(bp=>bp.category_id===catId) : raw).map(bp=>slimBp(bp,exp));
-        blueprintCache[exp.id] = bps;
-        invalidateFlatIndex(game);
-        idbSet('exp:'+exp.id, bps).catch(()=>{});
-      }catch{}
-      done++;
-      updateIndexStatus(game, done/exps.length);
-      await new Promise(r=>setTimeout(r,60));
-    }
+    let idx = 0;
+    const worker = async()=>{
+      while(idx < toFetch.length){
+        const exp = toFetch[idx++];
+        try{
+          const raw = await apiCall('/blueprints/export?expansion_id='+exp.id);
+          const catId = SINGLE_CAT_IDS[game];
+          const bps = (catId ? raw.filter(bp=>bp.category_id===catId) : raw).map(bp=>slimBp(bp,exp));
+          blueprintCache[exp.id] = bps;
+          invalidateFlatIndex(game);
+          idbSet('exp:'+exp.id, bps).catch(()=>{});
+        }catch{}
+        done++;
+        updateIndexStatus(game, done/exps.length);
+      }
+    };
+    await Promise.all(Array.from({length:PREFETCH_CONCURRENCY},worker));
     updateIndexStatus(game, 1);
     renderExpFilterChips();
   }
