@@ -53,30 +53,11 @@ let _searchPage = 0;
 let _searchFirstRender = false;
 const RESULTS_PER_PAGE = 24;
 
-// ── SEARCH INDEX ──
-let _searchIndex = [];
+// ── SEARCH INDEX (stile CardTrader) ──
 let _expFilter = null;
-
-function buildSearchIndex(){
-  _searchIndex = [];
-  for(const [expId, bps] of Object.entries(blueprintCache)){
-    const eid = Number(expId);
-    const game = expansionsDB.onepiece.some(e=>e.id===eid) ? 'onepiece' : 'pokemon';
-    for(const bp of bps){
-      if(!bp.name) continue;
-      _searchIndex.push({
-        id: bp.id,
-        name: bp.name,
-        expansion: bp.expansion?.name||'',
-        eid,
-        cn: bp.fixed_properties?.collector_number||'',
-        rarity: bp.fixed_properties?.[RARITY_FIELD[game]]||'',
-        image: bp.image_url||'',
-        game
-      });
-    }
-  }
-}
+let flatIndex = {pokemon:null, onepiece:null};
+let indexProgress = {pokemon:0, onepiece:0};
+let lastResults = [];
 
 function normalizeCN(s){
   // "209/197" → "209", "OP01-060" → "op01-060", "025/165" → "025"
@@ -85,18 +66,67 @@ function normalizeCN(s){
   return c.includes('/') ? c.split('/')[0] : c;
 }
 
-function searchFromIndex(q, game){
-  const ql = q.toLowerCase();
-  const qc = ql.replace(/\s/g,'');
-  const qn = normalizeCN(qc); // versione normalizzata (senza "/totale")
-  return _searchIndex.filter(item=>{
-    if(item.game !== game) return false;
-    if(_expFilter && item.eid !== _expFilter) return false;
-    const n = item.name.toLowerCase();
-    const cn = item.cn.toLowerCase();
-    const cnN = normalizeCN(cn);
-    return n.includes(ql) || cn===qc || cn.includes(qc) || cnN===qn || cnN.startsWith(qn);
-  });
+function invalidateFlatIndex(game){ flatIndex[game]=null; }
+function getIndex(game){
+  if(!flatIndex[game]){
+    const ids=new Set(expansionsDB[game].map(e=>e.id));
+    flatIndex[game]=Object.entries(blueprintCache)
+      .filter(([id])=>ids.has(Number(id)))
+      .flatMap(([,bps])=>bps);
+  }
+  return flatIndex[game];
+}
+
+// Parsing query: token con cifre → numero carta, token testuali → nome
+function parseQuery(q){
+  const tokens=q.toLowerCase().trim().split(/\s+/).filter(Boolean);
+  const nameTokens=[],numTokens=[];
+  for(const t of tokens){
+    if(/\d/.test(t)) numTokens.push(t.replace(/^#/,''));
+    else nameTokens.push(t);
+  }
+  return {nameTokens,numTokens};
+}
+
+// Punteggio: -1 = nessun match. Tutti i token devono matchare.
+function scoreAgainst(bp,nameTokens,numTokens){
+  const name=(bp.name||'').toLowerCase();
+  if(!name) return -1;
+  const cn=(bp.fixed_properties?.collector_number||'').toLowerCase().replace(/\s/g,'');
+  let score=0;
+  for(const t of nameTokens){
+    const idx=name.indexOf(t);
+    if(idx<0) return -1;
+    if(idx===0) score+=100;                                    // inizio nome
+    else if(name[idx-1]===' '||name[idx-1]==='-') score+=60;   // inizio parola
+    else score+=20;                                            // substring
+  }
+  if(nameTokens.length&&name===nameTokens.join(' ')) score+=200; // nome esatto
+  for(const t of numTokens){
+    if(!cn) return -1;
+    if(cn===t) score+=300;                       // numero esatto
+    else if(normalizeCN(cn)===t) score+=250;     // numeratore esatto (116 → 116/086)
+    else if(cn.startsWith(t)) score+=180;        // prefisso
+    else if(cn.includes(t)) score+=60;           // contenuto ovunque (es. EB04-007)
+    else return -1;
+  }
+  return score;
+}
+
+function searchCatalog(q,game){
+  const {nameTokens,numTokens}=parseQuery(q);
+  if(!nameTokens.length&&!numTokens.length) return [];
+  const translated=translationCache[q.toLowerCase().trim()]||translationCache[nameTokens.join(' ')];
+  const tTokens=translated?translated.split(/\s+/).filter(t=>t&&!/\d/.test(t)):null;
+  const out=[];
+  for(const bp of getIndex(game)){
+    if(_expFilter&&bp.expansion_id!==_expFilter) continue;
+    let s=scoreAgainst(bp,nameTokens,numTokens);
+    if(s<0&&tTokens&&nameTokens.length) s=scoreAgainst(bp,tTokens,numTokens);
+    if(s>=0) out.push([s,bp]);
+  }
+  out.sort((a,b)=>b[0]-a[0]||(b[1].expansion_id||0)-(a[1].expansion_id||0));
+  return out.map(x=>x[1]);
 }
 
 function setExpFilter(eid){
@@ -141,6 +171,76 @@ async function apiCall(path){
   const res = await fetch(PROXY+'?path='+encodeURIComponent(path));
   if(!res.ok) throw new Error('Errore API: '+res.status);
   return res.json();
+}
+
+// ── PERSISTENZA CATALOGO (IndexedDB) ──
+const IDB_NAME='cardex-index', IDB_STORE='expansions';
+let idbConn=null;
+
+function idbOpen(){
+  return new Promise((res,rej)=>{
+    const r=indexedDB.open(IDB_NAME,1);
+    r.onupgradeneeded=()=>{r.result.createObjectStore(IDB_STORE);};
+    r.onsuccess=()=>res(r.result);
+    r.onerror=()=>rej(r.error);
+  });
+}
+function idbSet(key,val){
+  if(!idbConn) return Promise.resolve();
+  return new Promise((res,rej)=>{
+    const tx=idbConn.transaction(IDB_STORE,'readwrite');
+    tx.objectStore(IDB_STORE).put(val,key);
+    tx.oncomplete=()=>res();
+    tx.onerror=()=>rej(tx.error);
+  });
+}
+function idbLoadAll(){
+  if(!idbConn) return Promise.resolve({});
+  return new Promise((res,rej)=>{
+    const tx=idbConn.transaction(IDB_STORE,'readonly');
+    const out={};
+    const req=tx.objectStore(IDB_STORE).openCursor();
+    req.onsuccess=()=>{
+      const cur=req.result;
+      if(cur){out[cur.key]=cur.value;cur.continue();}
+      else res(out);
+    };
+    req.onerror=()=>rej(req.error);
+  });
+}
+
+// Riduce il blueprint ai soli campi usati da ricerca/griglia/dettaglio (riduce spazio IDB)
+function slimBp(bp,exp){
+  return {
+    id:bp.id,
+    name:bp.name,
+    version:bp.version||null,
+    image_url:bp.image_url||null,
+    expansion_id:bp.expansion_id||(exp?exp.id:undefined),
+    expansion:exp?{name:exp.name,code:exp.code||''}:(bp.expansion||null),
+    fixed_properties:bp.fixed_properties||{}
+  };
+}
+
+async function hydrateIndex(){
+  try{
+    idbConn=await idbOpen();
+    const all=await idbLoadAll();
+    for(const [key,val] of Object.entries(all)){
+      if(key.startsWith('exp:')&&Array.isArray(val)) blueprintCache[key.slice(4)]=val;
+    }
+  }catch(e){ console.error('IndexedDB non disponibile:',e); }
+}
+
+function updateIndexStatus(game,frac){
+  indexProgress[game]=frac;
+  if(game!==currentGame) return;
+  const el=document.getElementById('index-status');
+  if(el) el.textContent=frac>=1?'':` · Catalogo ${Math.round(frac*100)}%…`;
+  // Riesegui la ricerca live mentre l'indice cresce
+  const input=document.getElementById('search-input');
+  const q=input?input.value.trim():'';
+  if(q.length>=2) runSearch(q);
 }
 
 // ── UTILS ──
@@ -208,6 +308,7 @@ async function onLogin(user){
   showLoading();
   try{
     await loadExpansions();
+    await hydrateIndex();
     await loadCollection();
     await loadDashboardHistory();
   }catch(e){
@@ -228,6 +329,7 @@ async function doLogout(){
   blueprintsDB={pokemon:[],onepiece:[]};
   expansionsDB={pokemon:[],onepiece:[]};
   blueprintCache={};
+  flatIndex={pokemon:null,onepiece:null};
   document.getElementById('bottom-nav').style.display='none';
   showScreen('screen-login');
 }
@@ -320,11 +422,33 @@ function selectGame(g){
   clearSearchResults();
   hideAutocomplete();
   renderExpFilterChips();
+  const st=document.getElementById('index-status');
+  if(st) st.textContent=indexProgress[g]>=1?'':` · Catalogo ${Math.round(indexProgress[g]*100)}%…`;
 }
 
-function isCollectorNumber(q){
-  // Riconosce pattern tipo SV03-100, EB04-007, OP-08, ecc.
-  return /[a-z]{1,3}[-]?\d{2,4}([-]?\d{1,4})?/i.test(q) && /\d/.test(q);
+function runSearch(q){
+  lastResults=searchCatalog(q,currentGame);
+  renderDropdown(lastResults);
+  if(lastResults.length){
+    renderResultsGrid(lastResults.slice(0,300));
+  } else {
+    const indexing=indexProgress[currentGame]<1;
+    document.getElementById('results-grid').innerHTML=indexing
+      ?'<div class="empty-state"><span class="spinner"></span>Ricerca in corso...</div>'
+      :`<div class="empty-state"><span class="empty-icon">${ICONS.searchX()}</span>Nessuna carta trovata.</div>`;
+    const sci=document.getElementById('search-count'); if(sci) sci.textContent='';
+  }
+  // Traduzione IT→EN in background (solo Pokémon, solo token testuali)
+  const {nameTokens}=parseQuery(q);
+  if(currentGame==='pokemon'&&nameTokens.length){
+    const key=nameTokens.join(' ');
+    if(translationCache[key]===undefined){
+      translateToEnglish(key).then(()=>{
+        const cur=document.getElementById('search-input').value.trim();
+        if(cur===q&&translationCache[key]) runSearch(q);
+      });
+    }
+  }
 }
 
 function onSearchInput(){
@@ -338,17 +462,7 @@ function onSearchInput(){
     hideAutocomplete();
     return;
   }
-  showAutocomplete(q);
-  // Ricerca istantanea dall'indice locale
-  if(_searchIndex.length){
-    const instant=searchFromIndex(q,currentGame);
-    if(instant.length){ renderResultsGrid(instant); }
-    else { document.getElementById('results-grid').innerHTML='<div class="empty-state"><span class="spinner"></span>Ricerca in corso...</div>'; }
-  } else {
-    document.getElementById('results-grid').innerHTML='<div class="empty-state"><span class="spinner"></span>Ricerca in corso...</div>';
-  }
-  const sci=document.getElementById('search-count'); if(sci) sci.textContent='';
-  searchTimeout=setTimeout(()=>doSearch(q),300);
+  searchTimeout=setTimeout(()=>runSearch(q),120);
 }
 
 function onSearchKey(e){
@@ -375,50 +489,50 @@ function hideAutocomplete(){
   autocompleteIndex=-1;
 }
 
-function showAutocomplete(q){
-  const ql=q.toLowerCase();
-  const translatedQL=translationCache[ql]||null;
-  // Cerca tra i blueprint già in cache (rapido, no API) — solo espansioni del gioco corrente
-  const currentExpIds=new Set(expansionsDB[currentGame].map(e=>e.id));
-  const allCached=Object.entries(blueprintCache).filter(([id])=>currentExpIds.has(Number(id))).flatMap(([,bps])=>bps);
-  const cards=allCached.filter(bp=>{
-    if(!bp.name) return false;
-    const name=bp.name.toLowerCase();
-    const cn=(bp.fixed_properties?.collector_number||'').toLowerCase();
-    const qClean=ql.replace(/\s/g,'');
-    return name.includes(ql)||(translatedQL&&name.includes(translatedQL))||cn===qClean||cn.startsWith(qClean)||cn.includes(qClean);
-  });
-  // Dedupe per nome + collector_number
-  const seen=new Set();
-  const unique=[];
-  for(const bp of cards){
-    const key=bp.name+'|'+(bp.fixed_properties?.collector_number||'');
-    if(!seen.has(key)){seen.add(key);unique.push(bp);}
-    if(unique.length>=8) break;
-  }
+function renderDropdown(results){
   const ac=document.getElementById('autocomplete');
-  if(unique.length===0){hideAutocomplete();return;}
-  ac.innerHTML=unique.map((bp,i)=>{
+  const indexing=indexProgress[currentGame]<1;
+  if(!results.length){
+    if(indexing){
+      ac.innerHTML=`<div class="autocomplete-footer muted">Nessun risultato finora — catalogo in aggiornamento (${Math.round(indexProgress[currentGame]*100)}%)…</div>`;
+      ac.classList.add('show');
+    } else hideAutocomplete();
+    return;
+  }
+  const top=results.slice(0,8);
+  let html=top.map(bp=>{
     const cn=bp.fixed_properties?.collector_number?'#'+bp.fixed_properties.collector_number:'';
     const expName=bp.expansion?.name||'';
+    const thumb=bp.image_url
+      ?`<img class="autocomplete-thumb" src="${bp.image_url}" loading="lazy" alt="">`
+      :`<div class="autocomplete-icon">${currentGame==='pokemon'?ICONS.zap():ICONS.skull()}</div>`;
     return `<div class="autocomplete-item" onclick="selectAutocomplete(${bp.id})">
-      <div class="autocomplete-icon">${currentGame==='pokemon'?ICONS.zap():ICONS.skull()}</div>
+      ${thumb}
       <div style="flex:1;min-width:0;">
         <div class="autocomplete-name">${bp.name}</div>
         <div class="autocomplete-meta">${expName} ${cn}</div>
       </div>
     </div>`;
   }).join('');
+  if(results.length>top.length){
+    html+=`<div class="autocomplete-footer" onclick="showAllResults()">Mostra tutti i ${results.length} risultati</div>`;
+  }
+  if(indexing){
+    html+=`<div class="autocomplete-footer muted">Catalogo in aggiornamento (${Math.round(indexProgress[currentGame]*100)}%) — altri risultati in arrivo…</div>`;
+  }
+  ac.innerHTML=html;
   ac.classList.add('show');
 }
 
+function showAllResults(){
+  hideAutocomplete();
+  renderResultsGrid(lastResults.slice(0,300));
+}
+
 function selectAutocomplete(bpId){
-  const currentExpIds=new Set(expansionsDB[currentGame].map(e=>e.id));
-  const allCached=Object.entries(blueprintCache).filter(([id])=>currentExpIds.has(Number(id))).flatMap(([,bps])=>bps);
-  const bp=allCached.find(b=>b.id===bpId);
+  const bp=getIndex(currentGame).find(b=>b.id===bpId);
   if(!bp) return;
   hideAutocomplete();
-  // Avvia detail page
   openDetail(bp);
 }
 
@@ -437,72 +551,11 @@ async function translateToEnglish(q){
   return translationCache[key];
 }
 
-async function doSearch(query){
-  const myId=++searchId;
-  _searchFirstRender=false;
-  const q=query.toLowerCase();
-  const exps=expansionsDB[currentGame];
-  const isCN=isCollectorNumber(q);
-  const results=[];
-
-  // Per Pokémon: traduce la query italiano→inglese (con cache locale)
-  let translatedQ=null;
-  if(currentGame==='pokemon'&&!isCN){
-    translatedQ=await translateToEnglish(query);
-    if(searchId!==myId) return;
-  }
-
-  for(let i=0;i<exps.length;i+=8){
-    if(searchId!==myId) return;
-    const batch=exps.slice(i,i+8);
-    const toFetch=batch.filter(e=>!blueprintCache[e.id]);
-    if(toFetch.length){
-      const fetched=await Promise.allSettled(toFetch.map(e=>apiCall('/blueprints/export?expansion_id='+e.id)));
-      const catId=SINGLE_CAT_IDS[currentGame];
-      fetched.forEach((r,j)=>{
-        if(r.status==='fulfilled'&&Array.isArray(r.value)){
-          // Filtra solo carte singole
-          blueprintCache[toFetch[j].id]=catId
-            ? r.value.filter(bp=>bp.category_id===catId)
-            : r.value;
-        }
-      });
-    }
-    for(const exp of batch){
-      const bps=blueprintCache[exp.id]||[];
-      const matched=bps.filter(bp=>{
-        if(!bp.name) return false;
-        const name=bp.name.toLowerCase();
-        const nameMatch=name.includes(q)||(translatedQ&&name.includes(translatedQ));
-        const cn=(bp.fixed_properties?.collector_number||'').toLowerCase();
-        const qClean=q.replace(/\s/g,'');
-        const qNorm=normalizeCN(qClean);
-        const cnNorm=normalizeCN(cn);
-        const cnMatch=cn===qClean||cn.includes(qClean)||cnNorm===qNorm||cnNorm.startsWith(qNorm);
-        return nameMatch||cnMatch;
-      });
-      results.push(...matched);
-    }
-    // Aggiorna contatore senza resettare paginazione
-    if(searchId===myId&&results.length>0){
-      if(!_searchFirstRender){
-        _searchFirstRender=true;
-        renderResultsGrid(results);
-      } else {
-        _searchAllResults=results;
-        const info=document.getElementById('search-count');
-        if(info) info.textContent=results.length+' carte trovate';
-        if(_searchPage===0) renderSearchPage();
-      }
-    }
-    if(results.length>=200) break;
-  }
-  if(searchId!==myId) return;
-  if(!results.length){
-    document.getElementById('results-grid').innerHTML=`<div class="empty-state"><span class="empty-icon">${ICONS.searchX()}</span>Nessuna carta trovata.</div>`;
-  } else {
-    renderResultsGrid(results); // render finale completo
-  }
+// Wrapper mantenuto per compatibilità (scanner e filtro espansioni)
+function doSearch(query){
+  const q=(query||'').trim();
+  if(!q) return;
+  runSearch(q);
 }
 
 function abbrevCode(code){
@@ -1556,23 +1609,33 @@ function renderDashMovers(){
   el.innerHTML=html;
 }
 
-// ── PRE-FETCH BLUEPRINT CACHE ──
+// ── PRE-FETCH BLUEPRINT CACHE (background, persistito in IndexedDB) ──
+const FRESH_EXPANSIONS = 3; // le N espansioni più recenti vengono riscaricate a ogni sessione
 async function prefetchRecentBlueprints(){
   const limits = { pokemon: 200, onepiece: 83 };
-  for(const [game, limit] of Object.entries(limits)){
-    const exps = expansionsDB[game].slice(0, limit);
-    for(const exp of exps){
-      if(blueprintCache[exp.id]) continue;
+  const order = currentGame==='pokemon' ? ['pokemon','onepiece'] : ['onepiece','pokemon'];
+  for(const game of order){
+    const exps = expansionsDB[game].slice(0, limits[game]);
+    if(!exps.length) continue;
+    const toFetch = exps.filter((e,i)=>i<FRESH_EXPANSIONS||!blueprintCache[e.id]);
+    let done = exps.length - toFetch.length;
+    updateIndexStatus(game, done/exps.length);
+    for(const exp of toFetch){
       try{
         const raw = await apiCall('/blueprints/export?expansion_id='+exp.id);
         const catId = SINGLE_CAT_IDS[game];
-        blueprintCache[exp.id] = catId ? raw.filter(bp=>bp.category_id===catId) : raw;
+        const bps = (catId ? raw.filter(bp=>bp.category_id===catId) : raw).map(bp=>slimBp(bp,exp));
+        blueprintCache[exp.id] = bps;
+        invalidateFlatIndex(game);
+        idbSet('exp:'+exp.id, bps).catch(()=>{});
       }catch{}
+      done++;
+      updateIndexStatus(game, done/exps.length);
       await new Promise(r=>setTimeout(r,60));
     }
+    updateIndexStatus(game, 1);
+    renderExpFilterChips();
   }
-  buildSearchIndex();
-  renderExpFilterChips();
 }
 
 // ── AUTO REFRESH ──

@@ -571,8 +571,13 @@ input[type="date"].form-input{cursor:pointer;color-scheme:dark;}
 .srch-clear:hover{color:var(--text);}
 .srch-cam-btn{background:none;border:none;color:var(--muted);cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;min-width:28px;transition:color .2s var(--ease);}
 .srch-cam-btn:hover{color:var(--gold);}
-#autocomplete{position:absolute;top:calc(100% + 8px);left:0;right:0;background:var(--card);border:1px solid var(--border2);border-radius:14px;max-height:300px;overflow-y:auto;z-index:50;display:none;box-shadow:var(--shadow-lg);}
+#autocomplete{position:absolute;top:calc(100% + 8px);left:0;right:0;background:var(--card);border:1px solid var(--border2);border-radius:14px;max-height:440px;overflow-y:auto;z-index:50;display:none;box-shadow:var(--shadow-lg);}
 #autocomplete.show{display:block;}
+.autocomplete-thumb{width:34px;height:48px;object-fit:cover;border-radius:6px;background:var(--bg3);flex-shrink:0;}
+.autocomplete-footer{padding:12px 14px;text-align:center;font-size:12px;font-weight:600;color:var(--gold);cursor:pointer;border-top:1px solid var(--border3);transition:background .15s var(--ease);}
+.autocomplete-footer:hover{background:var(--bg3);}
+.autocomplete-footer.muted{color:var(--muted);font-weight:400;cursor:default;}
+.autocomplete-footer.muted:hover{background:transparent;}
 .srch-avatars{flex-shrink:0;}
 .srch-game-row{display:flex;gap:8px;margin-bottom:10px;}
 .stab{flex:1;padding:10px;border-radius:10px;border:1px solid var(--border3);background:var(--bg2);color:var(--muted2);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s var(--ease);text-align:center;min-height:40px;}
