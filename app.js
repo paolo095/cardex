@@ -1654,34 +1654,45 @@ function renderDashMovers(){
 }
 
 // ── PRE-FETCH BLUEPRINT CACHE (background, persistito in IndexedDB) ──
+// Indicizza TUTTE le espansioni di entrambi i giochi (come CardTrader).
 const FRESH_EXPANSIONS = 3;   // le N espansioni più recenti vengono riscaricate a ogni sessione
 const PREFETCH_CONCURRENCY = 3; // download paralleli (moderati per non saturare il proxy)
+
+async function fetchExpansion(exp,game){
+  const raw = await apiCall('/blueprints/export?expansion_id='+exp.id);
+  const catId = SINGLE_CAT_IDS[game];
+  const bps = (catId ? raw.filter(bp=>bp.category_id===catId) : raw).map(bp=>slimBp(bp,exp));
+  blueprintCache[exp.id] = bps;
+  invalidateFlatIndex(game);
+  idbSet('exp:'+exp.id, bps).catch(()=>{});
+}
+
 async function prefetchRecentBlueprints(){
-  const limits = { pokemon: 200, onepiece: 83 };
   const order = currentGame==='pokemon' ? ['pokemon','onepiece'] : ['onepiece','pokemon'];
   for(const game of order){
-    const exps = expansionsDB[game].slice(0, limits[game]);
+    const exps = expansionsDB[game]; // TUTTE le espansioni, non solo le più recenti
     if(!exps.length) continue;
     const toFetch = exps.filter((e,i)=>i<FRESH_EXPANSIONS||!blueprintCache[e.id]);
     let done = exps.length - toFetch.length;
     updateIndexStatus(game, done/exps.length);
+    const failed = [];
     let idx = 0;
     const worker = async()=>{
       while(idx < toFetch.length){
         const exp = toFetch[idx++];
-        try{
-          const raw = await apiCall('/blueprints/export?expansion_id='+exp.id);
-          const catId = SINGLE_CAT_IDS[game];
-          const bps = (catId ? raw.filter(bp=>bp.category_id===catId) : raw).map(bp=>slimBp(bp,exp));
-          blueprintCache[exp.id] = bps;
-          invalidateFlatIndex(game);
-          idbSet('exp:'+exp.id, bps).catch(()=>{});
-        }catch{}
+        try{ await fetchExpansion(exp,game); }
+        catch{ failed.push(exp); }
         done++;
         updateIndexStatus(game, done/exps.length);
       }
     };
     await Promise.all(Array.from({length:PREFETCH_CONCURRENCY},worker));
+    // Secondo giro sui falliti (errori transitori del proxy/API)
+    for(const exp of failed){
+      try{ await fetchExpansion(exp,game); }
+      catch(e){ console.warn('Indice: espansione non disponibile',exp.id,exp.name); blueprintCache[exp.id]=blueprintCache[exp.id]||[]; }
+      await new Promise(r=>setTimeout(r,150));
+    }
     updateIndexStatus(game, 1);
     renderExpFilterChips();
   }
