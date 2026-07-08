@@ -49,9 +49,9 @@ let autocompleteIndex = -1;
 let lastDetailBp = null;
 let previousScreen = 'screen-search';
 let _searchAllResults = [];
-let _searchPage = 0;
-let _searchFirstRender = false;
-const RESULTS_PER_PAGE = 24;
+let _shownCount = 0;      // quante carte sono attualmente visibili in griglia
+let _lastQuery = '';      // per resettare _shownCount solo quando cambia la query
+const RESULTS_CHUNK = 48; // carte aggiunte a ogni "Mostra altri risultati"
 
 // ── SEARCH INDEX (stile CardTrader) ──
 let _expFilter = null;
@@ -183,7 +183,8 @@ function clearSearch(){
 
 function clearSearchResults(){
   _searchAllResults=[];
-  _searchPage=0;
+  _shownCount=0;
+  _lastQuery='';
   const sci = document.getElementById('search-count');
   if(sci) sci.textContent='';
   const rg = document.getElementById('results-grid');
@@ -456,10 +457,11 @@ function selectGame(g){
 }
 
 function runSearch(q){
+  if(q!==_lastQuery){ _lastQuery=q; _shownCount=RESULTS_CHUNK; } // nuova query: riparti dal primo blocco
   lastResults=searchCatalog(q,currentGame);
   renderDropdown(lastResults,q);
   if(lastResults.length){
-    renderResultsGrid(lastResults.slice(0,300));
+    renderResultsGrid(lastResults);
   } else {
     const indexing=indexProgress[currentGame]<1;
     document.getElementById('results-grid').innerHTML=indexing
@@ -570,7 +572,7 @@ function renderDropdown(results,q){
 
 function showAllResults(){
   hideAutocomplete();
-  renderResultsGrid(lastResults.slice(0,300));
+  renderResultsGrid(lastResults);
 }
 
 function selectAutocomplete(bpId){
@@ -608,26 +610,27 @@ function abbrevCode(code){
   return code.split(/\s+/).map(w=>w.length>5?w.slice(0,3)+'.':w).join(' ');
 }
 
+// Griglia incrementale: mostra i primi RESULTS_CHUNK subito, poi
+// "Mostra altri risultati" accoda il chunk successivo. Nessun numero di
+// pagina: se l'indice in background aggiunge risultati, il contatore
+// cresce ma la vista dell'utente non salta.
 function renderResultsGrid(bps){
   _searchAllResults=bps;
   window._searchResults=bps;
-  _searchPage=0;
-  renderSearchPage();
+  if(_shownCount<RESULTS_CHUNK) _shownCount=RESULTS_CHUNK;
+  renderSearchList();
   const info=document.getElementById('search-count');
-  if(info) info.textContent=bps.length+' carte trovate';
+  if(info) info.textContent=bps.length+' carte trovate'+(indexProgress[currentGame]<1?' (catalogo in aggiornamento…)':'');
 }
 
-function renderSearchPage(){
+function renderSearchList(){
   const total=_searchAllResults.length;
-  const totalPages=Math.ceil(total/RESULTS_PER_PAGE);
-  const start=_searchPage*RESULTS_PER_PAGE;
-  const pageItems=_searchAllResults.slice(start,start+RESULTS_PER_PAGE);
+  const items=_searchAllResults.slice(0,_shownCount);
 
-  const cardsHtml=pageItems.map((bp,i)=>{
-    const realIdx=start+i;
+  const cardsHtml=items.map((bp,i)=>{
     const cn=bp.fixed_properties?.collector_number||'';
     const expCode=abbrevCode(bp.expansion?.code||bp.expansion?.name||'');
-    return `<div class="result-card" onclick="openDetailByIndex(${realIdx})">
+    return `<div class="result-card" onclick="openDetailByIndex(${i})">
       <img src="${bp.image_url||''}" alt="${bp.name}" loading="lazy" onerror="this.style.display='none'">
       <div class="result-card-body">
         <div class="result-card-name">${bp.name}</div>
@@ -639,22 +642,16 @@ function renderSearchPage(){
     </div>`;
   }).join('');
 
-  const pagHtml=totalPages>1?`
-    <div class="results-pagination">
-      <button class="pag-btn" onclick="goToSearchPage(${_searchPage-1})" ${_searchPage===0?'disabled':''}>←</button>
-      <span class="pag-info">${_searchPage+1} / ${totalPages}</span>
-      <button class="pag-btn" onclick="goToSearchPage(${_searchPage+1})" ${_searchPage>=totalPages-1?'disabled':''}>→</button>
-    </div>`:'';
+  const moreHtml=total>_shownCount
+    ?`<button class="btn-more-results" onclick="showMoreResults()">Mostra altri risultati (${total-_shownCount})</button>`
+    :'';
 
-  document.getElementById('results-grid').innerHTML=cardsHtml+pagHtml;
+  document.getElementById('results-grid').innerHTML=cardsHtml+moreHtml;
 }
 
-function goToSearchPage(page){
-  const totalPages=Math.ceil(_searchAllResults.length/RESULTS_PER_PAGE);
-  if(page<0||page>=totalPages) return;
-  _searchPage=page;
-  renderSearchPage();
-  document.getElementById('results-grid').scrollIntoView({behavior:'smooth',block:'nearest'});
+function showMoreResults(){
+  _shownCount+=RESULTS_CHUNK;
+  renderSearchList();
 }
 
 function openDetailByIndex(i){
