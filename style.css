@@ -29,7 +29,10 @@
   --ease:cubic-bezier(0.22,0.61,0.36,1);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-html,body{overscroll-behavior-y:none;overflow-x:hidden;}
+html,body{overflow-x:hidden;}
+/* Blocca il pull-to-refresh solo su touch: su desktop bloccava lo scroll
+   con la rotella sopra le liste interne (chaining disabilitato) */
+@media(pointer:coarse){html,body{overscroll-behavior-y:none;}}
 html{height:100%;}
 body{
   background:radial-gradient(1200px 600px at 50% -200px,rgba(255,255,255,0.025),transparent 60%),var(--bg);
@@ -222,7 +225,7 @@ header{
 
 /* ── COLLECTION SIDEBAR ── */
 .collection-panel{background:var(--card);border:1px solid var(--border3);border-radius:20px;padding:24px;position:sticky;top:84px;box-shadow:var(--shadow-sm);}
-.collection-list{display:flex;flex-direction:column;gap:8px;max-height:540px;overflow-y:auto;}
+.collection-list{display:flex;flex-direction:column;gap:8px;} /* niente scroll interno: scorre la pagina */
 .coll-item{display:flex;align-items:center;gap:11px;padding:11px 12px;background:var(--bg2);border:1px solid var(--border3);border-radius:12px;animation:slideIn .25s var(--ease);cursor:pointer;transition:all .2s var(--ease);}
 .coll-item:hover{border-color:var(--border2);background:var(--bg3);}
 @keyframes slideIn{from{opacity:0;transform:translateX(8px);}to{opacity:1;transform:translateX(0);}}
